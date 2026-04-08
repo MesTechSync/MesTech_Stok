@@ -54,6 +54,15 @@ public sealed class AiDocumentExtractedConsumer : IConsumer<AiDocumentExtractedE
                 "[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
         }
 
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError(
+                "[MESA Consumer] TenantId is Guid.Empty after fallback — aborting. MessageId={MessageId}",
+                context.MessageId);
+            _monitor.RecordError("ai.document.extracted", "TenantId is Guid.Empty — aborted");
+            throw new InvalidOperationException("TenantId is Guid.Empty — message rejected to prevent cross-tenant data leak");
+        }
+
         _logger.LogInformation(
             "Processing {Event} — {Id}",
             nameof(AiDocumentExtractedEvent), context.MessageId);
@@ -71,7 +80,7 @@ public sealed class AiDocumentExtractedConsumer : IConsumer<AiDocumentExtractedE
                 TenantId = tenantId
             }, context.CancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(AiDocumentExtractedEvent));
             throw; // Let MassTransit retry policy handle
@@ -82,7 +91,7 @@ public sealed class AiDocumentExtractedConsumer : IConsumer<AiDocumentExtractedE
             msg.DocumentId, msg.Confidence);
 
         // Belgeyi bul
-        var document = await _documentRepository.GetByIdAsync(msg.DocumentId).ConfigureAwait(false);
+        var document = await _documentRepository.GetByIdAsync(msg.DocumentId, context.CancellationToken).ConfigureAwait(false);
         if (document is null)
         {
             _logger.LogWarning(
@@ -104,7 +113,7 @@ public sealed class AiDocumentExtractedConsumer : IConsumer<AiDocumentExtractedE
         });
 
         document.UpdateExtractedData(extractedJson);
-        await _documentRepository.UpdateAsync(document).ConfigureAwait(false);
+        await _documentRepository.UpdateAsync(document, context.CancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
             "[MESA Consumer] AccountingDocument guncellendi (Extracted): DocId={DocumentId}", msg.DocumentId);
@@ -120,8 +129,8 @@ public sealed class AiDocumentExtractedConsumer : IConsumer<AiDocumentExtractedE
                 source: Domain.Accounting.Enums.ExpenseSource.AI,
                 category: msg.ExtractedCategory ?? "Genel");
 
-            await _expenseRepository.AddAsync(expense).ConfigureAwait(false);
-            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
+            await _expenseRepository.AddAsync(expense, context.CancellationToken).ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync(context.CancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[MESA Consumer] Otomatik gider kaydı olusturuldu (PendingApproval): " +

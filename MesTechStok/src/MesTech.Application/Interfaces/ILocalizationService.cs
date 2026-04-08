@@ -3,7 +3,9 @@ namespace MesTech.Application.Interfaces;
 /// <summary>
 /// Provides localized string resolution for the application layer.
 /// Supports Turkish (tr) and English (en) cultures via .resx resource files.
+/// NOT YET IMPLEMENTED — no DI registration exists. Injecting will cause runtime failure.
 /// </summary>
+[System.Obsolete("Not implemented — no DI registration. Will throw at runtime if injected. Planned for future sprint.")]
 public interface ILocalizationService
 {
     /// <summary>

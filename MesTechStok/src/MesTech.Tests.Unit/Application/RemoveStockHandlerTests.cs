@@ -1,9 +1,12 @@
 using FluentAssertions;
 using MesTech.Application.Commands.RemoveStock;
+using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
 using MesTech.Domain.Services;
 using MesTech.Tests.Unit._Shared;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace MesTech.Tests.Unit.Application;
@@ -15,15 +18,24 @@ public class RemoveStockHandlerTests
     private readonly Mock<IStockMovementRepository> _movementRepo = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly StockCalculationService _stockCalc = new();
+    private readonly Mock<ITenantProvider> _tenantProvider = new();
+    private readonly Mock<IDistributedLockService> _lockService = new();
+
+    public RemoveStockHandlerTests()
+    {
+        _lockService.Setup(l => l.AcquireLockAsync(
+                It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<IAsyncDisposable>());
+    }
 
     private RemoveStockHandler CreateHandler() =>
-        new(_productRepo.Object, _movementRepo.Object, _unitOfWork.Object, _stockCalc);
+        new(_productRepo.Object, _movementRepo.Object, _unitOfWork.Object, _lockService.Object, _stockCalc, _tenantProvider.Object, NullLogger<RemoveStockHandler>.Instance);
 
     [Fact]
     public async Task Handle_ValidRemoval_ShouldDecreaseStock()
     {
         var product = FakeData.CreateProduct(sku: "REM-001", stock: 100);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var handler = CreateHandler();
         var command = new RemoveStockCommand(product.Id, 30, Reason: "Satis");
@@ -33,7 +45,7 @@ public class RemoveStockHandlerTests
         result.IsSuccess.Should().BeTrue();
         result.NewStockLevel.Should().Be(70);
         result.MovementId.Should().NotBeEmpty();
-        _movementRepo.Verify(r => r.AddAsync(It.IsAny<StockMovement>()), Times.Once);
+        _movementRepo.Verify(r => r.AddAsync(It.IsAny<StockMovement>(), It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -41,7 +53,7 @@ public class RemoveStockHandlerTests
     public async Task Handle_ProductNotFound_ShouldReturnError()
     {
         var missingId = Guid.NewGuid();
-        _productRepo.Setup(r => r.GetByIdAsync(missingId)).ReturnsAsync((Product?)null);
+        _productRepo.Setup(r => r.GetByIdAsync(missingId, It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
         var handler = CreateHandler();
         var command = new RemoveStockCommand(missingId, 10);
@@ -56,7 +68,7 @@ public class RemoveStockHandlerTests
     public async Task Handle_InsufficientStock_ShouldReturnError()
     {
         var product = FakeData.CreateProduct(sku: "INSUF-001", stock: 5);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var handler = CreateHandler();
         var command = new RemoveStockCommand(product.Id, 50);
@@ -71,7 +83,7 @@ public class RemoveStockHandlerTests
     public async Task Handle_ExactStockRemoval_ShouldResultInZero()
     {
         var product = FakeData.CreateProduct(sku: "EXACT-001", stock: 25);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var handler = CreateHandler();
         var command = new RemoveStockCommand(product.Id, 25, Reason: "Tam cikis");
@@ -86,11 +98,11 @@ public class RemoveStockHandlerTests
     public async Task Handle_ShouldCreateCorrectMovementRecord()
     {
         var product = FakeData.CreateProduct(sku: "MOV-REM-01", stock: 80);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         StockMovement? captured = null;
-        _movementRepo.Setup(r => r.AddAsync(It.IsAny<StockMovement>()))
-            .Callback<StockMovement>(m => captured = m);
+        _movementRepo.Setup(r => r.AddAsync(It.IsAny<StockMovement>(), It.IsAny<CancellationToken>()))
+            .Callback<StockMovement, CancellationToken>((m, _) => captured = m);
 
         var handler = CreateHandler();
         var command = new RemoveStockCommand(product.Id, 20, Reason: "Hasar", DocumentNumber: "DMG-001");

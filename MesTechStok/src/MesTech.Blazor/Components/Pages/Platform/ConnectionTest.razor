@@ -8,12 +8,11 @@
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
 <div class="d-flex align-items-center mb-4">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
         <i class="fas fa-plug text-white"></i>
     </div>
     <div>
-        <h3 class="mb-0" style="color: #2855AC;">Platform Baglanti Testi</h3>
+        <h3 class="mb-0" >Platform Baglanti Testi</h3>
         <small class="text-muted">Pazaryeri API baglanti durumu ve yanit suresi</small>
     </div>
 </div>
@@ -155,10 +154,10 @@ else
     private static List<PlatformInfo> GetDemoPlatforms() =>
     [
         new() { Name = "Trendyol", Icon = "fa-shopping-bag", Color = "#F27A1A" },
-        new() { Name = "Hepsiburada", Icon = "fa-store", Color = "#FF6000" },
+        new() { Name = "Hepsiburada", Icon = "fa-store", Color = "var(--mestech-hepsi)" },
         new() { Name = "CicekSepeti", Icon = "fa-seedling", Color = "#E91E63" },
         new() { Name = "N11", Icon = "fa-tag", Color = "#7B1FA2" },
-        new() { Name = "Amazon TR", Icon = "fa-globe", Color = "#FF9900" },
+        new() { Name = "Amazon TR", Icon = "fa-globe", Color = "var(--mestech-amazon)" },
     ];
 
     private async Task TestPlatform(PlatformInfo platform)

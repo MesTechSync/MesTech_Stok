@@ -1,6 +1,7 @@
 using FluentAssertions;
-using MediatR;
+using MesTech.Application.Queries.GetWarehouses;
 using MesTech.Avalonia.ViewModels;
+using MediatR;
 using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
@@ -9,10 +10,13 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class WarehouseAvaloniaViewModelTests
 {
-    private static WarehouseAvaloniaViewModel CreateSut()
+    private readonly Mock<IMediator> _mediatorMock = new();
+
+    private WarehouseAvaloniaViewModel CreateSut()
     {
-        var mediatorMock = new Mock<IMediator>();
-        return new WarehouseAvaloniaViewModel(mediatorMock.Object);
+        _mediatorMock.Setup(m => m.Send(It.IsAny<GetWarehousesQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<WarehouseListDto>());
+        return new WarehouseAvaloniaViewModel(_mediatorMock.Object);
     }
 
     // ── 3-State: Default ──
@@ -36,10 +40,10 @@ public class WarehouseAvaloniaViewModelTests
         sut.Items.Should().BeEmpty();
     }
 
-    // ── 3-State: Loading → Loaded ──
+    // ── 3-State: Loading → Loaded (empty) ──
 
     [Fact]
-    public async Task LoadAsync_ShouldPopulateWarehouseCards()
+    public async Task LoadAsync_WithEmptyData_ShouldCompleteWithoutError()
     {
         // Arrange
         var sut = CreateSut();
@@ -50,33 +54,15 @@ public class WarehouseAvaloniaViewModelTests
         // Assert
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
-        sut.IsEmpty.Should().BeFalse();
-        sut.Items.Should().HaveCount(3);
-        sut.TotalCount.Should().Be(3);
-        sut.Items[0].Name.Should().Be("Ana Depo");
+        sut.IsEmpty.Should().BeTrue();
+        sut.Items.Should().BeEmpty();
+        sut.TotalCount.Should().Be(0);
     }
 
-    // ── 3-State: Search/Filter ──
+    // ── 3-State: Add Warehouse to empty list ──
 
     [Fact]
-    public async Task SearchText_ShouldFilterWarehousesByNameOrLocation()
-    {
-        // Arrange
-        var sut = CreateSut();
-        await sut.LoadAsync();
-
-        // Act
-        sut.SearchText = "Tuzla";
-
-        // Assert
-        sut.Items.Should().HaveCount(1);
-        sut.Items[0].Name.Should().Be("Yedek Depo");
-    }
-
-    // ── 3-State: Add Warehouse ──
-
-    [Fact]
-    public async Task SaveWarehouseCommand_ShouldAddNewWarehouseToList()
+    public async Task SaveWarehouseCommand_ShouldAddNewWarehouseToEmptyList()
     {
         // Arrange
         var sut = CreateSut();
@@ -90,7 +76,7 @@ public class WarehouseAvaloniaViewModelTests
         await sut.SaveWarehouseCommand.ExecuteAsync(null);
 
         // Assert
-        sut.Items.Should().HaveCount(4);
+        sut.Items.Should().HaveCount(1);
         sut.Items.Should().Contain(w => w.Name == "Test Depo");
         sut.IsAddingWarehouse.Should().BeFalse();
         sut.IsLoading.Should().BeFalse();

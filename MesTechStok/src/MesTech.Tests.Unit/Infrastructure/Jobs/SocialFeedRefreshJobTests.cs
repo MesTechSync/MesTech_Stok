@@ -36,7 +36,7 @@ public class SocialFeedRefreshJobTests
     [Fact]
     public void Constructor_NullAdapters_Throws()
     {
-        var (factory, db) = CreateDbContextFactoryWithDb();
+        var (factory, db, _) = CreateDbContextFactoryWithDb();
         using (db)
         {
             var act = () => new SocialFeedRefreshJob(
@@ -50,7 +50,7 @@ public class SocialFeedRefreshJobTests
     [Fact]
     public void Constructor_NullLogger_Throws()
     {
-        var (factory, db) = CreateDbContextFactoryWithDb();
+        var (factory, db, _) = CreateDbContextFactoryWithDb();
         using (db)
         {
             var act = () => new SocialFeedRefreshJob(
@@ -66,7 +66,7 @@ public class SocialFeedRefreshJobTests
     [Fact]
     public async Task ExecuteAsync_NoActiveConfigs_SkipsGracefully()
     {
-        var (factory, db) = CreateDbContextFactoryWithDb();
+        var (factory, db, _) = CreateDbContextFactoryWithDb();
         using (db)
         {
             var adapter = CreateMockAdapter(SocialFeedPlatform.GoogleMerchant);
@@ -84,7 +84,7 @@ public class SocialFeedRefreshJobTests
     public async Task ExecuteAsync_ActiveConfig_CallsMatchingAdapter()
     {
         var tenantId = Guid.NewGuid();
-        var (factory, db) = CreateDbContextFactoryWithDb(tenantId);
+        var (factory, db, newDb) = CreateDbContextFactoryWithDb(tenantId);
         using (db)
         {
             var config = SocialFeedConfiguration.Create(tenantId, SocialFeedPlatform.GoogleMerchant);
@@ -100,8 +100,9 @@ public class SocialFeedRefreshJobTests
                 It.Is<FeedGenerationRequest>(r => r.StoreId == config.TenantId),
                 It.IsAny<CancellationToken>()), Times.Once);
 
-            // Verify config was updated
-            var updated = await db.Set<SocialFeedConfiguration>().FindAsync(config.Id);
+            // Verify config was updated — use fresh DbContext to avoid stale tracking cache
+            await using var verifyDb = newDb();
+            var updated = await verifyDb.Set<SocialFeedConfiguration>().FindAsync(config.Id);
             updated!.ItemCount.Should().Be(42);
             updated.LastGeneratedAt.Should().NotBeNull();
             updated.LastError.Should().BeNull();
@@ -114,7 +115,7 @@ public class SocialFeedRefreshJobTests
     public async Task ExecuteAsync_NoMatchingAdapter_RecordsError()
     {
         var tenantId = Guid.NewGuid();
-        var (factory, db) = CreateDbContextFactoryWithDb(tenantId);
+        var (factory, db, newDb) = CreateDbContextFactoryWithDb(tenantId);
         using (db)
         {
             var config = SocialFeedConfiguration.Create(tenantId, SocialFeedPlatform.FacebookShop);
@@ -127,7 +128,8 @@ public class SocialFeedRefreshJobTests
             var sut = new SocialFeedRefreshJob(factory, new[] { adapter.Object }, Mock.Of<ILogger<SocialFeedRefreshJob>>());
             await sut.ExecuteAsync();
 
-            var updated = await db.Set<SocialFeedConfiguration>().FindAsync(config.Id);
+            await using var verifyDb = newDb();
+            var updated = await verifyDb.Set<SocialFeedConfiguration>().FindAsync(config.Id);
             updated!.LastError.Should().Contain("No adapter registered");
         }
     }
@@ -138,7 +140,7 @@ public class SocialFeedRefreshJobTests
     public async Task ExecuteAsync_AdapterThrows_RecordsErrorAndContinues()
     {
         var tenantId = Guid.NewGuid();
-        var (factory, db) = CreateDbContextFactoryWithDb(tenantId);
+        var (factory, db, newDb) = CreateDbContextFactoryWithDb(tenantId);
         using (db)
         {
             var config = SocialFeedConfiguration.Create(tenantId, SocialFeedPlatform.GoogleMerchant);
@@ -153,7 +155,8 @@ public class SocialFeedRefreshJobTests
             var sut = new SocialFeedRefreshJob(factory, new[] { adapter.Object }, Mock.Of<ILogger<SocialFeedRefreshJob>>());
             await sut.ExecuteAsync(); // should NOT throw
 
-            var updated = await db.Set<SocialFeedConfiguration>().FindAsync(config.Id);
+            await using var verifyDb = newDb();
+            var updated = await verifyDb.Set<SocialFeedConfiguration>().FindAsync(config.Id);
             updated!.LastError.Should().Contain("Feed API down");
         }
     }
@@ -164,7 +167,7 @@ public class SocialFeedRefreshJobTests
     public async Task ExecuteAsync_FeedGenerationFails_RecordsError()
     {
         var tenantId = Guid.NewGuid();
-        var (factory, db) = CreateDbContextFactoryWithDb(tenantId);
+        var (factory, db, newDb) = CreateDbContextFactoryWithDb(tenantId);
         using (db)
         {
             var config = SocialFeedConfiguration.Create(tenantId, SocialFeedPlatform.GoogleMerchant);
@@ -184,7 +187,8 @@ public class SocialFeedRefreshJobTests
             var sut = new SocialFeedRefreshJob(factory, new[] { adapter.Object }, Mock.Of<ILogger<SocialFeedRefreshJob>>());
             await sut.ExecuteAsync();
 
-            var updated = await db.Set<SocialFeedConfiguration>().FindAsync(config.Id);
+            await using var verifyDb = newDb();
+            var updated = await verifyDb.Set<SocialFeedConfiguration>().FindAsync(config.Id);
             updated!.LastError.Should().Contain("Invalid product data");
         }
     }
@@ -195,7 +199,7 @@ public class SocialFeedRefreshJobTests
     public async Task ExecuteAsync_InactiveConfig_NotProcessed()
     {
         var tenantId = Guid.NewGuid();
-        var (factory, db) = CreateDbContextFactoryWithDb(tenantId);
+        var (factory, db, _) = CreateDbContextFactoryWithDb(tenantId);
         using (db)
         {
             var config = SocialFeedConfiguration.Create(tenantId, SocialFeedPlatform.GoogleMerchant);
@@ -279,16 +283,32 @@ public class SocialFeedRefreshJobTests
             .Options;
         var tenantProvider = new Mock<ITenantProvider>();
         tenantProvider.Setup(t => t.GetCurrentTenantId()).Returns(tenantId ?? Guid.NewGuid());
+        tenantProvider.Setup(t => t.GetCurrentUserName()).Returns("test-user");
         return new AppDbContext(options, tenantProvider.Object);
     }
 
-    private static (IDbContextFactory<AppDbContext> Factory, AppDbContext Db) CreateDbContextFactoryWithDb(Guid? tenantId = null)
+    private static (IDbContextFactory<AppDbContext> Factory, AppDbContext Db, Func<AppDbContext> NewDb) CreateDbContextFactoryWithDb(Guid? tenantId = null)
     {
-        var db = CreateInMemoryDb(tenantId);
+        // Shared InMemory database name ensures job and verification use same data
+        var dbName = Guid.NewGuid().ToString();
+        var tid = tenantId ?? Guid.NewGuid();
+        var tenantProvider = new Mock<ITenantProvider>();
+        tenantProvider.Setup(t => t.GetCurrentTenantId()).Returns(tid);
+        tenantProvider.Setup(t => t.GetCurrentUserName()).Returns("test-user");
+
+        AppDbContext CreateDb()
+        {
+            var options = new DbContextOptionsBuilder<AppDbContext>()
+                .UseInMemoryDatabase(databaseName: dbName)
+                .Options;
+            return new AppDbContext(options, tenantProvider.Object);
+        }
+
+        var db = CreateDb(); // For test setup (seed data)
         var factory = new Mock<IDbContextFactory<AppDbContext>>();
         factory.Setup(f => f.CreateDbContextAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(db);
-        return (factory.Object, db);
+            .Returns(() => Task.FromResult(CreateDb())); // Job gets fresh instance each call
+        return (factory.Object, db, CreateDb);
     }
 
     private static Mock<ISocialFeedAdapter> CreateMockAdapter(

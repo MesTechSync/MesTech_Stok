@@ -24,6 +24,7 @@ public sealed class Leave : BaseEntity, ITenantEntity
     public static Leave Create(Guid tenantId, Guid employeeId, LeaveType type,
         DateTime startDate, DateTime endDate, string? reason = null)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         if (endDate < startDate)
             throw new ArgumentException("End date cannot be before start date.", nameof(endDate));
         int workDays = 0;

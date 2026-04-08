@@ -39,6 +39,11 @@ public class TestPostgresFactory : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
+        // KÖK-3 FIX: Npgsql Legacy Timestamp — DateTime.Now (Kind=Local/Unspecified)
+        // PostgreSQL timestamp with time zone'a yazılabilir.
+        // Ana uygulama App.axaml.cs'de ayarlar ama test runner'da yoktu → DateTime hataları.
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
         await _postgres.StartAsync();
 
         await using var db = CreateDbContext();

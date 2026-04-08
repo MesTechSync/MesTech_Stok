@@ -29,14 +29,14 @@ public sealed class SettingsEndpointTests : IClassFixture<EndpointTestWebAppFact
     [Fact]
     public async Task GetSettingsProfile_NoApiKey_Returns401()
     {
-        var response = await _noAuthClient.GetAsync($"/api/v1/settings/profile?tenantId={Guid.NewGuid()}");
+        var response = await _noAuthClient.GetAsync($"/api/v1/settings/profile?tenantId={EndpointTestWebAppFactory.TestTenantId}");
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Fact]
     public async Task GetSettingsProfile_ValidRequest_ReturnsExpected()
     {
-        var response = await _authClient.GetAsync($"/api/v1/settings/profile?tenantId={Guid.NewGuid()}");
+        var response = await _authClient.GetAsync($"/api/v1/settings/profile?tenantId={EndpointTestWebAppFactory.TestTenantId}");
         response.StatusCode.Should().BeOneOf(
             HttpStatusCode.OK, HttpStatusCode.NotFound, HttpStatusCode.InternalServerError);
     }
@@ -44,14 +44,14 @@ public sealed class SettingsEndpointTests : IClassFixture<EndpointTestWebAppFact
     [Fact]
     public async Task GetSettingsCredentials_ValidRequest_ReturnsExpected()
     {
-        var response = await _authClient.GetAsync($"/api/v1/settings/credentials?tenantId={Guid.NewGuid()}");
+        var response = await _authClient.GetAsync($"/api/v1/settings/credentials?tenantId={EndpointTestWebAppFactory.TestTenantId}");
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.InternalServerError);
     }
 
     [Fact]
     public async Task GetStoreSettings_NoApiKey_Returns401()
     {
-        var response = await _noAuthClient.GetAsync($"/api/v1/settings/store?tenantId={Guid.NewGuid()}");
+        var response = await _noAuthClient.GetAsync($"/api/v1/settings/store?tenantId={EndpointTestWebAppFactory.TestTenantId}");
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
@@ -67,7 +67,7 @@ public sealed class SettingsEndpointTests : IClassFixture<EndpointTestWebAppFact
     [Fact]
     public async Task GetErpSettings_ValidRequest_ReturnsExpected()
     {
-        var response = await _authClient.GetAsync($"/api/v1/settings/erp?tenantId={Guid.NewGuid()}");
+        var response = await _authClient.GetAsync($"/api/v1/settings/erp?tenantId={EndpointTestWebAppFactory.TestTenantId}");
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.InternalServerError);
     }
 }

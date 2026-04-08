@@ -40,12 +40,9 @@ public partial class Bitrix24AvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetBitrix24PipelineQuery(_currentUser.TenantId, StageFilter));
+            var result = await _mediator.Send(new GetBitrix24PipelineQuery(_currentUser.TenantId, StageFilter), ct);
             _allStages.Clear();
             TotalDeals = result.TotalDeals;
             TotalValue = result.TotalValue;
@@ -63,33 +60,16 @@ public partial class Bitrix24AvaloniaViewModel : ViewModelBase
                 _allStages.Add(new("lost", "Kaybedildi", 0, 0));
             }
             ApplyFilter();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Pipeline yuklenemedi: {ex.Message}";
-            _logger.LogError(ex, "Bitrix24 pipeline load failed");
-            // Fallback stages
-            _allStages.Clear();
-            _allStages.Add(new("new", "Yeni", 0, 0));
-            _allStages.Add(new("contact", "Temas", 0, 0));
-            _allStages.Add(new("proposal", "Teklif", 0, 0));
-            _allStages.Add(new("won", "Kazanildi", 0, 0));
-            ApplyFilter();
-        }
-        finally
-        {
-            IsLoading = false;
             IsEmpty = Stages.Count == 0;
 
             // Deals count (G540 orphan wire)
             try
             {
-                var deals = await _mediator.Send(new GetBitrix24DealsQuery(_currentUser.TenantId));
+                var deals = await _mediator.Send(new GetBitrix24DealsQuery(_currentUser.TenantId), ct);
                 DealCount = deals.TotalCount;
             }
             catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] GetBitrix24Deals failed: {ex.Message}"); DealCount = 0; }
-        }
+        }, "Pipeline yuklenirken hata");
     }
 
     // ── Search Filter ────────────────────────────────────────────────────────

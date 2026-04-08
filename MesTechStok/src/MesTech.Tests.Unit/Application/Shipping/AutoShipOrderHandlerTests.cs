@@ -69,7 +69,7 @@ public class AutoShipOrderHandlerTests
         result.Success.Should().BeTrue();
         result.TrackingNumber.Should().Be("TRK-999");
         result.CargoProvider.Should().Be(CargoProvider.YurticiKargo);
-        _orderRepo.Verify(r => r.UpdateAsync(It.IsAny<Order>()), Times.Once);
+        _orderRepo.Verify(r => r.UpdateAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 

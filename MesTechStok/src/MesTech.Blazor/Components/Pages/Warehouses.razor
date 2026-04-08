@@ -11,12 +11,11 @@
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
 <div class="d-flex align-items-center mb-4">
-  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-       style="width: 48px; height: 48px; background-color: #2855AC;">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
     <i class="fas fa-warehouse text-white"></i>
   </div>
   <div>
-    <h3 class="mb-0" style="color: #2855AC;">Depo Yonetimi</h3>
+    <h3 class="mb-0" >Depo Yonetimi</h3>
     <small class="text-muted">Depo, zone, raf ve konum yonetimi</small>
   </div>
 </div>
@@ -47,7 +46,7 @@ else
     <div class="col-12 col-lg-4">
       <div class="card shadow-sm h-100">
         <div class="card-header bg-white">
-          <h6 class="mb-0"><i class="fas fa-warehouse me-2" style="color: #2855AC;"></i>Depolar</h6>
+          <h6 class="mb-0"><i class="fas fa-warehouse me-2" ></i>Depolar</h6>
         </div>
         <div class="card-body p-0">
           <div class="list-group list-group-flush">
@@ -90,7 +89,7 @@ else
         <div class="card shadow-sm mb-3">
           <div class="card-header bg-white d-flex align-items-center justify-content-between">
             <h6 class="mb-0">
-              <i class="fas fa-sitemap me-2" style="color: #2855AC;"></i>@selectedWarehouse.Name - Hiyerarsi
+              <i class="fas fa-sitemap me-2" ></i>@selectedWarehouse.Name - Hiyerarsi
             </h6>
             <small class="text-muted">@selectedWarehouse.ProductCount urun cesidi</small>
           </div>
@@ -111,10 +110,10 @@ else
         </div>
 
         <!-- Transfer Form -->
-        <div class="card shadow-sm border-start border-4" style="border-color: #2855AC !important;">
+        <div class="card shadow-sm border-start border-4" >
           <div class="card-header bg-white">
             <h6 class="mb-0">
-              <i class="fas fa-exchange-alt me-2" style="color: #2855AC;"></i>Stok Transferi
+              <i class="fas fa-exchange-alt me-2" ></i>Stok Transferi
             </h6>
           </div>
           <div class="card-body">
@@ -153,7 +152,7 @@ else
                   <InputNumber class="form-control" @bind-Value="transferForm.Miktar" />
                 </div>
                 <div class="col-6 col-md-2 d-flex align-items-end">
-                  <button type="submit" class="btn w-100" style="background-color: #2855AC; color: white;" disabled="@isSubmitting">
+                  <button type="submit" class="btn w-100"  disabled="@isSubmitting">
                     @if (isSubmitting)
                     {
                       <span class="spinner-border spinner-border-sm me-1"></span>

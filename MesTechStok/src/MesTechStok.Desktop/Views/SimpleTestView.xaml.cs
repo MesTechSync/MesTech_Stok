@@ -14,7 +14,6 @@ namespace MesTechStok.Desktop.Views
     {
         private readonly IDatabaseService? _databaseService;
         private readonly ILogger<SimpleTestView>? _logger;
-        private readonly DesktopDbContext? _context;
 
         public SimpleTestView()
         {
@@ -26,7 +25,8 @@ namespace MesTechStok.Desktop.Views
             {
                 _databaseService = serviceProvider.GetService<IDatabaseService>();
                 _logger = serviceProvider.GetService<ILogger<SimpleTestView>>();
-                _context = serviceProvider.GetService<DesktopDbContext>();
+                // DesktopDbContext artık root'tan çözülmüyor — her operasyonda scope oluşturulur
+                // (root provider'dan scoped service = singleton-like = stale data + thread-safety riski)
             }
         }
 
@@ -107,7 +107,17 @@ namespace MesTechStok.Desktop.Views
             {
                 StatusText.Text = "Örnek veriler ekleniyor...";
 
-                if (_context == null)
+                var sp = App.Services;
+                if (sp == null)
+                {
+                    ResultsText.Text = "❌ Service provider bulunamadı!";
+                    return;
+                }
+
+                // Scope-per-operation: her click kendi DbContext'ini alır ve dispose eder
+                using var scope = sp.CreateScope();
+                var context = scope.ServiceProvider.GetService<DesktopDbContext>();
+                if (context == null)
                 {
                     ResultsText.Text = "❌ Database context bulunamadı!";
                     return;
@@ -128,8 +138,8 @@ namespace MesTechStok.Desktop.Views
                     CreatedDate = DateTime.Now
                 };
 
-                _context.Products.Add(testProduct);
-                await _context.SaveChangesAsync();
+                context.Products.Add(testProduct);
+                await context.SaveChangesAsync();
 
                 var result = new StringBuilder();
                 result.AppendLine("✅ Test ürün başarıyla eklendi!");

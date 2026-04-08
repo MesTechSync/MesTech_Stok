@@ -19,8 +19,10 @@ public sealed class CargoProviderFactory : ICargoProviderFactory
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-        _adapters = (adapters ?? throw new ArgumentNullException(nameof(adapters)))
-            .ToDictionary(a => a.Provider, a => a);
+        ArgumentNullException.ThrowIfNull(adapters);
+        _adapters = new Dictionary<CargoProvider, ICargoAdapter>();
+        foreach (var adapter in adapters)
+            _adapters[adapter.Provider] = adapter;
 
         _logger.LogInformation("CargoProviderFactory initialized with {Count} adapters: [{Providers}]",
             _adapters.Count, string.Join(", ", _adapters.Keys));

@@ -16,20 +16,22 @@ public sealed class CampaignRepository : ICampaignRepository
     public async Task<Campaign?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.Campaigns
             .Include(c => c.Products)
-            .AsNoTracking().FirstOrDefaultAsync(c => c.Id == id, ct);
+            .AsNoTracking().FirstOrDefaultAsync(c => c.Id == id, ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Campaign>> GetActiveByTenantAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.Campaigns
             .Where(c => c.TenantId == tenantId && c.IsActive)
             .OrderByDescending(c => c.StartDate)
-            .AsNoTracking().ToListAsync(ct);
+            .Take(1000) // G485: pagination guard
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<Campaign>> GetActiveByProductIdAsync(Guid productId, CancellationToken ct = default)
         => await _context.Campaigns
             .Include(c => c.Products)
             .Where(c => c.IsActive && c.Products.Any(p => p.ProductId == productId))
-            .AsNoTracking().ToListAsync(ct);
+            .Take(1000) // G485: pagination guard
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(Campaign campaign, CancellationToken ct = default)
-        => await _context.Campaigns.AddAsync(campaign, ct);
+        => await _context.Campaigns.AddAsync(campaign, ct).ConfigureAwait(false);
 }

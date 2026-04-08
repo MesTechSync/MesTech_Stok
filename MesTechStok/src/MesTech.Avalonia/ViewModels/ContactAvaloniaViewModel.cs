@@ -28,15 +28,11 @@ public partial class ContactAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var tenantId = _tenantProvider.GetCurrentTenantId();
             var result = await _mediator.Send(
-                new GetContactsPagedQuery(tenantId, Search: SearchText), CancellationToken);
+                new GetContactsPagedQuery(tenantId, Search: SearchText), ct);
 
             Contacts.Clear();
             foreach (var c in result.Contacts)
@@ -52,16 +48,7 @@ public partial class ContactAvaloniaViewModel : ViewModelBase
             }
             TotalCount = result.TotalCount;
             IsEmpty = Contacts.Count == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Kisiler yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Kisiler yuklenirken hata");
     }
 
     [RelayCommand]

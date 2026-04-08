@@ -38,7 +38,7 @@ public class OrderHandlerTests
     public async Task ListOrders_NoFilter_ReturnsAll()
     {
         var repo = new Mock<IOrderRepository>();
-        repo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+        repo.Setup(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Order>().AsReadOnly());
 
         var sut = new ListOrdersHandler(repo.Object);
@@ -46,7 +46,7 @@ public class OrderHandlerTests
 
         result.Should().NotBeNull();
         result.Should().BeEmpty();
-        repo.Verify(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>()), Times.Once());
+        repo.Verify(r => r.GetByDateRangeAsync(It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()), Times.Once());
     }
 
     [Fact]
@@ -55,14 +55,14 @@ public class OrderHandlerTests
         var from = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         var to = new DateTime(2026, 1, 31, 0, 0, 0, DateTimeKind.Utc);
         var repo = new Mock<IOrderRepository>();
-        repo.Setup(r => r.GetByDateRangeAsync(from, to))
+        repo.Setup(r => r.GetByDateRangeAsync(from, to, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Order>().AsReadOnly());
 
         var sut = new ListOrdersHandler(repo.Object);
         var result = await sut.Handle(new ListOrdersQuery(from, to), CancellationToken.None);
 
         result.Should().NotBeNull();
-        repo.Verify(r => r.GetByDateRangeAsync(from, to), Times.Once());
+        repo.Verify(r => r.GetByDateRangeAsync(from, to, It.IsAny<CancellationToken>()), Times.Once());
     }
 
     // ── GetOrdersPendingHandler ────────────────────────────────
@@ -196,7 +196,7 @@ public class OrderHandlerTests
     public async Task ApproveReturn_ReturnNotFound_ReturnsFailure()
     {
         var returnRepo = new Mock<IReturnRequestRepository>();
-        returnRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+        returnRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((ReturnRequest?)null);
         var productRepo = new Mock<IProductRepository>();
         var uow = new Mock<IUnitOfWork>();
@@ -234,7 +234,7 @@ public class OrderHandlerTests
     public async Task RejectReturn_ReturnNotFound_ReturnsFailure()
     {
         var returnRepo = new Mock<IReturnRequestRepository>();
-        returnRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+        returnRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((ReturnRequest?)null);
         var uow = new Mock<IUnitOfWork>();
         var sut = new RejectReturnHandler(returnRepo.Object, uow.Object);

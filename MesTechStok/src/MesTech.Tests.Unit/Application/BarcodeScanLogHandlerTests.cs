@@ -27,9 +27,14 @@ public class GetBarcodeScanLogsHandlerTests
             new() { Barcode = "8680000111111", Format = "EAN13", Source = "Camera", IsValid = true, RawLength = 13 },
             new() { Barcode = "8680000222222", Format = "EAN13", Source = "Scanner", IsValid = true, RawLength = 13 }
         };
-        _repo.Setup(r => r.GetPagedAsync(1, 50, null, null, null, null, null))
+        _repo.Setup(r => r.GetPagedAsync(
+                It.Is<int>(p => p == 1), It.Is<int>(ps => ps == 50),
+                It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<bool?>(),
+                It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(logs.AsReadOnly());
-        _repo.Setup(r => r.GetCountAsync(null, null, null, null, null))
+        _repo.Setup(r => r.GetCountAsync(
+                It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<bool?>(),
+                It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(2);
 
         // Act
@@ -54,9 +59,16 @@ public class GetBarcodeScanLogsHandlerTests
         {
             new() { Barcode = "8680000111111", Format = "EAN13", Source = "Camera", IsValid = true, RawLength = 13 }
         };
-        _repo.Setup(r => r.GetPagedAsync(2, 10, "8680", "Camera", true, from, to))
+        _repo.Setup(r => r.GetPagedAsync(
+                It.Is<int>(p => p == 2), It.Is<int>(ps => ps == 10),
+                It.Is<string?>(b => b == "8680"), It.Is<string?>(s => s == "Camera"),
+                It.Is<bool?>(v => v == true), It.Is<DateTime?>(d => d == from),
+                It.Is<DateTime?>(d => d == to), It.IsAny<CancellationToken>()))
             .ReturnsAsync(logs.AsReadOnly());
-        _repo.Setup(r => r.GetCountAsync("8680", "Camera", true, from, to))
+        _repo.Setup(r => r.GetCountAsync(
+                It.Is<string?>(b => b == "8680"), It.Is<string?>(s => s == "Camera"),
+                It.Is<bool?>(v => v == true), It.Is<DateTime?>(d => d == from),
+                It.Is<DateTime?>(d => d == to), It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
 
         // Act
@@ -72,17 +84,29 @@ public class GetBarcodeScanLogsHandlerTests
         result.TotalCount.Should().Be(1);
         result.Page.Should().Be(2);
         result.PageSize.Should().Be(10);
-        _repo.Verify(r => r.GetPagedAsync(2, 10, "8680", "Camera", true, from, to), Times.Once);
-        _repo.Verify(r => r.GetCountAsync("8680", "Camera", true, from, to), Times.Once);
+        _repo.Verify(r => r.GetPagedAsync(
+            It.Is<int>(p => p == 2), It.Is<int>(ps => ps == 10),
+            It.Is<string?>(b => b == "8680"), It.Is<string?>(s => s == "Camera"),
+            It.Is<bool?>(v => v == true), It.Is<DateTime?>(d => d == from),
+            It.Is<DateTime?>(d => d == to), It.IsAny<CancellationToken>()), Times.Once);
+        _repo.Verify(r => r.GetCountAsync(
+            It.Is<string?>(b => b == "8680"), It.Is<string?>(s => s == "Camera"),
+            It.Is<bool?>(v => v == true), It.Is<DateTime?>(d => d == from),
+            It.Is<DateTime?>(d => d == to), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task Handle_EmptyResult_ReturnsEmptyList()
     {
         // Arrange
-        _repo.Setup(r => r.GetPagedAsync(1, 50, null, null, null, null, null))
+        _repo.Setup(r => r.GetPagedAsync(
+                It.Is<int>(p => p == 1), It.Is<int>(ps => ps == 50),
+                It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<bool?>(),
+                It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<BarcodeScanLog>().AsReadOnly());
-        _repo.Setup(r => r.GetCountAsync(null, null, null, null, null))
+        _repo.Setup(r => r.GetCountAsync(
+                It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<bool?>(),
+                It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(0);
 
         // Act
@@ -135,7 +159,7 @@ public class CreateBarcodeScanLogHandlerTests
             log.IsValid == true &&
             log.RawLength == 13 &&
             log.CorrelationId == "corr-001"
-        )), Times.Once);
+        ), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

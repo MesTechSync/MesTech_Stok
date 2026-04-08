@@ -27,8 +27,8 @@ public sealed class Product : BaseEntity, ITenantEntity
     public decimal? DiscountRate { get; set; }
     public decimal? DiscountedPrice { get; set; }
 
-    // Stok
-    public int Stock { get; set; }
+    // Stok — yalnızca AdjustStock/SyncStock domain metotları üzerinden değiştirilir
+    public int Stock { get; internal set; }
     public int MinimumStock { get; set; } = 5;
     public int MaximumStock { get; set; } = 1000;
     public int ReorderLevel { get; set; } = 10;
@@ -198,6 +198,34 @@ public sealed class Product : BaseEntity, ITenantEntity
         AdjustStock(-quantity, StockMovementType.StockOut, reference);
     }
 
+    /// <summary>
+    /// Platform senkronizasyon işleri tarafından stoku mutlak değerle günceller.
+    /// Delta yerine hedef stok değeri bilindiğinde kullanılır (N11, Trendyol feed vb.).
+    /// Domain event fırlatır; negatif değer kabul edilmez.
+    /// </summary>
+    public void SyncStock(int absoluteValue, string? source = null)
+    {
+        if (absoluteValue < 0)
+            throw new ArgumentOutOfRangeException(nameof(absoluteValue), "Stok değeri negatif olamaz.");
+
+        var previous = Stock;
+        Stock = absoluteValue;
+        LastStockUpdate = DateTime.UtcNow;
+
+        if (previous != absoluteValue)
+        {
+            RaiseDomainEvent(new StockChangedEvent(
+                Id, TenantId, SKU, previous, Stock,
+                StockMovementType.Adjustment, DateTime.UtcNow));
+        }
+
+        if (Stock <= 0 && previous > 0)
+        {
+            RaiseDomainEvent(new ZeroStockDetectedEvent(
+                Id, TenantId, SKU, previous, DateTime.UtcNow));
+        }
+    }
+
     public bool IsCriticalStock => Stock <= MinimumStock && Stock > 0;
     public bool IsLowStockRange => Stock <= (int)(MinimumStock * 1.5m) && !IsCriticalStock && !IsOutOfStock();
 
@@ -277,4 +305,47 @@ public sealed class Product : BaseEntity, ITenantEntity
         : null;
 
     public override string ToString() => $"[{SKU}] {Name} (Stok: {Stock})";
+
+    /// <summary>
+    /// Factory method — yeni ürün oluşturur ve ProductCreatedEvent fırlatır.
+    /// Guard: SKU ve Name zorunlu, SalePrice >= 0, TenantId boş olamaz.
+    /// </summary>
+    public static Product Create(
+        Guid tenantId,
+        string sku,
+        string name,
+        decimal salePrice,
+        decimal purchasePrice,
+        Guid categoryId,
+        int minimumStock = 5,
+        decimal taxRate = 0.18m)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
+        ArgumentException.ThrowIfNullOrWhiteSpace(sku, nameof(sku));
+        ArgumentException.ThrowIfNullOrWhiteSpace(name, nameof(name));
+        if (salePrice < 0)
+            throw new ArgumentOutOfRangeException(nameof(salePrice), "Satış fiyatı negatif olamaz.");
+        if (purchasePrice < 0)
+            throw new ArgumentOutOfRangeException(nameof(purchasePrice), "Alış fiyatı negatif olamaz.");
+
+        var product = new Product
+        {
+            Id = Guid.NewGuid(),
+            TenantId = tenantId,
+            SKU = sku,
+            Name = name,
+            SalePrice = salePrice,
+            PurchasePrice = purchasePrice,
+            CategoryId = categoryId,
+            MinimumStock = minimumStock,
+            TaxRate = taxRate,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        product.MarkAsCreated();
+        return product;
+    }
 }

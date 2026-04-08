@@ -53,6 +53,9 @@ public class AdvisoryAgentV2Tests
         _profitRepoMock.Setup(r => r.GetByPeriodAsync(
                 _tenantId, It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<ProfitReport>());
+        _profitRepoMock.Setup(r => r.GetByDateRangeAsync(
+                _tenantId, It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<ProfitReport>());
 
         _commissionRepoMock.Setup(r => r.GetByPlatformAsync(
                 _tenantId, It.IsAny<string>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
@@ -101,6 +104,9 @@ public class AdvisoryAgentV2Tests
 
         _profitRepoMock.Setup(r => r.GetByPeriodAsync(
                 _tenantId, It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<ProfitReport> { report });
+        _profitRepoMock.Setup(r => r.GetByDateRangeAsync(
+                _tenantId, It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<ProfitReport> { report });
     }
 
@@ -234,6 +240,9 @@ public class AdvisoryAgentV2Tests
         _profitRepoMock.Setup(r => r.GetByPeriodAsync(
                 _tenantId, It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<ProfitReport> { negativeReport });
+        _profitRepoMock.Setup(r => r.GetByDateRangeAsync(
+                _tenantId, It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<ProfitReport> { negativeReport });
 
         _httpHandlerMock.Protected()
             .Setup<Task<HttpResponseMessage>>(
@@ -285,6 +294,9 @@ public class AdvisoryAgentV2Tests
         _profitRepoMock.Setup(r => r.GetByPeriodAsync(
                 _tenantId, It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(reports);
+        _profitRepoMock.Setup(r => r.GetByDateRangeAsync(
+                _tenantId, It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(reports);
 
         _httpHandlerMock.Protected()
             .Setup<Task<HttpResponseMessage>>(
@@ -310,6 +322,9 @@ public class AdvisoryAgentV2Tests
 
         _profitRepoMock.Setup(r => r.GetByPeriodAsync(
                 _tenantId, It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<ProfitReport> { report });
+        _profitRepoMock.Setup(r => r.GetByDateRangeAsync(
+                _tenantId, It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<ProfitReport> { report });
 
         _httpHandlerMock.Protected()

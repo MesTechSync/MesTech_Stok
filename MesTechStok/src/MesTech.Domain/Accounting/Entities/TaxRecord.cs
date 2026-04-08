@@ -30,6 +30,7 @@ public sealed class TaxRecord : BaseEntity, ITenantEntity
         decimal taxAmount,
         DateTime dueDate)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(period);
         ArgumentException.ThrowIfNullOrWhiteSpace(taxType);
 

@@ -111,7 +111,7 @@ public class FixedAssetAvaloniaViewModelTests
         await sut.LoadAsync();
 
         sut.HasError.Should().BeTrue();
-        sut.ErrorMessage.Should().Contain("yuklenemedi");
+        sut.ErrorMessage.Should().Contain("yuklenirken hata");
         sut.IsLoading.Should().BeFalse();
     }
 

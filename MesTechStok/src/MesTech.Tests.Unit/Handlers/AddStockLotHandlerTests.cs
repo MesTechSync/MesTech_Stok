@@ -1,7 +1,10 @@
 ﻿using FluentAssertions;
 using MesTech.Application.Commands.AddStockLot;
+using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace MesTech.Tests.Unit.Handlers;
@@ -12,19 +15,24 @@ public class AddStockLotHandlerTests
     private readonly Mock<IProductRepository> _productRepoMock = new();
     private readonly Mock<IStockMovementRepository> _movementRepoMock = new();
     private readonly Mock<IUnitOfWork> _uowMock = new();
+    private readonly Mock<IDistributedLockService> _lockService = new();
     private readonly AddStockLotHandler _sut;
 
     public AddStockLotHandlerTests()
     {
-        _sut = new AddStockLotHandler(_productRepoMock.Object, _movementRepoMock.Object, _uowMock.Object);
+        _lockService.Setup(l => l.AcquireLockAsync(
+                It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<IAsyncDisposable>());
+        _sut = new AddStockLotHandler(_productRepoMock.Object, _movementRepoMock.Object, _uowMock.Object, _lockService.Object, NullLogger<AddStockLotHandler>.Instance);
     }
 
     [Fact]
     public async Task Handle_ValidCommand_CreatesLotAndReturnsSuccess()
     {
         var productId = Guid.NewGuid();
-        var product = new Product { Id = productId, Name = "Test", Description = "DESC", Stock = 10, TenantId = Guid.NewGuid(), SKU = "TST-001" };
-        _productRepoMock.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync(product);
+        var product = new Product { Id = productId, Name = "Test", Description = "DESC", TenantId = Guid.NewGuid(), SKU = "TST-001" };
+        product.SyncStock(10);
+        _productRepoMock.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var cmd = new AddStockLotCommand(productId, "LOT-001", 5, 10.5m);
         var result = await _sut.Handle(cmd, CancellationToken.None);
@@ -66,7 +74,7 @@ public class AddStockLotHandlerTests
     public async Task Handle_ProductNotFound_ReturnsFail()
     {
         var productId = Guid.NewGuid();
-        _productRepoMock.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync((Product?)null);
+        _productRepoMock.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
         var cmd = new AddStockLotCommand(productId, "LOT-001", 5, 10m);
         var result = await _sut.Handle(cmd, CancellationToken.None);

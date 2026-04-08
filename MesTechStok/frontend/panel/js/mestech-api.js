@@ -5,9 +5,9 @@
  */
 'use strict';
 
-var mestechApi = (function() {
-  var DEFAULT_TIMEOUT = 15000; // 15 seconds
-  var MAX_RETRIES = 1;
+const mestechApi = (function() {
+  const DEFAULT_TIMEOUT = 15000; // 15 seconds
+  const MAX_RETRIES = 1;
 
   /**
    * Core fetch wrapper with timeout + error normalization
@@ -17,8 +17,8 @@ var mestechApi = (function() {
    */
   async function request(url, options) {
     options = options || {};
-    var timeout = options.timeout || DEFAULT_TIMEOUT;
-    var retries = options.retries != null ? options.retries : MAX_RETRIES;
+    const timeout = options.timeout || DEFAULT_TIMEOUT;
+    const retries = options.retries != null ? options.retries : MAX_RETRIES;
     delete options.timeout;
     delete options.retries;
 
@@ -27,12 +27,12 @@ var mestechApi = (function() {
       url = API_BASE + url;
     }
 
-    for (var attempt = 0; attempt <= retries; attempt++) {
-      var controller = new AbortController();
-      var timeoutId = setTimeout(function() { controller.abort(); }, timeout);
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(function() { controller.abort(); }, timeout);
 
       try {
-        var response = await fetch(url, Object.assign({}, options, {
+        const response = await fetch(url, Object.assign({}, options, {
           signal: controller.signal
         }));
 
@@ -46,7 +46,7 @@ var mestechApi = (function() {
           );
         }
 
-        var contentType = response.headers.get('content-type') || '';
+        const contentType = response.headers.get('content-type') || '';
         if (contentType.indexOf('application/json') !== -1) {
           return await response.json();
         }

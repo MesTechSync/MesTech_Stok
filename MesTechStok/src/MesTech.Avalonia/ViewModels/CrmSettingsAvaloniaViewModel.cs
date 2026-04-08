@@ -41,23 +41,13 @@ public partial class CrmSettingsAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var settings = await _mediator.Send(new GetCrmSettingsQuery(_currentUser.TenantId));
+            var settings = await _mediator.Send(new GetCrmSettingsQuery(_currentUser.TenantId), ct);
             AutoAssignLeads = settings.AutoAssignLeads;
             LeadScoreThreshold = settings.LeadScoreThreshold;
             EnableEmailTracking = settings.EnableEmailTracking;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"CRM ayarlari yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "CRM ayarlari yuklenirken hata");
     }
 
     [RelayCommand]

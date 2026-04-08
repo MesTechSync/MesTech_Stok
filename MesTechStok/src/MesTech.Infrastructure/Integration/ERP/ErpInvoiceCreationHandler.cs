@@ -100,7 +100,7 @@ public sealed class ErpInvoiceCreationHandler
             }
 
             // 4b. Fetch invoice from repository for order reference
-            var invoice = await _invoiceRepo.GetByIdAsync(e.InvoiceId).ConfigureAwait(false);
+            var invoice = await _invoiceRepo.GetByIdAsync(e.InvoiceId, cancellationToken).ConfigureAwait(false);
             if (invoice is null)
             {
                 _logger.LogWarning(
@@ -185,7 +185,7 @@ public sealed class ErpInvoiceCreationHandler
         {
             throw; // Do not swallow cancellation
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[ErpInvoiceCreation] Unhandled error for InvoiceId={InvoiceId}, TargetERP={TargetERP} — " +

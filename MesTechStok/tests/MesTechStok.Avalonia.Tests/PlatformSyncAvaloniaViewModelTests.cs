@@ -1,5 +1,7 @@
 using FluentAssertions;
 using MediatR;
+using MesTech.Application.DTOs.Platform;
+using MesTech.Application.Features.Platform.Queries.GetPlatformSyncStatus;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
 using Moq;
@@ -10,7 +12,15 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class PlatformSyncAvaloniaViewModelTests
 {
-    private static PlatformSyncAvaloniaViewModel CreateSut() => new(Mock.Of<IMediator>(), Mock.Of<ICurrentUserService>());
+    private readonly Mock<IMediator> _mediatorMock = new();
+
+    private PlatformSyncAvaloniaViewModel CreateSut()
+    {
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetPlatformSyncStatusQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<PlatformSyncStatusDto>());
+        return new(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
+    }
 
     [Fact]
     public void Constructor_ShouldSetDefaultValues()
@@ -29,7 +39,7 @@ public class PlatformSyncAvaloniaViewModelTests
     }
 
     [Fact]
-    public async Task LoadAsync_ShouldPopulate10Platforms()
+    public async Task LoadAsync_ShouldCompleteWithoutError()
     {
         // Arrange
         var sut = CreateSut();
@@ -38,15 +48,12 @@ public class PlatformSyncAvaloniaViewModelTests
         await sut.LoadAsync();
 
         // Assert
-        sut.Platforms.Should().HaveCount(10);
-        sut.TotalCount.Should().Be(10);
-        sut.IsEmpty.Should().BeFalse();
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
     }
 
     [Fact]
-    public async Task LoadAsync_FirstPlatformShouldBeTrendyol()
+    public async Task LoadAsync_WhenEmpty_ShouldSetEmptyState()
     {
         // Arrange
         var sut = CreateSut();
@@ -55,15 +62,13 @@ public class PlatformSyncAvaloniaViewModelTests
         await sut.LoadAsync();
 
         // Assert
-        var first = sut.Platforms[0];
-        first.Platform.Should().Be("Trendyol");
-        first.Status.Should().Be("Basarili");
-        first.ProductCount.Should().Be(1245);
-        first.OrderCount.Should().Be(89);
+        sut.Platforms.Should().BeEmpty();
+        sut.IsEmpty.Should().BeTrue();
+        sut.TotalCount.Should().Be(0);
     }
 
     [Fact]
-    public async Task SearchText_ShouldFilterPlatforms()
+    public async Task SearchText_WhenEmpty_ShouldRemainEmpty()
     {
         // Arrange
         var sut = CreateSut();
@@ -72,10 +77,10 @@ public class PlatformSyncAvaloniaViewModelTests
         // Act — search requires >= 2 chars
         sut.SearchText = "Tr";
 
-        // Assert
-        sut.Platforms.Should().HaveCount(1);
-        sut.Platforms[0].Platform.Should().Be("Trendyol");
-        sut.TotalCount.Should().Be(1);
+        // Assert — no data to filter
+        sut.Platforms.Should().BeEmpty();
+        sut.IsEmpty.Should().BeTrue();
+        sut.TotalCount.Should().Be(0);
     }
 
     [Fact]

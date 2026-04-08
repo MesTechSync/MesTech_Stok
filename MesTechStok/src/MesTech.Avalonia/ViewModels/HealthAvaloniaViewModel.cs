@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Dashboard.Queries.GetPlatformHealth;
+using MesTech.Application.Features.Dashboard.Queries.GetServiceHealth;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -17,6 +18,8 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class HealthAvaloniaViewModel : ViewModelBase
 {
+    private static readonly TimeSpan HealthRefreshInterval = TimeSpan.FromSeconds(30);
+
     private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
     private DispatcherTimer? _autoRefreshTimer;
@@ -47,14 +50,10 @@ public partial class HealthAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var platformResults = (await _mediator.Send(
-                new GetPlatformHealthQuery(_currentUser.TenantId)))?.ToList();
+                new GetPlatformHealthQuery(_currentUser.TenantId), ct))?.ToList();
 
             LastUpdated = DateTime.Now.ToString("HH:mm:ss");
 
@@ -83,7 +82,7 @@ public partial class HealthAvaloniaViewModel : ViewModelBase
                 : $"{uptime.Hours}s {uptime.Minutes}dk";
             ProcessCount = Process.GetProcesses().Length;
 
-            BuildServiceCards(platformResults);
+            await BuildServiceCardsAsync(platformResults);
 
             ServiceStatuses.Clear();
             foreach (var card in ServiceCards)
@@ -103,29 +102,40 @@ public partial class HealthAvaloniaViewModel : ViewModelBase
 
             // Start auto-refresh timer if not already running
             StartAutoRefreshTimer();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Sistem durumu yüklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Saglik durumu yuklenirken hata");
     }
 
-    private void BuildServiceCards(List<PlatformHealthDto>? platformResults)
+    private async Task BuildServiceCardsAsync(List<PlatformHealthDto>? platformResults)
     {
         ServiceCards.Clear();
 
-        // DEP: DEV4 — Infrastructure health check endpoints needed (PostgreSQL, Redis, RabbitMQ, Hangfire, MESA OS)
-        // Once /health endpoints exist, replace these hardcoded cards with real probes
-        ServiceCards.Add(MakeCard("PostgreSQL",   true,  "—",  "Veritabani", "#22C55E"));
-        ServiceCards.Add(MakeCard("Redis",        true,  "—",  "Önbellek",   "#22C55E"));
-        ServiceCards.Add(MakeCard("RabbitMQ",     true,  "—",  "Mesajlama",  "#22C55E"));
-        ServiceCards.Add(MakeCard("Hangfire",     true,  "—",  "İşler",      "#22C55E"));
-        ServiceCards.Add(MakeCard("MESA OS",      true,  "—",  "AI Köprü",   "#22C55E"));
+        // Infrastructure health — real probes via GetServiceHealthQuery (PostgreSQL, Redis, RabbitMQ)
+        try
+        {
+            var infraResults = await _mediator.Send(new GetServiceHealthQuery()).ConfigureAwait(false);
+            foreach (var svc in infraResults)
+            {
+                var category = svc.ServiceName switch
+                {
+                    "PostgreSQL" => "Veritabani",
+                    "Redis" => "Önbellek",
+                    "RabbitMQ" => "Mesajlama",
+                    _ => "Altyapı"
+                };
+                ServiceCards.Add(MakeCard(svc.ServiceName, svc.IsHealthy, svc.ResponseTime, category,
+                    svc.IsHealthy ? "#22C55E" : "#EF4444"));
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Health] Service health query failed: {ex.Message}");
+            ServiceCards.Add(MakeCard("PostgreSQL", false, "—", "Veritabani", "#F59E0B"));
+            ServiceCards.Add(MakeCard("Redis",      false, "—", "Önbellek",   "#F59E0B"));
+            ServiceCards.Add(MakeCard("RabbitMQ",   false, "—", "Mesajlama",  "#F59E0B"));
+        }
+        // Hangfire + MESA OS — no health query yet, show as static until endpoint exists
+        ServiceCards.Add(MakeCard("Hangfire", true, "—", "İşler",    "#22C55E"));
+        ServiceCards.Add(MakeCard("MESA OS",  true, "—", "AI Köprü", "#22C55E"));
 
         if (platformResults is { Count: > 0 })
         {
@@ -182,7 +192,7 @@ public partial class HealthAvaloniaViewModel : ViewModelBase
 
         _autoRefreshTimer = new DispatcherTimer
         {
-            Interval = TimeSpan.FromSeconds(30)
+            Interval = HealthRefreshInterval
         };
         _autoRefreshTimer.Tick += OnAutoRefreshTick;
         _autoRefreshTimer.Start();

@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using ClosedXML.Excel;
+using Microsoft.Extensions.Configuration;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
@@ -16,7 +17,8 @@ namespace MesTech.Infrastructure.Services;
 /// </summary>
 public sealed class BulkProductImportService : IBulkProductImportService
 {
-    private const int BatchSize = 100;
+    private const int DefaultBatchSize = 100;
+    private readonly int _batchSize;
 
     private static readonly string[] RequiredHeaders =
         ["SKU", "Name", "PurchasePrice", "SalePrice", "Stock"];
@@ -37,11 +39,13 @@ public sealed class BulkProductImportService : IBulkProductImportService
     public BulkProductImportService(
         AppDbContext dbContext,
         IProductRepository productRepository,
-        IImportProgressReporter? progressReporter = null)
+        IImportProgressReporter? progressReporter = null,
+        IConfiguration? configuration = null)
     {
         _dbContext = dbContext;
         _productRepository = productRepository;
         _progressReporter = progressReporter;
+        _batchSize = configuration?.GetValue<int>("Import:BatchSize", DefaultBatchSize) ?? DefaultBatchSize;
     }
 
     public Task<ImportValidationResult> ValidateExcelAsync(
@@ -124,12 +128,13 @@ public sealed class BulkProductImportService : IBulkProductImportService
         Stream fileStream,
         ImportOptions options,
         CancellationToken cancellationToken = default)
-        => await ImportProductsAsync(fileStream, options, Guid.NewGuid(), cancellationToken);
+        => await ImportProductsAsync(fileStream, options, Guid.NewGuid(), null, cancellationToken).ConfigureAwait(false);
 
     public async Task<ImportResult> ImportProductsAsync(
         Stream fileStream,
         ImportOptions options,
         Guid importId,
+        Guid? tenantId = null,
         CancellationToken cancellationToken = default)
     {
         var sw = Stopwatch.StartNew();
@@ -201,7 +206,12 @@ public sealed class BulkProductImportService : IBulkProductImportService
                         if (options.UpdateExisting)
                         {
                             var product = await _dbContext.Set<Product>()
-                                .FirstAsync(p => p.Id == existingId, cancellationToken).ConfigureAwait(false);
+                                .FindAsync(new object[] { existingId }, cancellationToken).ConfigureAwait(false);
+                            if (product is null)
+                            {
+                                skippedCount++;
+                                continue;
+                            }
                             MapRowToProduct(ws, row, headerMap, product, options);
                             product.UpdatedAt = DateTime.UtcNow;
                             updatedCount++;
@@ -224,7 +234,7 @@ public sealed class BulkProductImportService : IBulkProductImportService
                     }
 
                     batchCount++;
-                    if (batchCount >= BatchSize)
+                    if (batchCount >= _batchSize)
                     {
                         await _dbContext.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
                         batchCount = 0;
@@ -234,7 +244,7 @@ public sealed class BulkProductImportService : IBulkProductImportService
                         if (_progressReporter != null)
                         {
                             await _progressReporter.ReportProgressAsync(
-                                importId, processed, totalRows, errors.Count, cancellationToken).ConfigureAwait(false);
+                                importId, processed, totalRows, errors.Count, tenantId, cancellationToken).ConfigureAwait(false);
                         }
                     }
                 }
@@ -265,7 +275,7 @@ public sealed class BulkProductImportService : IBulkProductImportService
             if (_progressReporter != null)
             {
                 await _progressReporter.ReportCompletedAsync(
-                    importId, totalRows, importedCount, errors.Count, sw.Elapsed, cancellationToken).ConfigureAwait(false);
+                    importId, totalRows, importedCount, errors.Count, sw.Elapsed, tenantId, cancellationToken).ConfigureAwait(false);
             }
 
             var status = errors.Count > 0 ? ImportStatus.CompletedWithErrors : ImportStatus.Completed;
@@ -295,8 +305,11 @@ public sealed class BulkProductImportService : IBulkProductImportService
             query = query.Where(p => p.Stock <= 0);
         }
 
+        // G485: DB-level pagination guard — OOM koruması (büyük kataloglar için)
+        const int maxExportRows = 50_000;
         var products = await query
             .OrderBy(p => p.SKU)
+            .Take(maxExportRows)
             .ToListAsync(cancellationToken).ConfigureAwait(false);
 
         using var workbook = new XLWorkbook();
@@ -415,7 +428,7 @@ public sealed class BulkProductImportService : IBulkProductImportService
             product.ListPrice = lp;
 
         if (TryGetInt(ws, row, headerMap, "Stock", out var stock))
-            product.Stock = stock;
+            product.SyncStock(stock, "bulk-import");
         if (TryGetInt(ws, row, headerMap, "MinimumStock", out var minStock))
             product.MinimumStock = minStock;
         if (TryGetInt(ws, row, headerMap, "MaximumStock", out var maxStock))
@@ -481,6 +494,8 @@ public sealed class BulkProductImportService : IBulkProductImportService
         var cell = ws.Cell(row, col);
         if (cell.TryGetValue(out double d))
         {
+            if (double.IsNaN(d) || double.IsInfinity(d) || d > int.MaxValue || d < int.MinValue)
+                return false;
             value = (int)d;
             return true;
         }

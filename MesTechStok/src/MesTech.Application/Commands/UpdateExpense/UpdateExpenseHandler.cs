@@ -13,7 +13,7 @@ public sealed class UpdateExpenseHandler : IRequestHandler<UpdateExpenseCommand>
 
     public async Task Handle(UpdateExpenseCommand request, CancellationToken cancellationToken)
     {
-        var expense = await _repository.GetByIdAsync(request.Id)
+        var expense = await _repository.GetByIdAsync(request.Id, cancellationToken)
             ?? throw new KeyNotFoundException($"Expense {request.Id} not found.");
 
         if (request.Description is not null) expense.Description = request.Description;
@@ -22,7 +22,7 @@ public sealed class UpdateExpenseHandler : IRequestHandler<UpdateExpenseCommand>
         if (request.Note is not null) expense.Note = request.Note;
         // PaymentStatus: use domain methods (MarkAsProcessing/MarkAsCompleted/Cancel) instead of direct set
 
-        await _repository.UpdateAsync(expense).ConfigureAwait(false);
+        await _repository.UpdateAsync(expense, cancellationToken).ConfigureAwait(false);
         await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

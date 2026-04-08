@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MediatR;
+using MesTech.Application.Features.Platform.Queries.GetPlatformDashboard;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
 using Moq;
@@ -10,10 +11,23 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class TrendyolAvaloniaViewModelTests
 {
-    private static TrendyolAvaloniaViewModel CreateSut()
+    private readonly Mock<IMediator> _mediatorMock = new();
+
+    private TrendyolAvaloniaViewModel CreateSut()
     {
-        var mediatorMock = new Mock<IMediator>();
-        return new TrendyolAvaloniaViewModel(mediatorMock.Object, Mock.Of<ICurrentUserService>());
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetPlatformDashboardQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PlatformDashboardDto
+            {
+                IsConnected = false,
+                ProductCount = 0,
+                OrderCount = 0,
+                DailyRevenue = 0m,
+                SyncStatus = "Bekliyor",
+                LastSyncAt = null,
+                RecentOrders = []
+            });
+        return new TrendyolAvaloniaViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
     }
 
     [Fact]

@@ -15,6 +15,12 @@ public sealed class WarehouseRackConfiguration : IEntityTypeConfiguration<Wareho
         builder.Property(e => e.Orientation).HasMaxLength(50);
         builder.Property(e => e.RackType).HasMaxLength(50);
 
+        // Decimal precision
+        builder.Property(e => e.Width).HasPrecision(18, 4);
+        builder.Property(e => e.Depth).HasPrecision(18, 4);
+        builder.Property(e => e.Height).HasPrecision(18, 4);
+        builder.Property(e => e.MaxWeight).HasPrecision(18, 4);
+
         builder.HasIndex(e => new { e.TenantId, e.ZoneId })
             .HasDatabaseName("IX_WarehouseRacks_Tenant_Zone");
 

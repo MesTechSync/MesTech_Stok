@@ -22,7 +22,7 @@ public class GetIncomeByIdHandlerTests
     public async Task Handle_ExistingIncome_CallsRepository()
     {
         var income = new Income { Description = "Test" };
-        _repo.Setup(r => r.GetByIdAsync(income.Id)).ReturnsAsync(income);
+        _repo.Setup(r => r.GetByIdAsync(income.Id, It.IsAny<CancellationToken>())).ReturnsAsync(income);
 
         var result = await _sut.Handle(new GetIncomeByIdQuery(income.Id), CancellationToken.None);
 
@@ -33,7 +33,7 @@ public class GetIncomeByIdHandlerTests
     public async Task Handle_NotFound_ReturnsNull()
     {
         var id = Guid.NewGuid();
-        _repo.Setup(r => r.GetByIdAsync(id)).ReturnsAsync((Income?)null);
+        _repo.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>())).ReturnsAsync((Income?)null);
 
         var result = await _sut.Handle(new GetIncomeByIdQuery(id), CancellationToken.None);
 

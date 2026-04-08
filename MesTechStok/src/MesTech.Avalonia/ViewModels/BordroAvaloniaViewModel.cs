@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Accounting.Queries.GetSalaryRecords;
 using MesTech.Application.Features.Hr.Queries.GetEmployees;
+using MesTech.Application.Features.Reporting.Commands.ExportReport;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -28,6 +29,10 @@ public partial class BordroAvaloniaViewModel : ViewModelBase
     public ObservableCollection<PayrollItemDto> Items { get; } = [];
     private List<PayrollItemDto> _allItems = [];
 
+    // Sort
+    [ObservableProperty] private string sortColumn = "default";
+    [ObservableProperty] private bool sortAscending = true;
+
     public ObservableCollection<string> Months { get; } =
         ["Ocak", "Subat", "Mart", "Nisan", "Mayis", "Haziran", "Temmuz", "Agustos", "Eylul", "Ekim", "Kasim", "Aralik"];
 
@@ -42,16 +47,12 @@ public partial class BordroAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var monthIndex = Months.IndexOf(SelectedMonth) + 1;
             int.TryParse(SelectedYear, out var year);
             var salaries = await _mediator.Send(new GetSalaryRecordsQuery(
-                _currentUser.TenantId, year > 0 ? year : null, monthIndex > 0 ? monthIndex : null));
+                _currentUser.TenantId, year > 0 ? year : null, monthIndex > 0 ? monthIndex : null), ct);
 
             _allItems = salaries.Select(s => new PayrollItemDto
             {
@@ -76,16 +77,7 @@ public partial class BordroAvaloniaViewModel : ViewModelBase
 
             IsEmpty = _allItems.Count == 0;
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Bordro verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Bordro verileri yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilters();
@@ -100,11 +92,44 @@ public partial class BordroAvaloniaViewModel : ViewModelBase
             filtered = filtered.Where(x => x.EmployeeName.Contains(s, StringComparison.OrdinalIgnoreCase));
         }
 
+        // Sort
+        var sortedList = SortColumn switch
+        {
+            "EmployeeName" => SortAscending ? filtered.OrderBy(x => x.EmployeeName).ToList() : filtered.OrderByDescending(x => x.EmployeeName).ToList(),
+            "Gross"        => SortAscending ? filtered.OrderBy(x => x.Gross).ToList()        : filtered.OrderByDescending(x => x.Gross).ToList(),
+            "Net"          => SortAscending ? filtered.OrderBy(x => x.Net).ToList()          : filtered.OrderByDescending(x => x.Net).ToList(),
+            _              => SortAscending ? filtered.OrderBy(x => x.EmployeeName).ToList() : filtered.OrderByDescending(x => x.EmployeeName).ToList(),
+        };
+
         Items.Clear();
-        foreach (var item in filtered)
+        foreach (var item in sortedList)
             Items.Add(item);
 
+        TotalCount = Items.Count;
         IsEmpty = Items.Count == 0;
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column) SortAscending = !SortAscending;
+        else { SortColumn = column; SortAscending = true; }
+        ApplyFilters();
+    }
+
+    [RelayCommand]
+    private async Task ExportExcel()
+    {
+        await SafeExecuteAsync(async ct =>
+        {
+            var result = await _mediator.Send(new ExportReportCommand(_currentUser.TenantId, "payroll", "xlsx"), ct);
+            if (result.FileData.Length > 0)
+            {
+                var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
+                System.IO.Directory.CreateDirectory(dir);
+                await System.IO.File.WriteAllBytesAsync(System.IO.Path.Combine(dir, result.FileName), result.FileData);
+            }
+        }, "Bordro verileri disa aktarilirken hata");
     }
 
     [RelayCommand]

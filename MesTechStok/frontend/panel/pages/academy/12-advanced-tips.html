@@ -155,17 +155,17 @@
   <script>
   (function() {
     'use strict';
-    var LESSON_ID = 12;
-    var STORAGE_KEY = 'mestech_academy_completed';
+    const LESSON_ID = 12;
+    const STORAGE_KEY = 'mestech_academy_completed';
     function getCompleted() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e) { return []; } }
     function markComplete(id) {
-      var c = getCompleted();
+      const c = getCompleted();
       if (c.indexOf(id) === -1) { c.push(id); localStorage.setItem(STORAGE_KEY, JSON.stringify(c)); }
       updateBtn();
       checkAllComplete();
     }
     function updateBtn() {
-      var btn = document.getElementById('btn-complete'); if (!btn) return;
+      let btn = document.getElementById('btn-complete'); if (!btn) return;
       if (getCompleted().indexOf(LESSON_ID) !== -1) {
         btn.className = 'btn btn-outline-success';
         while (btn.firstChild) btn.removeChild(btn.firstChild);
@@ -174,14 +174,14 @@
       }
     }
     function checkAllComplete() {
-      var completed = getCompleted();
+      const completed = getCompleted();
       if (completed.length >= 12) {
-        var card = document.getElementById('congrats-card');
+        const card = document.getElementById('congrats-card');
         if (card) card.style.display = 'block';
       }
     }
     function init() {
-      var btn = document.getElementById('btn-complete');
+      const btn = document.getElementById('btn-complete');
       if (btn) btn.addEventListener('click', function() { markComplete(LESSON_ID); });
       updateBtn();
       checkAllComplete();

@@ -3,7 +3,9 @@ using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Stock.Commands.ExportStock;
 using MesTech.Application.Queries.GetInventoryPaged;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -14,6 +16,7 @@ namespace MesTech.Avalonia.ViewModels;
 public partial class InventoryAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
@@ -36,24 +39,25 @@ public partial class InventoryAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string paginationInfo = string.Empty;
     private const int PageSize = 25;
 
+    // Sort
+    [ObservableProperty] private string sortColumn = "default";
+    [ObservableProperty] private bool sortAscending = true;
+
     public ObservableCollection<InventoryItemDto> Items { get; } = [];
     private List<InventoryItemDto> _allItems = [];
 
-    public InventoryAvaloniaViewModel(IMediator mediator)
+    public InventoryAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var result = await _mediator.Send(new GetInventoryPagedQuery(
-                Page: 1, PageSize: 500, SearchTerm: null));
+                Page: 1, PageSize: 500, SearchTerm: null), ct);
 
             _allItems = result.Items.Select(i => new InventoryItemDto
             {
@@ -83,13 +87,7 @@ public partial class InventoryAvaloniaViewModel : ViewModelBase
 
             CurrentPage = 1;
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Envanter yuklenemedi: {ex.Message}";
-        }
-        finally { IsLoading = false; }
+        }, "Envanter yuklenirken hata");
     }
 
     private void ApplyFilters()
@@ -112,6 +110,17 @@ public partial class InventoryAvaloniaViewModel : ViewModelBase
         TotalCount = filteredList.Count;
         AlarmCount = filteredList.Count(i => i.Miktar < i.MinStok);
 
+        // Sort
+        filteredList = SortColumn switch
+        {
+            "Sku"     => SortAscending ? filteredList.OrderBy(x => x.Sku).ToList()     : filteredList.OrderByDescending(x => x.Sku).ToList(),
+            "Ad"      => SortAscending ? filteredList.OrderBy(x => x.Ad).ToList()      : filteredList.OrderByDescending(x => x.Ad).ToList(),
+            "Miktar"  => SortAscending ? filteredList.OrderBy(x => x.Miktar).ToList()  : filteredList.OrderByDescending(x => x.Miktar).ToList(),
+            "Depo"    => SortAscending ? filteredList.OrderBy(x => x.Depo).ToList()    : filteredList.OrderByDescending(x => x.Depo).ToList(),
+            "MinStok" => SortAscending ? filteredList.OrderBy(x => x.MinStok).ToList() : filteredList.OrderByDescending(x => x.MinStok).ToList(),
+            _         => SortAscending ? filteredList.OrderBy(x => x.Ad).ToList()      : filteredList.OrderByDescending(x => x.Ad).ToList(),
+        };
+
         // Pagination
         int totalPages = Math.Max(1, (int)Math.Ceiling((double)filteredList.Count / PageSize));
         if (CurrentPage > totalPages) CurrentPage = totalPages;
@@ -132,7 +141,35 @@ public partial class InventoryAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column) SortAscending = !SortAscending;
+        else { SortColumn = column; SortAscending = true; }
+        CurrentPage = 1;
+        ApplyFilters();
+    }
+
+    [RelayCommand]
     private async Task RefreshAsync() => await LoadAsync();
+
+    // HH-FIX-011: Excel export
+    [RelayCommand]
+    private async Task ExportExcel()
+    {
+        await SafeExecuteAsync(async ct =>
+        {
+            var tenantId = _currentUser.TenantId;
+            var result = await _mediator.Send(new ExportStockCommand(tenantId, "xlsx"), ct);
+            if (result.FileData.Length > 0)
+            {
+                var dir = System.IO.Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
+                System.IO.Directory.CreateDirectory(dir);
+                await System.IO.File.WriteAllBytesAsync(
+                    System.IO.Path.Combine(dir, result.FileName), result.FileData);
+            }
+        }, "Stok disa aktarilirken hata");
+    }
 
     [RelayCommand]
     private void NextPage()

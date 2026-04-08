@@ -1,0 +1,188 @@
+@page "/finance/cheques"
+@attribute [Authorize(Roles = "Admin,Accountant")]
+@using Microsoft.AspNetCore.Authorization
+@inject MesTechApiClient ApiClient
+@inject ILogger<Cheques> Logger
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<PageTitle>Cek / Senet Takip</PageTitle>
+
+<div class="container-fluid">
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width:48px;height:48px;background:linear-gradient(135deg,#10b981,#059669)">
+      <i class="fas fa-money-check-alt text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0">Cek / Senet Takip</h3>
+      <small class="text-muted">Portfoydeki cek ve senetlerin takibi</small>
+    </div>
+    <div class="ms-auto">
+      <button class="btn btn-primary btn-sm" @onclick="() => showAddModal = true">
+        <i class="fas fa-plus me-1"></i>Yeni Kayit
+      </button>
+    </div>
+  </div>
+
+  @if (isLoading)
+  {
+    <LoadingSpinner />
+  }
+  else
+  {
+    <!-- Ozet kartlar -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <small class="text-muted">Portfoyde</small>
+            <h4 class="text-primary mb-0">@items.Count(i => i.Status == "Portfoy")</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <small class="text-muted">Tahsilde</small>
+            <h4 class="text-warning mb-0">@items.Count(i => i.Status == "Tahsil")</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <small class="text-muted">Tahsil Edildi</small>
+            <h4 class="text-success mb-0">@items.Count(i => i.Status == "TahsilEdildi")</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <small class="text-muted">Toplam Tutar</small>
+            <h4 class="mb-0">@items.Sum(i => i.Amount).ToString("N2") TL</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtre -->
+    <div class="row mb-3">
+      <div class="col-md-3">
+        <select class="form-select form-select-sm" @bind="filterType">
+          <option value="">Tum Tipler</option>
+          <option value="Cek">Cek</option>
+          <option value="Senet">Senet</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <select class="form-select form-select-sm" @bind="filterStatus">
+          <option value="">Tum Durumlar</option>
+          <option value="Portfoy">Portfoy</option>
+          <option value="Tahsil">Tahsil</option>
+          <option value="TahsilEdildi">Tahsil Edildi</option>
+          <option value="Karsiliks">Karsiliks</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Tablo -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Tip</th>
+              <th>Seri No</th>
+              <th>Duzenleme</th>
+              <th>Vade</th>
+              <th class="text-end">Tutar</th>
+              <th>Durum</th>
+              <th>Muhatap</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var item in FilteredItems)
+            {
+              var isOverdue = item.DueDate < DateTime.Today && item.Status != "TahsilEdildi";
+              <tr class="@(isOverdue ? "table-danger" : "")">
+                <td><span class="badge bg-@(item.Type == "Cek" ? "primary" : "info")">@item.Type</span></td>
+                <td>@item.SerialNo</td>
+                <td>@item.IssueDate.ToString("dd.MM.yyyy")</td>
+                <td>
+                  @item.DueDate.ToString("dd.MM.yyyy")
+                  @if (isOverdue) { <i class="fas fa-exclamation-triangle text-danger ms-1" title="Vadesi gecmis!"></i> }
+                </td>
+                <td class="text-end">@item.Amount.ToString("N2") TL</td>
+                <td><span class="badge bg-@(GetStatusColor(item.Status))">@item.Status</span></td>
+                <td>@item.DrawerName</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>
+
+@code {
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private bool showAddModal;
+    private string filterType = "";
+    private string filterStatus = "";
+    private List<ChequeItem> items = new();
+
+    private IEnumerable<ChequeItem> FilteredItems => items
+        .Where(i => string.IsNullOrEmpty(filterType) || i.Type == filterType)
+        .Where(i => string.IsNullOrEmpty(filterStatus) || i.Status == filterStatus)
+        .OrderBy(i => i.DueDate);
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var result = await ApiClient.SafeGetAsync<List<ChequeItem>>("finance/cheques");
+            if (result.IsSuccess && result.Data is not null)
+                items = result.Data;
+            else
+            {
+                _isDemoMode = true;
+                LoadDemoData();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Cheques API unavailable");
+            _isDemoMode = true;
+            LoadDemoData();
+        }
+        finally { isLoading = false; }
+    }
+
+    private void LoadDemoData()
+    {
+        items = new()
+        {
+            new("Cek", "CK-2026-001", DateTime.Today.AddDays(-30), DateTime.Today.AddDays(15), 25000m, "Portfoy", "ABC Ticaret Ltd."),
+            new("Cek", "CK-2026-002", DateTime.Today.AddDays(-45), DateTime.Today.AddDays(-5), 18500m, "Tahsil", "XYZ Insaat A.S."),
+            new("Senet", "SN-2026-001", DateTime.Today.AddDays(-60), DateTime.Today.AddDays(30), 42000m, "Portfoy", "DEF Tekstil"),
+            new("Senet", "SN-2026-002", DateTime.Today.AddDays(-90), DateTime.Today.AddDays(-15), 15000m, "TahsilEdildi", "GHI Gida San."),
+            new("Cek", "CK-2026-003", DateTime.Today.AddDays(-20), DateTime.Today.AddDays(45), 8750m, "Portfoy", "JKL Elektronik"),
+        };
+    }
+
+    private static string GetStatusColor(string status) => status switch
+    {
+        "Portfoy" => "primary",
+        "Tahsil" => "warning",
+        "TahsilEdildi" => "success",
+        "Karsiliks" => "danger",
+        _ => "secondary"
+    };
+
+    private sealed record ChequeItem(
+        string Type, string SerialNo, DateTime IssueDate, DateTime DueDate,
+        decimal Amount, string Status, string DrawerName);
+}

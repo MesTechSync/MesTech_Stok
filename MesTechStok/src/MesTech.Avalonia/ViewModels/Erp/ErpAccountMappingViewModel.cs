@@ -49,13 +49,9 @@ public partial class ErpAccountMappingViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var mappings = await _mediator.Send(new GetErpAccountMappingsQuery(_currentUser.TenantId));
+            var mappings = await _mediator.Send(new GetErpAccountMappingsQuery(_currentUser.TenantId), ct);
 
             _allMesTechAccounts = mappings.Select(m => new AccountItem
             {
@@ -89,16 +85,7 @@ public partial class ErpAccountMappingViewModel : ViewModelBase
 
             MappedCount = MappedPairs.Count;
             IsEmpty = _allMesTechAccounts.Count == 0 && _allErpAccounts.Count == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Hesap verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "ERP hesap eslesmeleri yuklenirken hata");
     }
 
     private void ApplyMesTechFilter()

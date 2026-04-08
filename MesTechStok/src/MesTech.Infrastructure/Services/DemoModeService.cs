@@ -58,7 +58,7 @@ public sealed class DemoModeService : IDemoModeService
             TenantName: "Demo Sirket",
             ExpiresAt: expiresAt,
             DemoUsername: DemoDataSeeder.DemoUsername,
-            DemoPassword: DemoDataSeeder.DemoPassword,
+            DemoPassword: "********", // masked — never expose plaintext password via API
             DemoEmail: DemoDataSeeder.DemoEmail,
             ProductCount: 10,
             OrderCount: 5);

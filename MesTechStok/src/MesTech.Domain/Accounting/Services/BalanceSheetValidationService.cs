@@ -87,16 +87,20 @@ public sealed class BalanceSheetValidationService : IBalanceSheetValidationServi
     {
         var totals = new BalanceSheetTotals();
 
+        // O(M) lookup instead of O(N*M) nested loop
+        var linesByAccount = postedLines
+            .GroupBy(l => l.AccountId)
+            .ToDictionary(g => g.Key, g => (Debit: g.Sum(l => l.Debit), Credit: g.Sum(l => l.Credit)));
+
         foreach (var account in accounts)
         {
-            var accountLines = postedLines.Where(l => l.AccountId == account.Id).ToList();
-            var debit = accountLines.Sum(l => l.Debit);
-            var credit = accountLines.Sum(l => l.Credit);
-
-            if (debit == 0 && credit == 0)
+            if (!linesByAccount.TryGetValue(account.Id, out var sums))
                 continue;
 
-            var balance = debit - credit;
+            if (sums.Debit == 0 && sums.Credit == 0)
+                continue;
+
+            var balance = sums.Debit - sums.Credit;
             ClassifyAccountBalance(account, balance, totals, errors);
         }
 

@@ -29,6 +29,7 @@ public sealed class GibPortalEInvoiceProvider : IEInvoiceProvider
 
     private string? _token;
     private DateTime _tokenExpiry = DateTime.MinValue;
+    private readonly SemaphoreSlim _tokenLock = new(1, 1);
 
     private static readonly JsonSerializerOptions JsonOpts = new()
     {
@@ -89,7 +90,7 @@ public sealed class GibPortalEInvoiceProvider : IEInvoiceProvider
             };
             request.Headers.Add("Token", _token);
 
-            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
             var responseBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -111,7 +112,7 @@ public sealed class GibPortalEInvoiceProvider : IEInvoiceProvider
                 document.EttnNo, providerRef);
             return new EInvoiceSendResult(true, providerRef, null, 0);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "GibPortalEInvoice SendAsync exception for ETTN {EttnNo}", document.EttnNo);
             return new EInvoiceSendResult(false, null, ex.Message, 0);
@@ -129,7 +130,7 @@ public sealed class GibPortalEInvoiceProvider : IEInvoiceProvider
             var request = new HttpRequestMessage(HttpMethod.Get,
                 $"{BaseUrl}/earsiv-services/download?token={Uri.EscapeDataString(_token!)}&ettn={Uri.EscapeDataString(providerRef)}");
 
-            var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct)
+            using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct)
                 .ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -141,7 +142,7 @@ public sealed class GibPortalEInvoiceProvider : IEInvoiceProvider
             // The URL itself serves the PDF; return the download URL
             return $"{BaseUrl}/earsiv-services/download?token={Uri.EscapeDataString(_token!)}&ettn={Uri.EscapeDataString(providerRef)}&onizleme=Y";
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "GibPortalEInvoice GetPdfUrlAsync exception for {ProviderRef}", providerRef);
             return null;
@@ -173,7 +174,7 @@ public sealed class GibPortalEInvoiceProvider : IEInvoiceProvider
             };
             request.Headers.Add("Token", _token);
 
-            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -186,7 +187,7 @@ public sealed class GibPortalEInvoiceProvider : IEInvoiceProvider
             _logger.LogInformation("GibPortalEInvoice CancelAsync OK for {ProviderRef}", providerRef);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "GibPortalEInvoice CancelAsync exception for {ProviderRef}", providerRef);
             return false;
@@ -214,7 +215,7 @@ public sealed class GibPortalEInvoiceProvider : IEInvoiceProvider
                 { "jp", JsonSerializer.Serialize(new { vknTckn = vkn }, JsonOpts) }
             });
 
-            var response = await _httpClient.PostAsync(mukellefUrl, formContent, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync(mukellefUrl, formContent, ct).ConfigureAwait(false);
             var responseBody = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -244,7 +245,7 @@ public sealed class GibPortalEInvoiceProvider : IEInvoiceProvider
 
             return new VknMukellefResult(vkn, isEInvoice, isEArchive, title, DateTime.UtcNow);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "GibPortalEInvoice CheckVknMukellef exception for VKN {Vkn}", vkn);
             return new VknMukellefResult(vkn, false, false, null, null);
@@ -270,7 +271,14 @@ public sealed class GibPortalEInvoiceProvider : IEInvoiceProvider
         if (!string.IsNullOrEmpty(_token) && DateTime.UtcNow < _tokenExpiry)
             return;
 
-        _logger.LogInformation("GibPortalEInvoice: Acquiring new auth token from {BaseUrl}", BaseUrl);
+        await _tokenLock.WaitAsync(ct).ConfigureAwait(false);
+        try
+        {
+            // Double-check after acquiring lock (another thread may have refreshed)
+            if (!string.IsNullOrEmpty(_token) && DateTime.UtcNow < _tokenExpiry)
+                return;
+
+            _logger.LogInformation("GibPortalEInvoice: Acquiring new auth token from {BaseUrl}", BaseUrl);
 
         var loginContent = new FormUrlEncodedContent(new Dictionary<string, string>
         {
@@ -283,7 +291,7 @@ public sealed class GibPortalEInvoiceProvider : IEInvoiceProvider
             { "pageName", "R_LANDING" }
         });
 
-        var response = await _httpClient.PostAsync(
+        using var response = await _httpClient.PostAsync(
             $"{BaseUrl}/earsiv-services/assos-login", loginContent, ct).ConfigureAwait(false);
 
         var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
@@ -311,6 +319,11 @@ public sealed class GibPortalEInvoiceProvider : IEInvoiceProvider
         _tokenExpiry = DateTime.UtcNow.AddMinutes(25);
 
         _logger.LogInformation("GibPortalEInvoice: Token acquired, expires at {Expiry}", _tokenExpiry);
+        }
+        finally
+        {
+            _tokenLock.Release();
+        }
     }
 }
 

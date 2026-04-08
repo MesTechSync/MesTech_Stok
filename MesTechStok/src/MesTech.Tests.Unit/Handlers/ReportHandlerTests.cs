@@ -132,7 +132,7 @@ public class ReportHandlerTests
         var orderRepo = new Mock<IOrderRepository>();
 
         orderRepo.Setup(r => r.GetByDateRangeAsync(
-                It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+                It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Order>().AsReadOnly());
 
         expenseRepo.Setup(r => r.GetTotalByDateRangeAsync(

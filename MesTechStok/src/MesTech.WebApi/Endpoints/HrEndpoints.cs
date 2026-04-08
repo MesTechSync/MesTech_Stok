@@ -29,7 +29,7 @@ public static class HrEndpoints
         })
         .WithName("GetEmployees")
         .WithSummary("Çalışan listesi")
-        .Produces(200)
+        .Produces<IReadOnlyList<EmployeeDto>>(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/hr/leaves/{leaveId}/approve — approve leave request
@@ -56,7 +56,7 @@ public static class HrEndpoints
         })
         .WithName("GetDepartments")
         .WithSummary("Departman listesi")
-        .Produces(200)
+        .Produces<IReadOnlyList<DepartmentDto>>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/hr/leaves — izin talepleri listesi (G207-DEV6)
@@ -71,7 +71,7 @@ public static class HrEndpoints
         })
         .WithName("GetLeaveRequests")
         .WithSummary("İzin talepleri listesi — durum filtreli (G207)")
-        .Produces(200).Produces(400)
+        .Produces<IReadOnlyList<LeaveRequestDto>>(200).Produces(400)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/hr/time-entries — zaman takip kayıtları
@@ -81,12 +81,14 @@ public static class HrEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             var result = await mediator.Send(
-                new GetTimeEntriesQuery(tenantId, from, to, userId, page ?? 1, pageSize ?? 50), ct);
+                new GetTimeEntriesQuery(tenantId, from, to, userId,
+                    Math.Max(1, page ?? 1),
+                    Math.Clamp(pageSize ?? 50, 1, 200)), ct);
             return Results.Ok(result);
         })
         .WithName("GetTimeEntries")
         .WithSummary("Zaman takip kayıtları — tarih aralığı ve kullanıcı filtreli")
-        .Produces(200)
+        .Produces<IReadOnlyList<TimeEntryDto>>(200)
         .CacheOutput("Dashboard30s");
 
         // POST /api/v1/hr/time-entries — yeni zaman kaydı oluştur

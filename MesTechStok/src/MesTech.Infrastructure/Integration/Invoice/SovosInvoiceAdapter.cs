@@ -99,7 +99,7 @@ public sealed class SovosInvoiceAdapter : IInvoiceAdapter, IBulkInvoiceCapable, 
                 var result = await CreateInvoiceAsync(request, ct).ConfigureAwait(false);
                 results.Add(new BulkInvoiceItemResult(request.OrderId, result.Success, result.GibInvoiceId, result.ErrorMessage));
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, "Bulk invoice failed for OrderId={OrderId}", request.OrderId);
                 results.Add(new BulkInvoiceItemResult(request.OrderId, false, null, ex.Message));

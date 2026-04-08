@@ -59,14 +59,22 @@ public sealed class MesTechApiClient : IMesTechApiClient
 
     public async Task<TResponse?> PostAsync<TRequest, TResponse>(string relativeUrl, TRequest body, CancellationToken ct = default)
     {
-        var content = new StringContent(
-            JsonSerializer.Serialize(body, _jsonOptions),
-            System.Text.Encoding.UTF8,
-            "application/json");
-        var response = await _client.PostAsync(relativeUrl, content, ct);
-        response.EnsureSuccessStatusCode();
-        var json = await response.Content.ReadAsStringAsync(ct);
-        return JsonSerializer.Deserialize<TResponse>(json, _jsonOptions);
+        try
+        {
+            var content = new StringContent(
+                JsonSerializer.Serialize(body, _jsonOptions),
+                System.Text.Encoding.UTF8,
+                "application/json");
+            var response = await _client.PostAsync(relativeUrl, content, ct);
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync(ct);
+            return JsonSerializer.Deserialize<TResponse>(json, _jsonOptions);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "PostAsync<TResponse> failed for {Url}", relativeUrl);
+            return default;
+        }
     }
 
     public async Task<bool> PostAsync<TRequest>(string relativeUrl, TRequest body, CancellationToken ct = default)
@@ -82,19 +90,27 @@ public sealed class MesTechApiClient : IMesTechApiClient
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "PutAsync failed for {Url}", relativeUrl);
+            _logger.LogWarning(ex, "PostAsync failed for {Url}", relativeUrl);
             return false;
         }
     }
 
     public async Task<bool> PutAsync<TRequest>(string relativeUrl, TRequest body, CancellationToken ct = default)
     {
-        var content = new StringContent(
-            JsonSerializer.Serialize(body, _jsonOptions),
-            System.Text.Encoding.UTF8,
-            "application/json");
-        var response = await _client.PutAsync(relativeUrl, content, ct);
-        return response.IsSuccessStatusCode;
+        try
+        {
+            var content = new StringContent(
+                JsonSerializer.Serialize(body, _jsonOptions),
+                System.Text.Encoding.UTF8,
+                "application/json");
+            var response = await _client.PutAsync(relativeUrl, content, ct);
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "PutAsync failed for {Url}", relativeUrl);
+            return false;
+        }
     }
 
     public async Task<bool> IsHealthyAsync(CancellationToken ct = default)

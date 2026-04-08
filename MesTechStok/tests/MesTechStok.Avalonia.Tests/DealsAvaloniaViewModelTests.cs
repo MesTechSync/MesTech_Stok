@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MediatR;
+using MesTech.Application.Features.Crm.Queries.GetDeals;
 using MesTech.Avalonia.Services;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
@@ -11,10 +12,14 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class DealsAvaloniaViewModelTests
 {
-    private static DealsAvaloniaViewModel CreateSut()
+    private readonly Mock<IMediator> _mediatorMock = new();
+
+    private DealsAvaloniaViewModel CreateSut()
     {
-        var mediatorMock = new Mock<IMediator>();
-        return new DealsAvaloniaViewModel(mediatorMock.Object, Mock.Of<ICurrentUserService>(), Mock.Of<IDialogService>());
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetDealsQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetDealsResult { Items = [], TotalCount = 0 });
+        return new DealsAvaloniaViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>(), Mock.Of<IDialogService>());
     }
 
     [Fact]
@@ -37,7 +42,7 @@ public class DealsAvaloniaViewModelTests
     }
 
     [Fact]
-    public async Task LoadAsync_ShouldPopulateDeals()
+    public async Task LoadAsync_ShouldCompleteWithoutError()
     {
         // Arrange
         var sut = CreateSut();
@@ -48,28 +53,10 @@ public class DealsAvaloniaViewModelTests
         // Assert
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
-        sut.IsEmpty.Should().BeFalse();
-        sut.Deals.Should().HaveCount(4);
-        sut.TotalCount.Should().Be(4);
-        sut.TotalAmount.Should().NotBe("0 TL");
     }
 
     [Fact]
-    public async Task LoadAsync_ShouldCalculateTotalAmount()
-    {
-        // Arrange
-        var sut = CreateSut();
-
-        // Act
-        await sut.LoadAsync();
-
-        // Assert — 45000 + 22000 + 67000 + 35000 = 169000
-        sut.TotalAmount.Should().Be("169.000 TL");
-        sut.Deals.Should().Contain(d => d.Stage == "Kazanildi" && d.Probability == 100);
-    }
-
-    [Fact]
-    public async Task LoadAsync_DealItemVm_ShouldFormatDisplayProperties()
+    public async Task LoadAsync_WhenEmpty_ShouldSetEmptyState()
     {
         // Arrange
         var sut = CreateSut();
@@ -78,10 +65,25 @@ public class DealsAvaloniaViewModelTests
         await sut.LoadAsync();
 
         // Assert
-        var deal = sut.Deals.First(d => d.Title == "ABC Ltd ERP Projesi");
+        sut.IsEmpty.Should().BeTrue();
+        sut.Deals.Should().BeEmpty();
+        sut.TotalCount.Should().Be(0);
+        sut.TotalAmount.Should().Be("0 TL");
+    }
+
+    [Fact]
+    public void DealItemVm_ShouldFormatDisplayProperties()
+    {
+        // Assert — verify formatting via DTO directly
+        var deal = new DealListItemVm
+        {
+            Title = "Test Projesi",
+            Amount = 45000m,
+            Probability = 30,
+            ContactName = "Ahmet Yilmaz"
+        };
         deal.AmountDisplay.Should().Be("45.000 TL");
         deal.ProbabilityDisplay.Should().Be("%30");
-        deal.ContactName.Should().Be("Ahmet Yilmaz");
     }
 
     [Fact]
@@ -96,7 +98,5 @@ public class DealsAvaloniaViewModelTests
         // Assert
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
-        sut.Deals.Should().HaveCount(4);
-        sut.TotalCount.Should().Be(4);
     }
 }

@@ -1,6 +1,9 @@
 using MediatR;
 using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Finance;
+using AccountingExpenseDto = MesTech.Application.DTOs.Accounting.ExpenseDto;
+using AccountingKarZararDto = MesTech.Application.DTOs.Accounting.KarZararDto;
 using MesTech.Application.Features.Accounting.Queries.GetIncomeExpenseList;
 using MesTech.Application.Features.Accounting.Queries.GetIncomeExpenseSummary;
 using MesTech.Application.Features.Finance.Queries.GetBankAccounts;
@@ -25,7 +28,8 @@ public static class FinanceEndpoints
     {
         var group = app.MapGroup("/api/v1/finance")
             .WithTags("Finance")
-            .RequireRateLimiting("PerApiKey");
+            .RequireRateLimiting("PerApiKey")
+            .AddEndpointFilter(new Filters.RequirePermissionFilter("ManageFinance"));
 
         // GET /api/v1/finance/profit-loss — aylık kâr/zarar raporu
         group.MapGet("/profit-loss", async (
@@ -38,7 +42,7 @@ public static class FinanceEndpoints
         })
         .WithName("GetProfitLoss")
         .WithSummary("Aylık kâr/zarar raporu")
-        .Produces(200)
+        .Produces<ProfitLossDto>(200)
         .CacheOutput("Report120s");
 
         // GET /api/v1/finance/cash-flow — aylık nakit akışı raporu
@@ -52,7 +56,7 @@ public static class FinanceEndpoints
         })
         .WithName("GetCashFlow")
         .WithSummary("Aylık nakit akışı raporu")
-        .Produces(200)
+        .Produces<CashFlowDto>(200)
         .CacheOutput("Report120s");
 
         // GET /api/v1/finance/budget-summary — bütçe özet raporu
@@ -66,7 +70,7 @@ public static class FinanceEndpoints
         })
         .WithName("GetBudgetSummary")
         .WithSummary("Bütçe özet raporu")
-        .Produces(200)
+        .Produces<BudgetSummaryDto>(200)
         .CacheOutput("Report120s");
 
         // POST /api/v1/finance/expenses/{id}/approve
@@ -119,7 +123,7 @@ public static class FinanceEndpoints
         })
         .WithName("GetCashRegisters")
         .WithSummary("Kasa listesi")
-        .Produces(200)
+        .Produces<IReadOnlyList<CashRegisterDto>>(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/finance/cash-registers — yeni kasa oluştur
@@ -173,7 +177,7 @@ public static class FinanceEndpoints
         })
         .WithName("GetExpenses")
         .WithSummary("Masraf listesi (tarih + tip filtresi)")
-        .Produces(200)
+        .Produces<IReadOnlyList<AccountingExpenseDto>>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/finance/income-expenses — gelir/gider listesi
@@ -187,7 +191,7 @@ public static class FinanceEndpoints
         })
         .WithName("GetIncomeExpenseList")
         .WithSummary("Gelir/gider listesi (sayfalanmış)")
-        .Produces(200)
+        .Produces<IncomeExpenseListResultDto>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/finance/income-expense-summary — gelir/gider özeti
@@ -201,7 +205,7 @@ public static class FinanceEndpoints
         })
         .WithName("GetIncomeExpenseSummary")
         .WithSummary("Gelir/gider özet raporu")
-        .Produces(200)
+        .Produces<IncomeExpenseSummaryDto>(200)
         .CacheOutput("Report120s");
 
         // GET /api/v1/finance/kar-zarar — kâr/zarar raporu
@@ -215,7 +219,7 @@ public static class FinanceEndpoints
         })
         .WithName("GetKarZarar")
         .WithSummary("Kâr/zarar raporu (tarih aralığı)")
-        .Produces(200)
+        .Produces<AccountingKarZararDto>(200)
         .CacheOutput("Report120s");
 
         // GET /api/v1/finance/bank-accounts — banka hesap listesi
@@ -228,9 +232,110 @@ public static class FinanceEndpoints
         })
         .WithName("GetBankAccounts")
         .WithSummary("Banka hesap listesi — bakiye ve detaylar")
+        .Produces<IReadOnlyList<BankAccountDto>>(200)
+        .CacheOutput("Lookup60s");
+
+        // ═══ ÇEK/SENET (S1-DEV6-02) ═══
+
+        // POST /api/v1/finance/cheques — yeni çek kayıt
+        group.MapPost("/cheques", async (
+            MesTech.Application.Features.Finance.Commands.CreateCheque.CreateChequeCommand command,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var id = await mediator.Send(command, ct);
+            return Results.Created($"/api/v1/finance/cheques/{id}", new { chequeId = id });
+        })
+        .WithName("CreateCheque")
+        .WithSummary("Yeni çek/senet kaydı oluştur (S1-DEV6-02)")
+        .Produces(201).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
+
+        // GET /api/v1/finance/cheques — çek listesi (filtreli)
+        group.MapGet("/cheques", async (
+            Guid tenantId,
+            string? status,
+            bool? overdue,
+            MesTech.Infrastructure.Persistence.AppDbContext db,
+            CancellationToken ct) =>
+        {
+            var query = Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
+                .AsNoTracking(db.Set<MesTech.Domain.Entities.Finance.Cheque>())
+                .Where(c => c.TenantId == tenantId);
+
+            if (!string.IsNullOrEmpty(status) &&
+                Enum.TryParse<MesTech.Domain.Entities.Finance.ChequeStatus>(status, true, out var parsed))
+                query = query.Where(c => c.Status == parsed);
+
+            var cheques = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
+                .ToListAsync(query.OrderByDescending(c => c.MaturityDate).Take(500), ct);
+
+            var result = cheques.AsEnumerable();
+            if (overdue == true)
+                result = result.Where(c => c.IsOverdue);
+
+            return Results.Ok(new { total = result.Count(), cheques = result });
+        })
+        .WithName("GetCheques")
+        .WithSummary("Çek/senet listesi — durum ve vade filtresi (S1-DEV6-02)")
         .Produces(200)
         .CacheOutput("Lookup60s");
+
+        // PUT /api/v1/finance/cheques/{id}/collect — tahsile gönder
+        group.MapPut("/cheques/{id:guid}/collect", async (
+            Guid id,
+            MesTech.Infrastructure.Persistence.AppDbContext db,
+            MesTech.Domain.Interfaces.IUnitOfWork uow,
+            CancellationToken ct) =>
+        {
+            var cheque = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
+                .FirstOrDefaultAsync(db.Set<MesTech.Domain.Entities.Finance.Cheque>(), c => c.Id == id, ct);
+            if (cheque is null) return Results.Problem(detail: "Çek bulunamadı.", statusCode: 404);
+            cheque.SendForCollection();
+            await uow.SaveChangesAsync(ct);
+            return Results.Ok(new { chequeId = id, status = "SentForCollection" });
+        })
+        .WithName("CollectCheque")
+        .WithSummary("Çeki tahsile gönder")
+        .Produces(200).Produces(404);
+
+        // PUT /api/v1/finance/cheques/{id}/endorse — ciro et
+        group.MapPut("/cheques/{id:guid}/endorse", async (
+            Guid id,
+            ChequeEndorseRequest request,
+            MesTech.Infrastructure.Persistence.AppDbContext db,
+            MesTech.Domain.Interfaces.IUnitOfWork uow,
+            CancellationToken ct) =>
+        {
+            var cheque = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
+                .FirstOrDefaultAsync(db.Set<MesTech.Domain.Entities.Finance.Cheque>(), c => c.Id == id, ct);
+            if (cheque is null) return Results.Problem(detail: "Çek bulunamadı.", statusCode: 404);
+            cheque.Endorse(request.EndorserName);
+            await uow.SaveChangesAsync(ct);
+            return Results.Ok(new { chequeId = id, status = "Endorsed", endorser = request.EndorserName });
+        })
+        .WithName("EndorseCheque")
+        .WithSummary("Çeki ciro et")
+        .Produces(200).Produces(404);
+
+        // PUT /api/v1/finance/cheques/{id}/bounce — karşılıksız işaretle
+        group.MapPut("/cheques/{id:guid}/bounce", async (
+            Guid id,
+            MesTech.Infrastructure.Persistence.AppDbContext db,
+            MesTech.Domain.Interfaces.IUnitOfWork uow,
+            CancellationToken ct) =>
+        {
+            var cheque = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
+                .FirstOrDefaultAsync(db.Set<MesTech.Domain.Entities.Finance.Cheque>(), c => c.Id == id, ct);
+            if (cheque is null) return Results.Problem(detail: "Çek bulunamadı.", statusCode: 404);
+            cheque.MarkBounced();
+            await uow.SaveChangesAsync(ct);
+            return Results.Ok(new { chequeId = id, status = "Bounced" });
+        })
+        .WithName("BounceCheque")
+        .WithSummary("Çeki karşılıksız işaretle")
+        .Produces(200).Produces(404);
     }
 
     public sealed record CashRegisterCloseResponse(string Message, DateTime ClosedAt);
+    public sealed record ChequeEndorseRequest(string EndorserName);
 }

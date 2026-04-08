@@ -22,7 +22,7 @@
 <!-- Header with auto-refresh indicator -->
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
   <h3 class="mb-0">
-    <i class="fas fa-tachometer-alt me-2" style="color: #2855AC;"></i>@L["PageTitle.Dashboard"]
+    <i class="fas fa-tachometer-alt me-2" ></i>@L["PageTitle.Dashboard"]
   </h3>
   <div class="d-flex align-items-center gap-2">
     <small class="text-muted">
@@ -116,7 +116,7 @@
   <div class="col-12 col-lg-7">
     <div class="card shadow-sm h-100">
       <div class="card-header bg-white d-flex align-items-center justify-content-between">
-        <h6 class="mb-0"><i class="fas fa-shopping-cart me-2" style="color: #2855AC;"></i>Son Siparisler</h6>
+        <h6 class="mb-0"><i class="fas fa-shopping-cart me-2" ></i>Son Siparisler</h6>
         <a href="siparisler" class="btn btn-sm btn-outline-primary">Tumunu Gor</a>
       </div>
       <div class="card-body p-0">
@@ -203,7 +203,7 @@
   <div class="col-12 col-lg-7">
     <div class="card shadow-sm h-100">
       <div class="card-header bg-white d-flex align-items-center justify-content-between">
-        <h6 class="mb-0"><i class="fas fa-store me-2" style="color: #2855AC;"></i>Platform Durumu</h6>
+        <h6 class="mb-0"><i class="fas fa-store me-2" ></i>Platform Durumu</h6>
         <span class="badge bg-secondary">@platforms.Count Platform</span>
       </div>
       <div class="card-body">
@@ -228,21 +228,21 @@
 
   <!-- AI Insight Card -->
   <div class="col-12 col-lg-5">
-    <div class="card shadow-sm h-100 border-0" style="background: linear-gradient(135deg, #EDE9FE 0%, #F5F3FF 100%);">
+    <div class="card shadow-sm h-100 border-0 bg-mesa-gradient">
       <div class="card-body p-4">
         <div class="d-flex align-items-center mb-3">
-          <span class="badge rounded-circle p-2 me-2" style="background-color: rgba(124, 58, 237, 0.15);">
-            <i class="fas fa-robot" style="color: #7C3AED;"></i>
+          <span class="badge rounded-circle p-2 me-2" style="background-color: rgba(var(--mestech-purple-rgb, 124,58,237), 0.15);">
+            <i class="fas fa-robot" style="color: var(--mestech-mesa);"></i>
           </span>
-          <h6 class="mb-0 fw-bold" style="color: #7C3AED;">MESA AI Oneri</h6>
+          <h6 class="mb-0 fw-bold" style="color: var(--mestech-mesa);">MESA AI Oneri</h6>
         </div>
         <div class="mb-3">
-          <p class="mb-2 small" style="color: #5B21B6;">
-            <i class="fas fa-lightbulb me-1" style="color: #7C3AED;"></i>
+          <p class="mb-2 small" style="color: var(--mestech-mesa-dark);">
+            <i class="fas fa-lightbulb me-1" style="color: var(--mestech-mesa);"></i>
             <strong>Stok Optimizasyonu:</strong> Elektronik kategorisinde 3 urun son 7 gunde %40 artan taleple kritik seviyeye yaklasiyor. Siparisi onceliklendirin.
           </p>
-          <p class="mb-0 small" style="color: #5B21B6;">
-            <i class="fas fa-chart-line me-1" style="color: #7C3AED;"></i>
+          <p class="mb-0 small" style="color: var(--mestech-mesa-dark);">
+            <i class="fas fa-chart-line me-1" style="color: var(--mestech-mesa);"></i>
             <strong>Satis Trendi:</strong> Trendyol kanalinda hafta ici satis hacmi %12 artti. Kampanya donemi urun listeleme sayisini artirmayi degerlendirebilirsiniz.
           </p>
         </div>
@@ -250,7 +250,7 @@
           <small class="text-muted" style="font-size: 0.65rem;">
             <i class="fas fa-clock me-1"></i>Son analiz: @DateTime.Now.AddMinutes(-15).ToString("HH:mm")
           </small>
-          <span class="badge" style="background-color: rgba(124, 58, 237, 0.15); color: #7C3AED; font-size: 0.65rem;">
+          <span class="badge" style="background-color: rgba(var(--mestech-purple-rgb, 124,58,237), 0.15); color: var(--mestech-mesa); font-size: 0.65rem;">
             MESA v2.1
           </span>
         </div>
@@ -277,7 +277,7 @@
   <div class="col-12 col-lg-4">
     <div class="card shadow-sm h-100">
       <div class="card-header bg-white">
-        <h6 class="mb-0"><i class="fas fa-chart-pie me-2" style="color: #2855AC;"></i>Platform Bazli Satis</h6>
+        <h6 class="mb-0"><i class="fas fa-chart-pie me-2" ></i>Platform Bazli Satis</h6>
       </div>
       <div class="card-body">
         <MesTechChart ChartType="doughnut" Data="platformSalesData" Options="platformSalesOptions" Height="280px" />
@@ -513,7 +513,9 @@
       return;
     }
 
-    // Demo fallback data
+    // Demo fallback data — only in Development; production shows empty state
+    if (!ApiClient.IsDemoAllowed) return;
+
     _recentOrders =
     [
       new() { OrderNumber = "TY-2026-4812", CustomerName = "Ahmet Yilmaz", TotalAmount = 1_250.00m, Status = "Hazirlaniyor", PlatformName = "Trendyol", CreatedAt = DateTime.Now.AddHours(-2) },
@@ -542,7 +544,7 @@
       new("OpenCart", "fas fa-cart-shopping", "#2196F3", true, 890, 124),
       new("N11", "fas fa-store", "#FF5722", true, 670, 98),
       new("Hepsiburada", "fas fa-box", "#FF9800", true, 540, 87),
-      new("Amazon TR", "fab fa-amazon", "#FF9900", true, 320, 65),
+      new("Amazon TR", "fab fa-amazon", "var(--mestech-amazon)", true, 320, 65),
       new("Pazarama", "fas fa-shop", "#4CAF50", true, 280, 42),
       new("CicekSepeti", "fas fa-seedling", "#E91E63", true, 195, 31),
       new("eBay", "fab fa-ebay", "#0064D2", true, 145, 22),
@@ -593,7 +595,7 @@
         {
           label = "Gider (TL)",
           data = new[] { 95_000, 102_000, 110_000, 108_000, 118_000, 125_000, 132_000, 128_000, 145_000, 155_000, 162_000, 170_000 },
-          borderColor = "#dc3545",
+          borderColor = "var(--mestech-danger)",
           backgroundColor = "rgba(220, 53, 69, 0.05)",
           fill = true,
           tension = 0.4,
@@ -628,7 +630,7 @@
         new
         {
           data = new[] { 356, 87, 31, 98, 65, 22 },
-          backgroundColor = new[] { "#FF6F00", "#FF9800", "#E91E63", "#FF5722", "#FF9900", "#0064D2" },
+          backgroundColor = new[] { "#FF6F00", "#FF9800", "#E91E63", "#FF5722", "var(--mestech-amazon)", "#0064D2" },
           borderWidth = 2,
           hoverOffset = 8
         }
@@ -653,7 +655,7 @@
         {
           label = "Teslimat Suresi (Saat)",
           data = new[] { 28, 32, 24 },
-          backgroundColor = new[] { "#17a2b8", "#20c997", "#6f42c1" },
+          backgroundColor = new[] { "#17a2b8", "#20c997", "var(--mestech-purple)" },
           borderRadius = 6
         },
         new
@@ -695,7 +697,7 @@
           label = "Minimum Esik",
           data = new[] { 20, 20, 20, 20, 20 },
           backgroundColor = "rgba(220, 53, 69, 0.15)",
-          borderColor = "#dc3545",
+          borderColor = "var(--mestech-danger)",
           borderWidth = 1,
           borderDash = new[] { 5, 5 },
           type = "line",
@@ -724,7 +726,7 @@
         {
           label = "Yeni",
           data = new[] { 18, 22, 15, 25, 30, 12, 8 },
-          backgroundColor = "#0d6efd",
+          backgroundColor = "var(--mestech-info)",
           borderRadius = 2
         },
         new
@@ -785,8 +787,8 @@
     var ratio = (double)current / Math.Max(minimum, 1);
     return ratio switch
     {
-      <= 0.25 => "#dc3545",  // critical — red
-      <= 0.50 => "#fd7e14",  // warning — orange
+      <= 0.25 => "var(--mestech-danger)",  // critical — red
+      <= 0.50 => "var(--mestech-orange)",  // warning — orange
       _ => "#ffc107"         // caution — yellow
     };
   }

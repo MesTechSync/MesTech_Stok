@@ -30,6 +30,7 @@ public sealed class CashFlowEntry : BaseEntity, ITenantEntity
         string? description = null,
         Guid? counterpartyId = null)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         if (amount <= 0)
             throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
 

@@ -1,4 +1,5 @@
 using FluentAssertions;
+using MesTech.Application.Features.Crm.Queries.GetLeads;
 using MesTech.Avalonia.Services;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
@@ -79,8 +80,12 @@ public class LeadsAvaloniaViewModelTests
     [Fact]
     public async Task LoadAsync_ShouldPopulateLeads()
     {
+        var mediatorMock = new Mock<IMediator>();
+        mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetLeadsQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new GetLeadsResult { Items = [], TotalCount = 0 });
         var sut = new LeadsAvaloniaViewModel(
-            Mock.Of<IMediator>(),
+            mediatorMock.Object,
             Mock.Of<ICurrentUserService>(),
             Mock.Of<IDialogService>());
 

@@ -1,0 +1,134 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
+             x:Class="MesTech.Avalonia.Views.DropshippingPoolAvaloniaView"
+             x:DataType="vm:DropshippingPoolAvaloniaViewModel"
+             AutomationProperties.Name="Dropshipping Havuz">
+<UserControl.KeyBindings>
+    <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
+</UserControl.KeyBindings>
+
+    <Grid RowDefinitions="Auto,*" Background="{DynamicResource MesBgPage}">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{DynamicResource MesBrandAccent}" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Dropshipping Havuz" Foreground="{DynamicResource MesBgPrimary}"
+                               FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Background="{DynamicResource MesBadgeOverlay}" CornerRadius="{StaticResource MesRadiusMdLg}" Padding="8,2">
+                        <TextBlock Text="{Binding PoolCount, StringFormat='{}{0} havuz'}"
+                                   Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
+                    </Border>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Yenile" Command="{Binding RefreshCommand}" ToolTip.Tip="Verileri yenile"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesBrandAccent}" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+            </Grid>
+        </Border>
+
+        <!-- Content: Pool list (left) + Products (right) -->
+        <Grid Grid.Row="1" ColumnDefinitions="280,*" Margin="16">
+
+            <!-- Left: Pool List -->
+            <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" Margin="0,0,8,0">
+                <Grid RowDefinitions="Auto,*">
+                    <Border Grid.Row="0" Padding="12" BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
+                        <TextBlock Text="Havuzlar" FontSize="{StaticResource FontSizeSubtitle}" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource MesDarkSlate}" />
+                    </Border>
+                    <ListBox Grid.Row="1" ItemsSource="{Binding Pools}" SelectedItem="{Binding SelectedPool}"
+                             Background="Transparent" Padding="4">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Spacing="2" Margin="8,6">
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="{StaticResource FontSizeBody}" />
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="{Binding ProductCount, StringFormat='{}{0} urun'}"
+                                                   FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesMutedGray}" />
+                                        <TextBlock Text="{Binding PricingStrategy}"
+                                                   FontSize="{StaticResource FontSizeCaption}" Foreground="{DynamicResource MesBrandAccent}" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+            </Border>
+
+            <!-- Right: Products DataGrid -->
+            <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto">
+                <!-- Search + Page Size -->
+                <Border Grid.Row="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                        Padding="12" Margin="0,0,0,8" BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBox Grid.Column="0" Text="{Binding SearchText}" Watermark="Urun adi, SKU veya barkod ara..."
+                                 AutomationProperties.Name="Ara" Width="300" HorizontalAlignment="Left" />
+                        <ComboBox Grid.Column="1" SelectedItem="{Binding PageSize}" ItemsSource="{Binding PageSizeOptions}"
+                                  Width="80" AutomationProperties.Name="Sayfa Boyutu" />
+                    </Grid>
+                </Border>
+
+                <!-- DataGrid -->
+                <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                        BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+                    <DataGrid ItemsSource="{Binding Products}" AutoGenerateColumns="False"
+                              CanUserSortColumns="True" CanUserResizeColumns="True" IsReadOnly="True"
+                              GridLinesVisibility="Horizontal" BorderThickness="0"
+                              Background="{DynamicResource MesBgPrimary}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="SKU" Binding="{Binding Sku}" Width="120" />
+                            <DataGridTextColumn Header="Urun Adi" Binding="{Binding ProductName}" Width="*" />
+                            <DataGridTextColumn Header="Barkod" Binding="{Binding Barcode}" Width="130" />
+                            <DataGridTextColumn Header="Havuz Fiyat" Binding="{Binding PoolPrice, StringFormat='₺{0:N2}'}" Width="110" />
+                            <DataGridCheckBoxColumn Header="Aktif" Binding="{Binding IsActive}" Width="60" />
+                            <DataGridTextColumn Header="Son Guncelleme" Binding="{Binding LastUpdated, StringFormat='{}{0:dd.MM.yyyy}'}" Width="120" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
+
+                <!-- Pagination -->
+                <Border Grid.Row="2" Padding="0,8,0,0">
+                    <Grid ColumnDefinitions="*,Auto,Auto,Auto,*">
+                        <Button Grid.Column="1" Content="Onceki" Command="{Binding PrevPageCommand}"
+                                Padding="12,6" Margin="0,0,8,0" CornerRadius="{StaticResource MesRadiusSm}" />
+                        <TextBlock Grid.Column="2" Text="{Binding PaginationInfo}"
+                                   VerticalAlignment="Center" FontSize="{StaticResource FontSizeSmall}"
+                                   Foreground="{DynamicResource MesSlateGray}" />
+                        <Button Grid.Column="3" Content="Sonraki" Command="{Binding NextPageCommand}"
+                                Padding="12,6" Margin="8,0,0,0" CornerRadius="{StaticResource MesRadiusSm}" />
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <!-- Loading -->
+        <Border Grid.Row="0" Grid.RowSpan="2" Background="{DynamicResource MesBgPage}"
+                IsVisible="{Binding IsLoading}" ZIndex="100">
+            <controls:SkeletonLoader ShowKpi="True" ShowChart="False" />
+        </Border>
+
+        <!-- Empty -->
+        <Border Grid.Row="1" Background="{DynamicResource MesBgSurface}"
+                IsVisible="{Binding IsEmpty}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
+                <TextBlock Text="Henuz havuz bulunamadi" FontSize="{StaticResource FontSizeTitle}" FontWeight="SemiBold"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" />
+                <Button Content="Yenile" Command="{Binding RefreshCommand}" Margin="0,16,0,0" Padding="16,8" />
+            </StackPanel>
+        </Border>
+
+        <!-- Error -->
+        <fa:InfoBar Grid.Row="0" Title="Bir sorun olustu" Message="{Binding ErrorMessage}"
+                    Severity="Error" IsOpen="{Binding HasError}" IsClosable="True"
+                    Margin="16,8" ZIndex="50">
+            <fa:InfoBar.ActionButton>
+                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}" />
+            </fa:InfoBar.ActionButton>
+        </fa:InfoBar>
+
+    </Grid>
+</UserControl>

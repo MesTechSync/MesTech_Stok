@@ -3,7 +3,10 @@ using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Commands.TransferStock;
+using MesTech.Application.Features.Product.Queries.GetProducts;
 using MesTech.Application.Features.Stock.Queries.GetStockTransfers;
+using MesTech.Application.Queries.GetWarehouses;
 using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -32,6 +35,7 @@ public partial class StockTransferAvaloniaViewModel : ViewModelBase
     public ObservableCollection<TransferHistoryDto> TransferHistory { get; } = [];
 
     private List<TransferProductDto> _allSourceProducts = [];
+    private Dictionary<string, Guid> _warehouseIdMap = [];
 
     public StockTransferAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
@@ -41,19 +45,20 @@ public partial class StockTransferAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        TransferStatus = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetStockTransfersQuery(_currentUser.TenantId)) ?? [];
+            TransferStatus = string.Empty;
+            var result = await _mediator.Send(new GetStockTransfersQuery(_currentUser.TenantId), ct) ?? [];
 
+            // Depo listesi DB'den
+            var warehouses = await _mediator.Send(new GetWarehousesQuery(ActiveOnly: true), ct);
             Warehouses.Clear();
-            Warehouses.Add("Ana Depo");
-            Warehouses.Add("Yedek Depo");
-            Warehouses.Add("Iade Depo");
+            _warehouseIdMap.Clear();
+            foreach (var w in warehouses)
+            {
+                Warehouses.Add(w.Name);
+                _warehouseIdMap[w.Name] = w.Id;
+            }
 
             TransferHistory.Clear();
             foreach (var item in result)
@@ -70,13 +75,7 @@ public partial class StockTransferAvaloniaViewModel : ViewModelBase
             }
 
             IsEmpty = false;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Transfer verileri yuklenemedi: {ex.Message}";
-        }
-        finally { IsLoading = false; }
+        }, "Transfer verileri yuklenirken hata");
     }
 
     partial void OnSelectedSourceWarehouseChanged(string? value)
@@ -119,22 +118,33 @@ public partial class StockTransferAvaloniaViewModel : ViewModelBase
 
         if (SelectedSourceWarehouse is null) return;
 
-        // Will be replaced with MediatR query by warehouse
-        var allItems = new List<TransferProductDto>
-        {
-            new() { Sku = "SKU-1001", Ad = "Samsung Galaxy S24", Miktar = 45, MinimumStock = 10, Depo = "Ana Depo" },
-            new() { Sku = "SKU-1002", Ad = "Apple MacBook Air M3", Miktar = 3, MinimumStock = 5, Depo = "Ana Depo" },
-            new() { Sku = "SKU-1004", Ad = "Logitech MX Master 3S", Miktar = 156, MinimumStock = 15, Depo = "Ana Depo" },
-            new() { Sku = "SKU-1006", Ad = "Anker PowerCore 20000", Miktar = 120, MinimumStock = 30, Depo = "Ana Depo" },
-            new() { Sku = "SKU-1003", Ad = "Sony WH-1000XM5 Kulaklik", Miktar = 78, MinimumStock = 20, Depo = "Yedek Depo" },
-            new() { Sku = "SKU-1005", Ad = "Dell U2723QE Monitor", Miktar = 8, MinimumStock = 5, Depo = "Yedek Depo" },
-            new() { Sku = "SKU-1007", Ad = "Xiaomi Mi Band 8", Miktar = 12, MinimumStock = 25, Depo = "Yedek Depo" },
-            new() { Sku = "SKU-1008", Ad = "HP LaserJet Pro M404", Miktar = 15, MinimumStock = 5, Depo = "Iade Depo" },
-            new() { Sku = "SKU-1010", Ad = "JBL Charge 5 Hoparlor", Miktar = 56, MinimumStock = 10, Depo = "Iade Depo" },
-        };
+        _ = LoadSourceProductsAsync();
+    }
 
-        _allSourceProducts = allItems.Where(i => i.Depo == SelectedSourceWarehouse).ToList();
-        FilterSourceProducts();
+    private async Task LoadSourceProductsAsync()
+    {
+        try
+        {
+            var result = await _mediator.Send(new GetProductsQuery(
+                _currentUser.TenantId,
+                IsActive: true, PageSize: 200));
+
+            _allSourceProducts = result.Items.Select(p => new TransferProductDto
+            {
+                ProductId = p.Id,
+                Sku = p.SKU ?? string.Empty,
+                Ad = p.Name,
+                Miktar = p.Stock,
+                MinimumStock = p.MinimumStock,
+                Depo = SelectedSourceWarehouse ?? "—"
+            }).Where(p => p.Miktar > 0).ToList();
+
+            FilterSourceProducts();
+        }
+        catch (Exception ex)
+        {
+            TransferStatus = $"Urun listesi yuklenemedi: {ex.Message}";
+        }
     }
 
     private void FilterSourceProducts()
@@ -155,19 +165,37 @@ public partial class StockTransferAvaloniaViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private Task TransferAsync()
+    private async Task TransferAsync()
     {
-        if (SelectedSourceWarehouse is null) { TransferStatus = "Kaynak depo secilmedi."; return Task.CompletedTask; }
-        if (SelectedTargetWarehouse is null) { TransferStatus = "Hedef depo secilmedi."; return Task.CompletedTask; }
-        if (SelectedSourceWarehouse == SelectedTargetWarehouse) { TransferStatus = "Kaynak ve hedef depo ayni olamaz."; return Task.CompletedTask; }
-        if (SelectedProduct is null) { TransferStatus = "Urun secilmedi."; return Task.CompletedTask; }
-        if (TransferQuantity <= 0) { TransferStatus = "Transfer miktari 0'dan buyuk olmali."; return Task.CompletedTask; }
-        if (TransferQuantity > SourceStock) { TransferStatus = "Transfer miktari mevcut stoktan buyuk olamaz."; return Task.CompletedTask; }
+        if (SelectedSourceWarehouse is null) { TransferStatus = "Kaynak depo secilmedi."; return; }
+        if (SelectedTargetWarehouse is null) { TransferStatus = "Hedef depo secilmedi."; return; }
+        if (SelectedSourceWarehouse == SelectedTargetWarehouse) { TransferStatus = "Kaynak ve hedef depo ayni olamaz."; return; }
+        if (SelectedProduct is null) { TransferStatus = "Urun secilmedi."; return; }
+        if (TransferQuantity <= 0) { TransferStatus = "Transfer miktari 0'dan buyuk olmali."; return; }
+        if (TransferQuantity > SourceStock) { TransferStatus = "Transfer miktari mevcut stoktan buyuk olamaz."; return; }
 
-        IsLoading = true;
-        TransferStatus = string.Empty;
-        try
+        if (!_warehouseIdMap.TryGetValue(SelectedSourceWarehouse, out var sourceId)
+            || !_warehouseIdMap.TryGetValue(SelectedTargetWarehouse, out var targetId))
         {
+            TransferStatus = "Depo ID cozumlenemedi.";
+            return;
+        }
+
+        await SafeExecuteAsync(async ct =>
+        {
+            var result = await _mediator.Send(new TransferStockCommand(
+                SelectedProduct.ProductId,
+                sourceId,
+                targetId,
+                TransferQuantity,
+                $"UI transfer: {SelectedSourceWarehouse} → {SelectedTargetWarehouse}"), ct);
+
+            if (!result.IsSuccess)
+            {
+                TransferStatus = $"Hata: {result.ErrorMessage}";
+                return;
+            }
+
             TransferHistory.Insert(0, new TransferHistoryDto
             {
                 Sku = SelectedProduct.Sku,
@@ -178,21 +206,12 @@ public partial class StockTransferAvaloniaViewModel : ViewModelBase
                 Date = DateTime.Now
             });
 
-            TransferStatus = $"{SelectedProduct.Ad} — {TransferQuantity} adet {SelectedSourceWarehouse} → {SelectedTargetWarehouse} transfer edildi.";
-
-            // Update local state
-            SelectedProduct.Miktar -= TransferQuantity;
-            SourceStock = SelectedProduct.Miktar;
-            RemainingStock = SelectedProduct.Miktar;
+            TransferStatus = $"{SelectedProduct.Ad} — {TransferQuantity} adet transfer edildi. Kalan: {result.SourceRemainingStock}";
+            SelectedProduct.Miktar = result.SourceRemainingStock;
+            SourceStock = result.SourceRemainingStock;
+            RemainingStock = result.SourceRemainingStock;
             TransferQuantity = 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Transfer basarisiz: {ex.Message}";
-        }
-        finally { IsLoading = false; }
-        return Task.CompletedTask;
+        }, "Transfer isleminde hata");
     }
 
     [RelayCommand]
@@ -201,6 +220,7 @@ public partial class StockTransferAvaloniaViewModel : ViewModelBase
 
 public class TransferProductDto
 {
+    public Guid ProductId { get; set; }
     public string Sku { get; set; } = string.Empty;
     public string Ad { get; set; } = string.Empty;
     public int Miktar { get; set; }

@@ -81,7 +81,8 @@ public sealed class SubscriptionRenewalWorker
                         Currency: subscription.Plan?.CurrencyCode ?? "TRY",
                         CardToken: null, // stored payment token — will be resolved by provider
                         ReturnUrl: string.Empty,
-                        CustomerIp: ServerInitiatedIp),
+                        CustomerIp: ServerInitiatedIp,
+                        CustomerEmail: "billing@mestech.app"),
                     ct).ConfigureAwait(false);
 
                 if (paymentResult.Success)
@@ -115,7 +116,7 @@ public sealed class SubscriptionRenewalWorker
                     failedCount++;
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex,
                     "[{JobId}] Abonelik yenileme hatasi: SubscriptionId={SubscriptionId}",

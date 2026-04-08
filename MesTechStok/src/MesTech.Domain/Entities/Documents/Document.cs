@@ -30,6 +30,7 @@ public sealed class Document : BaseEntity, ITenantEntity
         DocumentVisibility visibility = DocumentVisibility.TenantOnly,
         string? description = null)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(fileName);
         ArgumentException.ThrowIfNullOrWhiteSpace(storagePath);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(fileSizeBytes);

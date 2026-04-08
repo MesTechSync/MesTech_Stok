@@ -21,6 +21,10 @@ namespace MesTech.Avalonia.Views;
 /// </summary>
 public partial class WelcomeWindow : Window
 {
+    private static readonly TimeSpan ClockInterval = TimeSpan.FromSeconds(1);
+    private static readonly TimeSpan ImageRotationInterval = TimeSpan.FromSeconds(8);
+    private static readonly TimeSpan CrossfadeCompleteDelay = TimeSpan.FromMilliseconds(1350);
+
     private DispatcherTimer? _clockTimer;
     private DispatcherTimer? _imageTimer;
     private DispatcherTimer? _transitionTimer;
@@ -45,12 +49,12 @@ public partial class WelcomeWindow : Window
         _vm.CloseRequested += () => Close();
 
         // Clock timer — every second
-        _clockTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+        _clockTimer = new DispatcherTimer { Interval = ClockInterval };
         _clockTimer.Tick += OnClockTimerTick;
         _clockTimer.Start();
 
         // Image rotation timer — every 8 seconds
-        _imageTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(8) };
+        _imageTimer = new DispatcherTimer { Interval = ImageRotationInterval };
         _imageTimer.Tick += OnImageTimerTick;
         _imageTimer.Start();
 
@@ -86,7 +90,7 @@ public partial class WelcomeWindow : Window
 
             // After 1.2s crossfade completes, swap buffers (add 100ms safety margin)
             _transitionTimer?.Stop();
-            _transitionTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1350) };
+            _transitionTimer = new DispatcherTimer { Interval = CrossfadeCompleteDelay };
             _transitionTimer.Tick += (_, _) =>
             {
                 _transitionTimer?.Stop();

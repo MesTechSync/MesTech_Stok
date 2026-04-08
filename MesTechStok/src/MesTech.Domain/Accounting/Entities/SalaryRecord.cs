@@ -39,6 +39,7 @@ public sealed class SalaryRecord : BaseEntity, ITenantEntity
         Guid? employeeId = null,
         string? notes = null)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(employeeName);
         if (grossSalary <= 0)
             throw new ArgumentOutOfRangeException(nameof(grossSalary), "Gross salary must be positive.");

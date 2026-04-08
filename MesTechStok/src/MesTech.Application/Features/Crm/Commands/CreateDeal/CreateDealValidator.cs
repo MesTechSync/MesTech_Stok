@@ -10,6 +10,6 @@ public sealed class CreateDealValidator : AbstractValidator<CreateDealCommand>
         RuleFor(x => x.Title).NotEmpty().MaximumLength(500);
         RuleFor(x => x.PipelineId).NotEmpty();
         RuleFor(x => x.StageId).NotEmpty();
-        RuleFor(x => x.Amount).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.Amount).GreaterThan(0).WithMessage("Fırsat tutarı sıfırdan büyük olmalıdır.");
     }
 }

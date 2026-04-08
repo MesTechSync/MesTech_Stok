@@ -13,6 +13,7 @@ public partial class BarcodeAvaloniaView : BaseView
 
     protected override void SubscribeEvents()
     {
+        base.SubscribeEvents();
         // Auto-focus barcode input for USB HID keyboard wedge
         var barcodeInput = this.FindControl<TextBox>("BarcodeInput");
         barcodeInput?.Focus();

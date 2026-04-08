@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using MesTech.Application.DTOs.Invoice;
 using MesTech.Application.Interfaces;
+using MesTech.Domain.Entities.EInvoice;
 using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Auth;
 using MesTech.Infrastructure.Security;
@@ -15,7 +16,7 @@ namespace MesTech.Infrastructure.Integration.Invoice;
 /// Content-Type: application/vnd.api+json
 /// Request/response wrapped in { data: { type, attributes } }
 /// </summary>
-public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable
+public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapable, IEInvoiceProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<ParasutInvoiceProvider> _logger;
@@ -91,7 +92,7 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
         {
             await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/v4/{_companyId}/e_invoices/{gibInvoiceId}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -106,9 +107,12 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
             using var doc = JsonDocument.Parse(json);
 
             // JSON:API format: { data: { attributes: { status, ... } } }
-            var attributes = doc.RootElement
-                .GetProperty("data")
-                .GetProperty("attributes");
+            if (!doc.RootElement.TryGetProperty("data", out var dataEl)
+                || !dataEl.TryGetProperty("attributes", out var attributes))
+            {
+                _logger.LogWarning("[ParasutInvoice] Unexpected JSON:API response — missing data.attributes");
+                return new InvoiceStatusResult(gibInvoiceId, "Unknown", null, "Unexpected API response");
+            }
 
             var status = attributes.TryGetProperty("status", out var s)
                 ? s.GetString() ?? "Unknown" : "Unknown";
@@ -119,7 +123,7 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
 
             return new InvoiceStatusResult(gibInvoiceId, status, acceptedAt, error);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Parasut CheckStatus exception for {GibInvoiceId}", gibInvoiceId);
             return new InvoiceStatusResult(gibInvoiceId, "Error", null, ex.Message);
@@ -133,7 +137,7 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
 
         await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
-        var response = await _httpClient.GetAsync(
+        using var response = await _httpClient.GetAsync(
             $"{_baseUrl}/v4/{_companyId}/e_invoices/{gibInvoiceId}/pdf", ct).ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
@@ -149,7 +153,7 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
         {
             await SetAuthHeaderAsync(ct).ConfigureAwait(false);
 
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{_baseUrl}/v4/{_companyId}/e_invoice_inboxes?filter[vkn]={taxNumber}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -163,10 +167,11 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
             using var doc = JsonDocument.Parse(json);
 
             // JSON:API: { data: [...] } — non-empty data means taxpayer is registered
-            var data = doc.RootElement.GetProperty("data");
+            if (!doc.RootElement.TryGetProperty("data", out var data))
+                return false;
             return data.ValueKind == JsonValueKind.Array && data.GetArrayLength() > 0;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Parasut taxpayer check exception for {TaxNumber}", PiiLogMaskHelper.MaskTaxNumber(taxNumber));
             return false;
@@ -185,7 +190,7 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
             var request = new HttpRequestMessage(HttpMethod.Delete,
                 $"{_baseUrl}/v4/{_companyId}/e_invoices/{gibInvoiceId}");
 
-            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -197,7 +202,7 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
 
             return new InvoiceResult(true, gibInvoiceId, null, null);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Parasut CancelInvoice exception for {GibInvoiceId}", gibInvoiceId);
             return new InvoiceResult(false, gibInvoiceId, null, ex.Message);
@@ -228,14 +233,14 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
                     customer_tax_number = req.Customer.TaxNumber,
                     customer_tax_office = req.Customer.TaxOffice,
                     customer_address = req.Customer.Address,
-                    grand_total = req.TotalAmount.ToString(CultureInfo.InvariantCulture),
+                    grand_total = req.TotalAmount,
                     lines = req.Lines.Select(l => new
                     {
                         product_name = l.ProductName,
                         sku = l.SKU,
                         quantity = l.Quantity,
-                        unit_price = l.UnitPrice.ToString(CultureInfo.InvariantCulture),
-                        tax_rate = l.TaxRate.ToString(CultureInfo.InvariantCulture)
+                        unit_price = l.UnitPrice,
+                        tax_rate = l.TaxRate
                     }).ToArray()
                 }
             }).ToArray();
@@ -247,7 +252,7 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
             content.Headers.ContentType = JsonApiMediaType;
 
             var url = $"{_baseUrl}/v4/{_companyId}/e_invoices/bulk";
-            var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -264,13 +269,20 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
             var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             using var doc = JsonDocument.Parse(responseJson);
 
-            var dataElement = doc.RootElement.GetProperty("data");
+            if (!doc.RootElement.TryGetProperty("data", out var dataElement))
+            {
+                _logger.LogWarning("[ParasutInvoice] BulkCreate: unexpected response — missing data element");
+                var failAll = requestList.Select(r =>
+                    new BulkInvoiceItemResult(r.OrderId, false, null, "Unexpected API response")).ToList();
+                return new BulkInvoiceResult(requestList.Count, 0, requestList.Count, failAll);
+            }
             var results = new List<BulkInvoiceItemResult>();
             var i = 0;
 
             foreach (var item in dataElement.EnumerateArray())
             {
-                var attrs = item.GetProperty("attributes");
+                if (!item.TryGetProperty("attributes", out var attrs))
+                    continue;
                 var gibId = attrs.TryGetProperty("gib_invoice_id", out var gib)
                     && gib.ValueKind != JsonValueKind.Null
                     ? gib.GetString() : null;
@@ -285,7 +297,7 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
             var successCount = results.Count(r => r.Success);
             return new BulkInvoiceResult(requestList.Count, successCount, results.Count - successCount, results);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Parasut CreateBulkInvoice exception");
 
@@ -386,7 +398,7 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
             var content = new StringContent(json, Encoding.UTF8);
             content.Headers.ContentType = JsonApiMediaType;
 
-            var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -400,18 +412,113 @@ public sealed class ParasutInvoiceProvider : IInvoiceProvider, IBulkInvoiceCapab
             using var doc = JsonDocument.Parse(responseJson);
 
             // JSON:API: { data: { id, attributes: { gib_invoice_id, pdf_url } } }
-            var data = doc.RootElement.GetProperty("data");
-            var attrs = data.GetProperty("attributes");
+            if (!doc.RootElement.TryGetProperty("data", out var data)
+                || !data.TryGetProperty("attributes", out var attrs))
+            {
+                _logger.LogWarning("[ParasutInvoice] POST {Url}: unexpected response — missing data.attributes", url);
+                return new InvoiceResult(false, null, null, "Unexpected API response format");
+            }
 
             var gibId = attrs.TryGetProperty("gib_invoice_id", out var gib) ? gib.GetString() : null;
             var pdfUrl = attrs.TryGetProperty("pdf_url", out var pdf) ? pdf.GetString() : null;
 
             return new InvoiceResult(true, gibId, pdfUrl, null);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Parasut POST {Url} exception", url);
             return new InvoiceResult(false, null, null, ex.Message);
         }
+    }
+
+    // ── IEInvoiceProvider ────────────────────────────────────────────────
+
+    string IEInvoiceProvider.ProviderCode => "Parasut";
+
+    async Task<EInvoiceSendResult> IEInvoiceProvider.SendAsync(EInvoiceDocument document, CancellationToken ct)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("[Parasut] IEInvoiceProvider.SendAsync ETTN={Ettn}", document.EttnNo);
+        try
+        {
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
+            // Parasut JSON:API format: POST /{companyId}/e_invoices
+            var payload = new
+            {
+                data = new
+                {
+                    type = "e_invoices",
+                    attributes = new
+                    {
+                        scenario = document.Scenario.ToString().ToLowerInvariant(),
+                        to = document.BuyerVkn ?? "",
+                        note = $"ETTN: {document.EttnNo}",
+                        issue_date = document.IssueDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+                    }
+                }
+            };
+            var json = JsonSerializer.Serialize(payload, s_snakeCaseJson);
+            var url = $"{_baseUrl}/{_companyId}/e_invoices";
+            var content = new StringContent(json, Encoding.UTF8, "application/vnd.api+json");
+            using var response = await _httpClient.PostAsync(url, content, ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                var err = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                return new EInvoiceSendResult(false, null, err, 0);
+            }
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(body);
+            string? providerRef = null;
+            if (doc.RootElement.TryGetProperty("data", out var data))
+                providerRef = data.TryGetProperty("id", out var id) ? id.GetString() : null;
+            return new EInvoiceSendResult(true, providerRef, null, 1);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[Parasut] IEInvoiceProvider.SendAsync exception");
+            return new EInvoiceSendResult(false, null, ex.Message, 0);
+        }
+    }
+
+    async Task<string?> IEInvoiceProvider.GetPdfUrlAsync(string providerRef, CancellationToken ct)
+    {
+        EnsureConfigured();
+        try
+        {
+            await SetAuthHeaderAsync(ct).ConfigureAwait(false);
+            var url = $"{_baseUrl}/{_companyId}/e_invoices/{providerRef}";
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode) return null;
+            var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(body);
+            if (doc.RootElement.TryGetProperty("data", out var data) &&
+                data.TryGetProperty("attributes", out var attrs) &&
+                attrs.TryGetProperty("pdf_url", out var pdfUrl))
+                return pdfUrl.GetString();
+            return null;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[Parasut] GetPdfUrlAsync exception ref={Ref}", providerRef);
+            return null;
+        }
+    }
+
+    async Task<bool> IEInvoiceProvider.CancelAsync(string providerRef, string reason, CancellationToken ct)
+    {
+        var result = await CancelInvoiceAsync(providerRef, ct).ConfigureAwait(false);
+        return result.Success;
+    }
+
+    async Task<VknMukellefResult> IEInvoiceProvider.CheckVknMukellefAsync(string vkn, CancellationToken ct)
+    {
+        var isRegistered = await IsEInvoiceTaxpayerAsync(vkn, ct).ConfigureAwait(false);
+        return new VknMukellefResult(vkn, isRegistered, false, null, DateTime.UtcNow);
+    }
+
+    Task<int> IEInvoiceProvider.GetCreditBalanceAsync(CancellationToken ct)
+    {
+        // Parasut: kontor tabanlı değil, abonelik bazlı — sınırsız
+        return Task.FromResult(int.MaxValue);
     }
 }

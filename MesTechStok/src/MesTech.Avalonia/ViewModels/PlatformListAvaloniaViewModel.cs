@@ -27,13 +27,9 @@ public partial class PlatformListAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetPlatformListQuery(_currentUser.TenantId)) ?? new();
+            var result = await _mediator.Send(new GetPlatformListQuery(_currentUser.TenantId), ct) ?? new();
 
             Platforms.Clear();
             foreach (var dto in result)
@@ -49,16 +45,7 @@ public partial class PlatformListAvaloniaViewModel : ViewModelBase
 
             TotalCount = Platforms.Count;
             IsEmpty = TotalCount == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Platform listesi yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Platform listesi yuklenirken hata");
     }
 
     [RelayCommand]

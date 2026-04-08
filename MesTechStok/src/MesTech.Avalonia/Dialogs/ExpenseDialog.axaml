@@ -1,6 +1,8 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="MesTech.Avalonia.Dialogs.ExpenseDialog"
+             x:CompileBindings="False"
+             AutomationProperties.Name="Expense Dialog"
         Title="Gider Kaydi"
         Width="450" Height="350"
         CanResize="False"

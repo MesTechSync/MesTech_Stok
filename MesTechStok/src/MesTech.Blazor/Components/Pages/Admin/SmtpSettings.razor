@@ -1,0 +1,177 @@
+@page "/system/smtp"
+@attribute [Authorize(Roles = "Admin")]
+@using Microsoft.AspNetCore.Authorization
+@inject MesTechApiClient ApiClient
+@inject ILogger<SmtpSettings> Logger
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<PageTitle>SMTP Ayarlari</PageTitle>
+
+<div class="container-fluid">
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width:48px;height:48px;background:linear-gradient(135deg,#ec4899,#db2777)">
+      <i class="fas fa-envelope text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0">SMTP Ayarlari</h3>
+      <small class="text-muted">E-posta gonderim yapilandirmasi ve test</small>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white"><strong>SMTP Yapilandirmasi</strong></div>
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-md-8">
+              <label class="form-label">SMTP Sunucu</label>
+              <input type="text" class="form-control" @bind="config.Host" placeholder="smtp.gmail.com" />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Port</label>
+              <input type="number" class="form-control" @bind="config.Port" />
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Kullanici Adi</label>
+              <input type="text" class="form-control" @bind="config.Username" placeholder="info@sirket.com" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Sifre</label>
+              <input type="password" class="form-control" @bind="config.Password" placeholder="App password" />
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Gonderen Adi</label>
+              <input type="text" class="form-control" @bind="config.SenderName" placeholder="MesTech Bildirim" />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Gonderen E-posta</label>
+              <input type="email" class="form-control" @bind="config.SenderEmail" placeholder="bildirim@sirket.com" />
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" @bind="config.UseSsl" id="sslSwitch" />
+              <label class="form-check-label" for="sslSwitch">SSL/TLS kullan</label>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button class="btn btn-primary" @onclick="SaveConfig">
+              <i class="fas fa-save me-1"></i>Kaydet
+            </button>
+            <button class="btn btn-outline-info" @onclick="SendTestEmail" disabled="@isTesting">
+              @if (isTesting)
+              {
+                <span class="spinner-border spinner-border-sm me-1"></span>
+              }
+              <i class="fas fa-paper-plane me-1"></i>Test Gonder
+            </button>
+          </div>
+
+          @if (!string.IsNullOrEmpty(statusMessage))
+          {
+            <div class="alert alert-@(statusIsError ? "danger" : "success") mt-3 mb-0">
+              <i class="fas fa-@(statusIsError ? "times-circle" : "check-circle") me-1"></i>@statusMessage
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white"><strong>Yardim</strong></div>
+        <div class="card-body">
+          <h6>Populer SMTP Ayarlari</h6>
+          <table class="table table-sm">
+            <thead><tr><th>Servis</th><th>Host</th><th>Port</th></tr></thead>
+            <tbody>
+              <tr><td>Gmail</td><td><code>smtp.gmail.com</code></td><td>587</td></tr>
+              <tr><td>Outlook</td><td><code>smtp.office365.com</code></td><td>587</td></tr>
+              <tr><td>Yandex</td><td><code>smtp.yandex.com</code></td><td>465</td></tr>
+              <tr><td>SendGrid</td><td><code>smtp.sendgrid.net</code></td><td>587</td></tr>
+            </tbody>
+          </table>
+          <small class="text-muted">Gmail icin "App Password" kullanin (2FA aktifken).</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+@code {
+    private bool _isDemoMode;
+    private bool isTesting;
+    private string? statusMessage;
+    private bool statusIsError;
+    private SmtpConfig config = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var result = await ApiClient.SafeGetAsync<SmtpConfig>("system/smtp");
+            if (result.IsSuccess && result.Data is not null)
+                config = result.Data;
+            else { _isDemoMode = true; }
+        }
+        catch { _isDemoMode = true; }
+    }
+
+    private async Task SaveConfig()
+    {
+        statusMessage = null;
+        try
+        {
+            await ApiClient.SafePutAsync<object>("system/smtp", config);
+            statusMessage = "SMTP ayarlari kaydedildi.";
+            statusIsError = false;
+        }
+        catch (Exception ex)
+        {
+            statusMessage = $"Kayit basarisiz: {ex.Message}";
+            statusIsError = true;
+        }
+    }
+
+    private async Task SendTestEmail()
+    {
+        isTesting = true;
+        statusMessage = null;
+        try
+        {
+            var result = await ApiClient.SafeGetAsync<object>("system/smtp/test");
+            statusMessage = result.IsSuccess
+                ? "Test e-postasi basariyla gonderildi!"
+                : "Test basarisiz — SMTP ayarlarini kontrol edin.";
+            statusIsError = !result.IsSuccess;
+        }
+        catch (Exception ex)
+        {
+            statusMessage = $"Test hatasi: {ex.Message}";
+            statusIsError = true;
+        }
+        finally { isTesting = false; }
+    }
+
+    private sealed class SmtpConfig
+    {
+        public string Host { get; set; } = "";
+        public int Port { get; set; } = 587;
+        public string Username { get; set; } = "";
+        public string Password { get; set; } = "";
+        public string SenderName { get; set; } = "";
+        public string SenderEmail { get; set; } = "";
+        public bool UseSsl { get; set; } = true;
+    }
+}

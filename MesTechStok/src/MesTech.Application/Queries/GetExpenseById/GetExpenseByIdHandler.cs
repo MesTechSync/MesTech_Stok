@@ -15,7 +15,7 @@ public sealed class GetExpenseByIdHandler : IRequestHandler<GetExpenseByIdQuery,
     public async Task<ExpenseDto?> Handle(GetExpenseByIdQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var expense = await _repository.GetByIdAsync(request.Id).ConfigureAwait(false);
+        var expense = await _repository.GetByIdAsync(request.Id, cancellationToken).ConfigureAwait(false);
         return expense?.Adapt<ExpenseDto>();
     }
 }

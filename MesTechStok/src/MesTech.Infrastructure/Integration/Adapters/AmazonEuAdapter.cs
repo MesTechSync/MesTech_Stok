@@ -4,9 +4,12 @@ using System.Text;
 using System.Text.Json;
 using System.Xml.Linq;
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
+using MesTech.Infrastructure.Integration.Security;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -32,12 +35,14 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 ///   PL = A1C3SOZRARQ6R3
 /// </summary>
 public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter, IPingableAdapter,
-    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter
+    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter,
+    IReviewCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<AmazonEuAdapter> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(30, 30);
 
@@ -93,10 +98,11 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
         };
 
     public AmazonEuAdapter(HttpClient httpClient, ILogger<AmazonEuAdapter> logger,
-        IOptions<AmazonOptions>? options = null)
+        IOptions<AmazonOptions>? options = null, IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _scopeFactory = scopeFactory;
 
         var opts = options?.Value ?? new AmazonOptions();
         _httpClient.Timeout = TimeSpan.FromSeconds(opts.HttpTimeoutSeconds);
@@ -208,7 +214,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
         var lwaRequest = CreateRequest(HttpMethod.Post, _lwaEndpoint);
         lwaRequest.Content = content;
-        var response = await _httpClient.SendAsync(lwaRequest, ct).ConfigureAwait(false);
+        using var response = await _httpClient.SendAsync(lwaRequest, ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         using var json = await JsonDocument.ParseAsync(
@@ -271,9 +277,8 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
                 (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
                 throw new ArgumentException($"Invalid AmazonEu base URL scheme: {_baseUrl}. Only HTTP(S) allowed.");
 
-            if (parsedUri.Host is "localhost" or "127.0.0.1" || parsedUri.Host.StartsWith("10.") ||
-                parsedUri.Host.StartsWith("172.") || parsedUri.Host.StartsWith("192.168."))
-                _logger.LogWarning("[AmazonEuAdapter] BaseUrl points to internal/private network: {BaseUrl}", _baseUrl);
+            if (SsrfGuard.IsPrivateHost(parsedUri.Host))
+                _logger.LogWarning("[AmazonEuAdapter] BaseUrl points to private network: {BaseUrl}", _baseUrl);
 
             _httpClient.BaseAddress = parsedUri;
         }
@@ -313,7 +318,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             await EnsureFreshTokenAsync(ct).ConfigureAwait(false);
 
             // Test: catalog items with limit=1 against the active EU marketplace
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var req = await CreateAuthenticatedRequestAsync(
@@ -392,7 +397,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
         try
         {
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var req = await CreateAuthenticatedRequestAsync(
@@ -461,7 +466,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
             _logger.LogInformation("Amazon EU PullProducts: {Count} products retrieved", products.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Amazon EU PullProducts failed");
         }
@@ -494,7 +499,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             var sku = Uri.EscapeDataString(product.SKU);
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var request = await CreateAuthenticatedRequestAsync(
@@ -515,7 +520,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             _logger.LogInformation("Amazon EU PushProduct success: {SKU}", product.SKU);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Amazon EU PushProduct exception: {SKU}", product.SKU);
             return false;
@@ -529,7 +534,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
         try
         {
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var req = await CreateAuthenticatedRequestAsync(
@@ -575,7 +580,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
                 categories.Count, _activeMarketplaceId);
             return categories.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "AmazonEu GetCategories exception");
             return Array.Empty<CategoryDto>();
@@ -600,7 +605,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
             var url = $"/orders/v0/orders?MarketplaceIds={_activeMarketplaceId}&CreatedAfter={Uri.EscapeDataString(createdAfter)}";
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, url, token).ConfigureAwait(false);
@@ -670,7 +675,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
             _logger.LogInformation("Amazon EU PullOrders: {Count} orders retrieved", orders.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Amazon EU PullOrders failed");
         }
@@ -682,7 +687,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
     {
         try
         {
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var request = await CreateAuthenticatedRequestAsync(
@@ -733,7 +738,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
                 }
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Amazon EU PullOrderItems failed for order {OrderId}", orderId);
         }
@@ -755,16 +760,24 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
     public async Task<bool> PushStockUpdateAsync(Guid productId, int newStock, CancellationToken ct = default)
     {
         EnsureConfigured();
+
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.AmazonEu, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} StockUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         _logger.LogInformation(
             "AmazonEuAdapter.PushStockUpdateAsync: ProductId={ProductId} qty={Qty} marketplace={Marketplace}",
             productId, newStock, _activeMarketplaceId);
 
         try
         {
-            var feed = BuildInventoryFeed(productId.ToString(), newStock);
+            var feed = BuildInventoryFeed(externalId, newStock);
             return await SubmitFeedAsync(feed, "POST_INVENTORY_AVAILABILITY_DATA", ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Amazon EU StockUpdate exception: {ProductId}", productId);
             return false;
@@ -774,16 +787,24 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
     public async Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
     {
         EnsureConfigured();
+
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.AmazonEu, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} PriceUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         _logger.LogInformation(
             "AmazonEuAdapter.PushPriceUpdateAsync: ProductId={ProductId} price={Price} marketplace={Marketplace}",
             productId, newPrice, _activeMarketplaceId);
 
         try
         {
-            var feed = BuildPricingFeed(productId.ToString(), newPrice);
+            var feed = BuildPricingFeed(externalId, newPrice);
             return await SubmitFeedAsync(feed, "POST_PRODUCT_PRICING_DATA", ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Amazon EU PriceUpdate exception: {ProductId}", productId);
             return false;
@@ -885,8 +906,17 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
         var createDocContent = await createDocResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
         using var createDocJson = JsonDocument.Parse(createDocContent);
-        var feedDocumentId = createDocJson.RootElement.GetProperty("feedDocumentId").GetString()!;
-        var uploadUrl = createDocJson.RootElement.GetProperty("url").GetString()!;
+        var feedDocumentId = createDocJson.RootElement.TryGetProperty("feedDocumentId", out var fdId)
+            ? fdId.GetString() : null;
+        var uploadUrl = createDocJson.RootElement.TryGetProperty("url", out var urlProp)
+            ? urlProp.GetString() : null;
+
+        if (string.IsNullOrEmpty(feedDocumentId) || string.IsNullOrEmpty(uploadUrl))
+        {
+            _logger.LogError("Amazon EU CreateFeedDocument returned incomplete response: feedDocumentId={FdId}, url={Url}",
+                feedDocumentId, uploadUrl);
+            return false;
+        }
 
         // Step 2: Upload XML to the pre-signed URL
         var xmlString = feedXml.Declaration != null
@@ -895,7 +925,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
         var uploadRequest = CreateRequest(HttpMethod.Put, uploadUrl);
         uploadRequest.Content = new StringContent(xmlString, Encoding.UTF8, "text/xml");
-        var uploadResponse = await _httpClient.SendAsync(uploadRequest, ct).ConfigureAwait(false);
+        using var uploadResponse = await _httpClient.SendAsync(uploadRequest, ct).ConfigureAwait(false);
 
         if (!uploadResponse.IsSuccessStatusCode)
         {
@@ -976,7 +1006,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
         {
             var feedXml = BuildShipmentConfirmFeed(platformOrderId, trackingNumber, carrierCode);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     var req = CreateRequest(HttpMethod.Post, "/feeds/2021-06-30/feeds");
@@ -994,7 +1024,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             _logger.LogInformation("AmazonEu SendShipment OK: OrderId={OrderId}", platformOrderId);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "AmazonEu SendShipment exception: OrderId={OrderId}", platformOrderId);
             return false;
@@ -1023,6 +1053,74 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
     }
 
     // ═══════════════════════════════════════════
+    // IReviewCapableAdapter — Product Reviews
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Gets product reviews from Amazon EU SP-API.
+    /// Uses /products/reviews endpoint with seller-level pagination.
+    /// </summary>
+    public async Task<IReadOnlyList<TrendyolProductReviewDto>> GetProductReviewsAsync(
+        int page = 0, int size = 20, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("AmazonEuAdapter.GetProductReviewsAsync page={Page} size={Size}", page, size);
+
+        try
+        {
+            var response = await ThrottledExecuteAsync(async token =>
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get,
+                    $"/products/reviews?sellerId={_sellerId}&pageSize={size}&pageToken={page}");
+                request.Headers.TryAddWithoutValidation("x-amz-access-token", _accessToken);
+                request.Headers.TryAddWithoutValidation("User-Agent", "MesTech-AmazonEU-Client/3.0");
+                return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+            }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("AmazonEU GetProductReviews failed: {Status} - {Error}", response.StatusCode, error);
+                return Array.Empty<TrendyolProductReviewDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var reviews = new List<TrendyolProductReviewDto>();
+            var items = doc.RootElement.TryGetProperty("reviews", out var revArr) ? revArr
+                : doc.RootElement.TryGetProperty("payload", out var payArr) ? payArr
+                : doc.RootElement;
+
+            if (items.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in items.EnumerateArray())
+                {
+                    reviews.Add(new TrendyolProductReviewDto(
+                        Id: item.TryGetProperty("reviewId", out var id) ? (id.ValueKind == JsonValueKind.Number ? id.GetInt64() : 0) : 0,
+                        ProductId: item.TryGetProperty("asin", out var asin) ? asin.GetString()?.GetHashCode() ?? 0 : 0,
+                        Comment: item.TryGetProperty("body", out var body) ? body.GetString() ?? ""
+                            : item.TryGetProperty("text", out var text) ? text.GetString() ?? "" : "",
+                        Rate: item.TryGetProperty("rating", out var rate) ? (int)rate.GetDouble() : 0,
+                        UserFullName: item.TryGetProperty("reviewerName", out var name) ? name.GetString() ?? "" : "",
+                        CreatedAt: item.TryGetProperty("date", out var dt)
+                            ? (DateTime.TryParse(dt.GetString(), out var parsed) ? parsed : DateTime.MinValue)
+                            : DateTime.MinValue,
+                        IsReplied: item.TryGetProperty("isReplied", out var replied) && replied.GetBoolean()));
+                }
+            }
+
+            _logger.LogInformation("AmazonEU GetProductReviews: {Count} reviews fetched", reviews.Count);
+            return reviews;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "AmazonEU GetProductReviews exception");
+            return Array.Empty<TrendyolProductReviewDto>();
+        }
+    }
+
+    // ═══════════════════════════════════════════
     // IPingableAdapter — Lightweight Health Check
     // ═══════════════════════════════════════════
 
@@ -1035,7 +1133,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             cts.CancelAfter(TimeSpan.FromSeconds(5));
 
             var request = CreateRequest(HttpMethod.Head, _baseUrl);
-            var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
 
             _logger.LogDebug("Amazon EU ping: {StatusCode}", response.StatusCode);
             return true;
@@ -1066,7 +1164,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
             var request = await CreateAuthenticatedRequestAsync(HttpMethod.Get, url, ct).ConfigureAwait(false);
 
-            var response = await ThrottledExecuteAsync(async token =>
+            using var response = await ThrottledExecuteAsync(async token =>
             {
                 return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
             }, ct).ConfigureAwait(false);
@@ -1241,7 +1339,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             else
                 url += "&CreatedAfter=" + DateTime.UtcNow.AddDays(-30).ToString("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var req = await CreateAuthenticatedRequestAsync(HttpMethod.Get, url, token).ConfigureAwait(false);
@@ -1284,7 +1382,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
 
             _logger.LogInformation("Amazon EU PullClaims: {Count} claims fetched", claims.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Amazon EU PullClaims exception");
         }
@@ -1379,7 +1477,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
             uploadRequest.Content = new ByteArrayContent(pdfBytes);
             uploadRequest.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
 
-            var uploadResponse = await _httpClient.SendAsync(uploadRequest, ct).ConfigureAwait(false);
+            using var uploadResponse = await _httpClient.SendAsync(uploadRequest, ct).ConfigureAwait(false);
             if (!uploadResponse.IsSuccessStatusCode)
             {
                 var error = await uploadResponse.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
@@ -1416,7 +1514,7 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
                 shipmentPackageId, feedDocumentId);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Amazon EU SendInvoiceFile exception: Package={PackageId}", shipmentPackageId);
             return false;
@@ -1425,18 +1523,20 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
     // ── IWebhookCapableAdapter (Amazon SNS) ──
     public Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default) { _logger.LogInformation("[AmazonEu] RegisterWebhook (SNS) {Url}", callbackUrl); return Task.FromResult(true); }
     public Task<bool> UnregisterWebhookAsync(CancellationToken ct = default) => Task.FromResult(true);
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(payload)) return Task.CompletedTask;
+        if (string.IsNullOrWhiteSpace(payload)) return;
+        string? notificationType = null;
+        string? messageId = null;
         try
         {
             using var doc = System.Text.Json.JsonDocument.Parse(payload);
             var root = doc.RootElement;
-            var notificationType = root.TryGetProperty("NotificationType", out var nt) ? nt.GetString()
+            notificationType = root.TryGetProperty("NotificationType", out var nt) ? nt.GetString()
                                  : root.TryGetProperty("Type", out var tp) ? tp.GetString()
                                  : "unknown";
             var topicArn = root.TryGetProperty("TopicArn", out var ta) ? ta.GetString() : null;
-            var messageId = root.TryGetProperty("MessageId", out var mid) ? mid.GetString() : null;
+            messageId = root.TryGetProperty("MessageId", out var mid) ? mid.GetString() : null;
             _logger.LogInformation(
                 "AmazonEU webhook processed: NotificationType={NotificationType} TopicArn={TopicArn} MessageId={MessageId} PayloadLength={Len}",
                 notificationType, topicArn, messageId, payload.Length);
@@ -1445,6 +1545,6 @@ public sealed class AmazonEuAdapter : IIntegratorAdapter, IOrderCapableAdapter, 
         {
             _logger.LogWarning(ex, "[AmazonEu] SNS webhook payload parse failed ({Len}b)", payload.Length);
         }
-        return Task.CompletedTask;
+        await WebhookDispatchHelper.DispatchAsync(_scopeFactory, PlatformCode, notificationType, messageId, payload, _logger, ct).ConfigureAwait(false);
     }
 }

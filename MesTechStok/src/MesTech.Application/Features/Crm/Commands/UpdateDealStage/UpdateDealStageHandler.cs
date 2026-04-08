@@ -28,7 +28,7 @@ public sealed class UpdateDealStageHandler
             return new UpdateDealStageResult { ErrorMessage = $"Deal bulunamadi: {request.DealId}" };
 
         deal.MoveToStage(request.NewStageId);
-        await _dealRepository.UpdateAsync(deal).ConfigureAwait(false);
+        await _dealRepository.UpdateAsync(deal, cancellationToken).ConfigureAwait(false);
         await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation("Deal stage guncellendi: DealId={DealId}, NewStage={Stage}",

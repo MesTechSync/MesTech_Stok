@@ -29,7 +29,7 @@ public sealed class DemoDataSeeder
 
     /// <summary>Demo login credentials.</summary>
     public const string DemoUsername = "demo";
-    public const string DemoPassword = "Demo123!";
+    internal const string DemoPassword = "Demo123!"; // internal — never expose via public API
     public const string DemoEmail = "demo@mestech.tr";
 
     private readonly AppDbContext _context;
@@ -197,7 +197,6 @@ public sealed class DemoDataSeeder
                 PurchasePrice = purchasePrice,
                 SalePrice = salePrice,
                 ListPrice = salePrice * 1.2m,
-                Stock = stock,
                 MinimumStock = 5,
                 MaximumStock = 500,
                 ReorderLevel = 10,
@@ -210,6 +209,7 @@ public sealed class DemoDataSeeder
                 CreatedBy = "DemoDataSeeder"
             };
 
+            product.SyncStock(stock, "demo-seed");
             _context.Products.Add(product);
             productIds.Add(product.Id);
         }

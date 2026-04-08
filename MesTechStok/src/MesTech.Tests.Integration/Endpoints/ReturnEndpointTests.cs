@@ -28,14 +28,14 @@ public sealed class ReturnEndpointTests : IClassFixture<EndpointTestWebAppFactor
     [Fact]
     public async Task GetReturnList_NoApiKey_Returns401()
     {
-        var response = await _noAuthClient.GetAsync($"/api/v1/returns?tenantId={Guid.NewGuid()}");
+        var response = await _noAuthClient.GetAsync($"/api/v1/returns?tenantId={EndpointTestWebAppFactory.TestTenantId}");
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Fact]
     public async Task GetReturnList_ValidRequest_ReturnsExpected()
     {
-        var response = await _authClient.GetAsync($"/api/v1/returns?tenantId={Guid.NewGuid()}");
+        var response = await _authClient.GetAsync($"/api/v1/returns?tenantId={EndpointTestWebAppFactory.TestTenantId}");
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.InternalServerError);
     }
 

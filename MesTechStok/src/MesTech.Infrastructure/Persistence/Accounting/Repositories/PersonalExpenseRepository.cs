@@ -18,7 +18,7 @@ public sealed class PersonalExpenseRepository : IPersonalExpenseRepository
         var q = _context.PersonalExpenses
             .Where(e => e.TenantId == tenantId && e.ExpenseDate >= from && e.ExpenseDate <= to);
         if (source.HasValue) q = q.Where(e => e.Source == source.Value);
-        return await q.OrderByDescending(e => e.ExpenseDate).AsNoTracking().ToListAsync(ct);
+        return await q.OrderByDescending(e => e.ExpenseDate).Take(1000).AsNoTracking().ToListAsync(ct); // G485: pagination guard
     }
 
     public async Task<decimal> GetTotalByDateRangeAsync(Guid tenantId, DateTime from, DateTime to, CancellationToken ct = default)

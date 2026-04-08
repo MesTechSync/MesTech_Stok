@@ -33,12 +33,10 @@ public partial class StaleOrdersAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var result = await _mediator.Send(
-                new GetStaleOrdersQuery(_tenantProvider.GetCurrentTenantId()));
+                new GetStaleOrdersQuery(_tenantProvider.GetCurrentTenantId()), ct);
 
             StaleOrders.Clear();
             foreach (var o in result)
@@ -54,17 +52,7 @@ public partial class StaleOrdersAvaloniaViewModel : ViewModelBase
             OnPropertyChanged(nameof(Warning48hCount));
             OnPropertyChanged(nameof(Critical72hCount));
             IsEmpty = StaleOrders.Count == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Gecikmiş sipariş verisi yüklenemedi: {ex.Message}";
-            IsEmpty = true;
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Gecikmis siparis verileri yuklenirken hata");
     }
 
     [RelayCommand]

@@ -1,5 +1,6 @@
 using MesTech.Domain.Common;
 using MesTech.Domain.Enums;
+using MesTech.Domain.Events;
 
 namespace MesTech.Domain.Entities.Crm;
 
@@ -28,7 +29,7 @@ public sealed class Campaign : BaseEntity, ITenantEntity
         if (discountPercent is <= 0 or > 100)
             throw new ArgumentOutOfRangeException(nameof(discountPercent), "Discount must be between 0 and 100.");
 
-        return new Campaign
+        var campaign = new Campaign
         {
             Id = Guid.NewGuid(),
             TenantId = tenantId,
@@ -40,6 +41,12 @@ public sealed class Campaign : BaseEntity, ITenantEntity
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         };
+
+        campaign.RaiseDomainEvent(new CampaignCreatedEvent(
+            campaign.Id, tenantId, name, discountPercent, platformType,
+            startDate, endDate, DateTime.UtcNow));
+
+        return campaign;
     }
 
     public void AddProduct(CampaignProduct product)

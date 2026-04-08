@@ -32,7 +32,7 @@ public static class NotificationEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetNotifications")
-        .WithSummary("Bildirim listesi (sayfalama + okunmamış filtresi)").Produces(200).Produces(400);
+        .WithSummary("Bildirim listesi (sayfalama + okunmamış filtresi)").Produces<NotificationListResult>(200).Produces(400);
 
         // POST /api/v1/notifications/{id}/read — bildirimi okundu olarak işaretle
         group.MapPost("/{id:guid}/read", async (
@@ -70,7 +70,7 @@ public static class NotificationEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetUnreadNotificationCount")
-        .WithSummary("Okunmamış bildirim sayısı").Produces(200).Produces(400);
+        .WithSummary("Okunmamış bildirim sayısı").Produces<StatusResponse>(200).Produces(400);
 
         // POST /api/v1/notifications/push — bildirim gönder + SignalR real-time broadcast
         group.MapPost("/push", async (

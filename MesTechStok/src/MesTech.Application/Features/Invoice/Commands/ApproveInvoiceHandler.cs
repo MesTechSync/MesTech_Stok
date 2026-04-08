@@ -20,7 +20,7 @@ public sealed class ApproveInvoiceHandler : IRequestHandler<ApproveInvoiceComman
     public async Task<bool> Handle(ApproveInvoiceCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var invoice = await _repository.GetByIdAsync(request.InvoiceId).ConfigureAwait(false);
+        var invoice = await _repository.GetByIdAsync(request.InvoiceId, cancellationToken).ConfigureAwait(false);
         if (invoice is null)
         {
             _logger.LogWarning("Invoice {Id} bulunamadi — approve islemi atlanadi.", request.InvoiceId);
@@ -37,7 +37,7 @@ public sealed class ApproveInvoiceHandler : IRequestHandler<ApproveInvoiceComman
             return false;
         }
 
-        await _repository.UpdateAsync(invoice).ConfigureAwait(false);
+        await _repository.UpdateAsync(invoice, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation("Invoice {Id} ({Number}) basariyla onaylandi.", request.InvoiceId, invoice.InvoiceNumber);

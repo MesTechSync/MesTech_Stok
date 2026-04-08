@@ -34,6 +34,7 @@ public sealed class FixedExpense : BaseEntity, ITenantEntity
         Guid? supplierId = null,
         string? notes = null)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         if (monthlyAmount <= 0)
             throw new ArgumentOutOfRangeException(nameof(monthlyAmount), "Monthly amount must be positive.");

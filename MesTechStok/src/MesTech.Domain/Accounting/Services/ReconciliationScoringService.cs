@@ -4,8 +4,8 @@ namespace MesTech.Domain.Accounting.Services;
 
 /// <summary>
 /// Mutabakat eslestirme skorlama servisi.
-/// 4 bileskenli skor: tutar (%40), tarih (%25), aciklama (%20), karsi taraf (%15).
-/// Esik degerleri: >= 0.95 AutoMatched, 0.70-0.94 NeedsReview, &lt; 0.70 Unmatched.
+/// 3 bileskenli skor: tutar (%60), tarih (%25), aciklama (%15).
+/// Esik degerleri: >= 0.85 AutoMatched, 0.70-0.84 NeedsReview, &lt; 0.70 Unmatched.
 /// </summary>
 public sealed class ReconciliationScoringService : IReconciliationScoringService
 {

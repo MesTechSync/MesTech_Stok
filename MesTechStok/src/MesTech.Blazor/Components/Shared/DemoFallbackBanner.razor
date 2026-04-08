@@ -1,10 +1,24 @@
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment Environment
+
 @if (IsDemoMode)
 {
-  <div class="alert alert-warning alert-dismissible fade show mb-3" role="alert">
-    <i class="fas fa-flask me-2"></i>
-    <strong>Demo Modu:</strong> @Message
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
-  </div>
+  @if (Environment.IsDevelopment())
+  {
+    <div class="alert alert-warning alert-dismissible fade show mb-3" role="alert">
+      <i class="fas fa-flask me-2"></i>
+      <strong>Demo Modu (DEV):</strong> @Message
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+    </div>
+  }
+  else
+  {
+    <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i>
+      <strong>Baglanti Hatasi:</strong> Veri kaynagina ulasilamiyor. Gosterilen veriler guncel olmayabilir.
+      Lutfen sistem yoneticinize basvurun.
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+    </div>
+  }
 }
 
 @code {

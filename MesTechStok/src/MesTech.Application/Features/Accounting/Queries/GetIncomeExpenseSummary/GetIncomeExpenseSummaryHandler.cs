@@ -27,8 +27,8 @@ public sealed class GetIncomeExpenseSummaryHandler
         var from = request.From ?? DateTime.UtcNow.AddMonths(-1);
         var to = request.To ?? DateTime.UtcNow;
 
-        var incomes = await _incomeRepo.GetByDateRangeAsync(from, to, request.TenantId).ConfigureAwait(false);
-        var expenses = await _expenseRepo.GetByDateRangeAsync(from, to, request.TenantId).ConfigureAwait(false);
+        var incomes = await _incomeRepo.GetByDateRangeAsync(from, to, request.TenantId, cancellationToken).ConfigureAwait(false);
+        var expenses = await _expenseRepo.GetByDateRangeAsync(from, to, request.TenantId, cancellationToken).ConfigureAwait(false);
 
         var totalIncome = incomes.Sum(i => i.Amount);
         var totalExpense = expenses.Sum(e => e.Amount);

@@ -5,6 +5,7 @@ using MediatR;
 using MesTech.Application.Features.EInvoice.Commands;
 using MesTech.Application.Features.EInvoice.Queries;
 using MesTech.Avalonia.Services;
+using MesTech.Domain.Interfaces;
 
 namespace MesTech.Avalonia.ViewModels;
 
@@ -16,14 +17,18 @@ public partial class InvoiceListAvaloniaViewModel : ViewModelBase
 {
     private readonly IMediator _mediator;
     private readonly IDialogService _dialog;
+    private readonly ITenantProvider _tenantProvider;
+    private readonly INavigationService _nav;
 
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private InvoiceListItemDto? selectedInvoice;
 
-    public InvoiceListAvaloniaViewModel(IMediator mediator, IDialogService dialog)
+    public InvoiceListAvaloniaViewModel(IMediator mediator, IDialogService dialog, ITenantProvider tenantProvider, INavigationService nav)
     {
         _mediator = mediator;
         _dialog = dialog;
+        _tenantProvider = tenantProvider;
+        _nav = nav;
     }
     [ObservableProperty] private string selectedType = "Tumu";
     [ObservableProperty] private string selectedStatus = "Tumu";
@@ -31,6 +36,20 @@ public partial class InvoiceListAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private int currentPage = 1;
     [ObservableProperty] private int totalPages = 1;
+
+    // Sort
+    [ObservableProperty] private string sortColumn = "default";
+    [ObservableProperty] private bool sortAscending = true;
+
+    // HH-FIX-016: Date filter
+    [ObservableProperty] private DateTimeOffset? startDate;
+    [ObservableProperty] private DateTimeOffset? endDate;
+    [ObservableProperty] private string selectedDateRange = "Son 3 Ay";
+    public string[] DateRangeOptions { get; } = ["Tumu", "Bugun", "Bu Hafta", "Bu Ay", "Son 3 Ay", "Ozel"];
+
+    // HH-FIX-022: Bulk select
+    [ObservableProperty] private int selectedCount;
+    [ObservableProperty] private bool hasSelection;
 
     public ObservableCollection<InvoiceListItemDto> Invoices { get; } = [];
 
@@ -54,11 +73,7 @@ public partial class InvoiceListAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var result = await _mediator.Send(new GetEInvoicesQuery(
                 From: DateTime.UtcNow.AddMonths(-3),
@@ -66,7 +81,7 @@ public partial class InvoiceListAvaloniaViewModel : ViewModelBase
                 Status: null,
                 ProviderId: null,
                 Page: CurrentPage,
-                PageSize: PageSize));
+                PageSize: PageSize), ct);
 
             _allInvoices = result.Items.Select(inv => new InvoiceListItemDto
             {
@@ -83,13 +98,7 @@ public partial class InvoiceListAvaloniaViewModel : ViewModelBase
             TotalCount = result.TotalCount;
             TotalPages = Math.Max(1, (int)Math.Ceiling(TotalCount / (double)PageSize));
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Faturalar yuklenemedi: {ex.Message}";
-        }
-        finally { IsLoading = false; }
+        }, "Faturalar yuklenirken hata");
     }
 
     private void ApplyFilters()
@@ -113,10 +122,29 @@ public partial class InvoiceListAvaloniaViewModel : ViewModelBase
         if (SelectedPlatform != "Tumu")
             filtered = filtered.Where(i => i.Platform == SelectedPlatform);
 
+        // HH-FIX-016: Date filter
+        if (StartDate.HasValue)
+            filtered = filtered.Where(i => i.Date >= StartDate.Value.DateTime);
+        if (EndDate.HasValue)
+            filtered = filtered.Where(i => i.Date <= EndDate.Value.DateTime);
+
         var all = filtered.ToList();
         TotalCount = all.Count;
         TotalPages = Math.Max(1, (int)Math.Ceiling(TotalCount / (double)PageSize));
         if (CurrentPage > TotalPages) CurrentPage = 1;
+
+        // Sort
+        all = SortColumn switch
+        {
+            "InvoiceNumber" => SortAscending ? all.OrderBy(x => x.InvoiceNumber).ToList()     : all.OrderByDescending(x => x.InvoiceNumber).ToList(),
+            "RecipientName" => SortAscending ? all.OrderBy(x => x.RecipientName).ToList()     : all.OrderByDescending(x => x.RecipientName).ToList(),
+            "Type"          => SortAscending ? all.OrderBy(x => x.Type).ToList()              : all.OrderByDescending(x => x.Type).ToList(),
+            "Status"        => SortAscending ? all.OrderBy(x => x.Status).ToList()            : all.OrderByDescending(x => x.Status).ToList(),
+            "Amount"        => SortAscending ? all.OrderBy(x => x.Amount).ToList()            : all.OrderByDescending(x => x.Amount).ToList(),
+            "Platform"      => SortAscending ? all.OrderBy(x => x.Platform).ToList()          : all.OrderByDescending(x => x.Platform).ToList(),
+            "Date"          => SortAscending ? all.OrderBy(x => x.Date).ToList()              : all.OrderByDescending(x => x.Date).ToList(),
+            _               => SortAscending ? all.OrderByDescending(x => x.Date).ToList()    : all.OrderBy(x => x.Date).ToList(),
+        };
 
         var paged = all.Skip((CurrentPage - 1) * PageSize).Take(PageSize);
 
@@ -125,6 +153,15 @@ public partial class InvoiceListAvaloniaViewModel : ViewModelBase
             Invoices.Add(item);
 
         IsEmpty = Invoices.Count == 0;
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column) SortAscending = !SortAscending;
+        else { SortColumn = column; SortAscending = true; }
+        CurrentPage = 1;
+        ApplyFilters();
     }
 
     [RelayCommand]
@@ -153,8 +190,8 @@ public partial class InvoiceListAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task CreateInvoice()
     {
-        // G013: Fatura oluşturma — InvoiceCreateAvaloniaView'a yönlendir
-        await _dialog.ShowInfoAsync("Fatura olusturma ekranina yonlendiriliyorsunuz...", "Yeni Fatura");
+        // D2-017 FIX: InvoiceCreate ekranına navigate et (eski: sadece dialog gösteriyordu)
+        await _nav.NavigateToAsync("InvoiceCreate");
     }
 
     [RelayCommand]
@@ -181,6 +218,48 @@ public partial class InvoiceListAvaloniaViewModel : ViewModelBase
     partial void OnSelectedTypeChanged(string value) { if (_allInvoices.Count > 0) ApplyFilters(); }
     partial void OnSelectedStatusChanged(string value) { if (_allInvoices.Count > 0) ApplyFilters(); }
     partial void OnSelectedPlatformChanged(string value) { if (_allInvoices.Count > 0) ApplyFilters(); }
+
+    // HH-FIX-016: Date range quick setter
+    partial void OnSelectedDateRangeChanged(string value)
+    {
+        var now = DateTime.Now;
+        (StartDate, EndDate) = value switch
+        {
+            "Bugun" => (new DateTimeOffset(now.Date), new DateTimeOffset(now)),
+            "Bu Hafta" => (new DateTimeOffset(now.Date.AddDays(-(int)now.DayOfWeek + 1)), new DateTimeOffset(now)),
+            "Bu Ay" => (new DateTimeOffset(new DateTime(now.Year, now.Month, 1)), new DateTimeOffset(now)),
+            "Son 3 Ay" => (new DateTimeOffset(now.AddMonths(-3)), new DateTimeOffset(now)),
+            _ => ((DateTimeOffset?)null, (DateTimeOffset?)null)
+        };
+        CurrentPage = 1;
+        ApplyFilters();
+    }
+
+    // HH-FIX-022: Bulk select
+    [RelayCommand]
+    private void SelectAll() { foreach (var i in Invoices) i.IsSelected = true; SelectedCount = Invoices.Count; HasSelection = true; }
+
+    [RelayCommand]
+    private void DeselectAll() { foreach (var i in Invoices) i.IsSelected = false; SelectedCount = 0; HasSelection = false; }
+
+    // HH-FIX-013: Export
+    [RelayCommand]
+    private async Task ExportExcel()
+    {
+        await SafeExecuteAsync(async ct =>
+        {
+            var from = StartDate?.DateTime ?? DateTime.Now.AddMonths(-3);
+            var to = EndDate?.DateTime ?? DateTime.Now;
+            var result = await _mediator.Send(new MesTech.Application.Features.Reporting.Commands.ExportReport.ExportReportCommand(
+                _tenantProvider.GetCurrentTenantId(), "invoices", "xlsx"), ct);
+            if (result.FileData.Length > 0)
+            {
+                var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
+                System.IO.Directory.CreateDirectory(dir);
+                await System.IO.File.WriteAllBytesAsync(System.IO.Path.Combine(dir, result.FileName), result.FileData);
+            }
+        }, "Faturalar disa aktarilirken hata");
+    }
 }
 
 public class InvoiceListItemDto
@@ -193,4 +272,15 @@ public class InvoiceListItemDto
     public decimal Amount { get; set; }
     public string Platform { get; set; } = string.Empty;
     public DateTime Date { get; set; }
+    public bool IsSelected { get; set; }
+
+    /// <summary>D2-019: Durum badge rengi — Paraşüt pattern: yeşil/kırmızı/turuncu/gri.</summary>
+    public string StatusColor => Status switch
+    {
+        "Kesildi" or "Onaylandi" or "Gonderildi" => "#10B981",
+        "Iptal" or "Reddedildi" => "#EF4444",
+        "Bekliyor" or "Isleniyor" => "#F59E0B",
+        "Taslak" or "Draft" => "#94A3B8",
+        _ => "#64748B"
+    };
 }

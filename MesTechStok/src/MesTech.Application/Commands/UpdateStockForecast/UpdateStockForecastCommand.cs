@@ -40,8 +40,8 @@ public sealed class UpdateStockForecastHandler : IRequestHandler<UpdateStockFore
 
     public async Task Handle(UpdateStockForecastCommand request, CancellationToken cancellationToken)
     {
-        var product = await _productRepository.GetByIdAsync(request.ProductId).ConfigureAwait(false)
-                      ?? await _productRepository.GetBySKUAsync(request.SKU).ConfigureAwait(false);
+        var product = await _productRepository.GetByIdAsync(request.ProductId, cancellationToken).ConfigureAwait(false)
+                      ?? await _productRepository.GetBySKUAsync(request.SKU, cancellationToken).ConfigureAwait(false);
         if (product is null)
         {
             _logger.LogWarning("UpdateStockForecast: Product not found — ProductId={ProductId}, SKU={SKU}", request.ProductId, request.SKU);
@@ -64,7 +64,7 @@ public sealed class UpdateStockForecastHandler : IRequestHandler<UpdateStockFore
             Confidence = request.Confidence,
             Reasoning = request.Reasoning ?? string.Empty
         };
-        await _stockPredictionRepository.AddAsync(prediction).ConfigureAwait(false);
+        await _stockPredictionRepository.AddAsync(prediction, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation("UpdateStockForecast: StockPrediction saved — SKU={SKU}, Id={Id}", request.SKU, prediction.Id);

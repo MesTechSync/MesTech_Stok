@@ -16,27 +16,29 @@ public sealed class BillingInvoiceRepository : IBillingInvoiceRepository
     public async Task<BillingInvoice?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _context.BillingInvoices
             .Include(i => i.Subscription)
-            .AsNoTracking().FirstOrDefaultAsync(i => i.Id == id, ct);
+            .AsNoTracking().FirstOrDefaultAsync(i => i.Id == id, ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<BillingInvoice>> GetByTenantIdAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.BillingInvoices
             .Where(i => i.TenantId == tenantId)
             .OrderByDescending(i => i.IssueDate)
-            .AsNoTracking().ToListAsync(ct);
+            .Take(1000) // G485: pagination guard
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<BillingInvoice>> GetOverdueAsync(CancellationToken ct = default)
         => await _context.BillingInvoices
             .Where(i => i.Status == BillingInvoiceStatus.Sent && i.DueDate < DateTime.UtcNow)
-            .AsNoTracking().ToListAsync(ct);
+            .Take(1000) // G485: pagination guard
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<int> GetNextSequenceAsync(CancellationToken ct = default)
     {
-        var count = await _context.BillingInvoices.CountAsync(ct);
+        var count = await _context.BillingInvoices.CountAsync(ct).ConfigureAwait(false);
         return count + 1;
     }
 
     public async Task AddAsync(BillingInvoice invoice, CancellationToken ct = default)
-        => await _context.BillingInvoices.AddAsync(invoice, ct);
+        => await _context.BillingInvoices.AddAsync(invoice, ct).ConfigureAwait(false);
 
     public Task UpdateAsync(BillingInvoice invoice, CancellationToken ct = default)
     {

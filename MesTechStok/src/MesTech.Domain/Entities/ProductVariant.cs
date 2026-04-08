@@ -27,6 +27,15 @@ public sealed class ProductVariant : BaseEntity, ITenantEntity
     public string? VariantBarcode { get; set; }
     public decimal? PriceOverride { get; set; }
 
+    // ── D12-02: Dropshipping/entegratör genişletme ──
+    public decimal? WeightGrams { get; private set; }
+    public decimal? WidthCm { get; private set; }
+    public decimal? HeightCm { get; private set; }
+    public decimal? DepthCm { get; private set; }
+    public int SortOrder { get; private set; }
+    public decimal? CompareAtPrice { get; private set; }
+    public string? ImageUrlsJson { get; private set; }
+
     // ── Flexible attributes stored as JSON text ──
     // Backing field is a Dictionary; AttributesJson is the EF-mapped column.
     private Dictionary<string, string> _attributes = new(StringComparer.Ordinal);
@@ -89,4 +98,40 @@ public sealed class ProductVariant : BaseEntity, ITenantEntity
     }
 
     public string? GetAttribute(string key) => _attributes.GetValueOrDefault(key);
+
+    // ── D12-02: Dimension + image setters (DDD — no public setter) ──
+
+    public void SetDimensions(decimal? weight, decimal? width, decimal? height, decimal? depth)
+    {
+        WeightGrams = weight;
+        WidthCm = width;
+        HeightCm = height;
+        DepthCm = depth;
+    }
+
+    public void SetCompareAtPrice(decimal? compareAtPrice)
+    {
+        if (compareAtPrice.HasValue && compareAtPrice.Value < 0)
+            throw new ArgumentOutOfRangeException(nameof(compareAtPrice), "Karsilastirma fiyati negatif olamaz.");
+        CompareAtPrice = compareAtPrice;
+    }
+
+    public void SetSortOrder(int order) => SortOrder = order;
+
+    public IReadOnlyList<string> GetImageUrls()
+    {
+        if (string.IsNullOrWhiteSpace(ImageUrlsJson)) return [];
+        return JsonSerializer.Deserialize<List<string>>(ImageUrlsJson) ?? [];
+    }
+
+    public void AddImageUrl(string url)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(url);
+        var urls = GetImageUrls().ToList();
+        if (!urls.Contains(url, StringComparer.Ordinal))
+        {
+            urls.Add(url);
+            ImageUrlsJson = JsonSerializer.Serialize(urls);
+        }
+    }
 }

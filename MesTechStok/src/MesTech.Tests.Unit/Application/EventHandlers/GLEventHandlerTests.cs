@@ -17,55 +17,8 @@ namespace MesTech.Tests.Unit.Application.EventHandlers;
 //           OrderShippedCost, ReturnJournalReversal
 // ════════════════════════════════════════════════════════
 
-#region CommissionChargedGLHandler
-
-[Trait("Category", "Unit")]
-[Trait("Layer", "Accounting")]
-public class CommissionChargedGLHandlerTests
-{
-    private readonly Mock<IUnitOfWork> _uow = new();
-    private readonly Mock<IJournalEntryRepository> _journalRepo = new();
-    private readonly Mock<ILogger<CommissionChargedGLHandler>> _logger = new();
-
-    private CommissionChargedGLHandler CreateSut() =>
-        new(_uow.Object, _journalRepo.Object, _logger.Object);
-
-    [Fact]
-    public async Task HandleAsync_ShouldCreateJournalEntryAndSave()
-    {
-        var sut = CreateSut();
-        _journalRepo.Setup(r => r.ExistsByReferenceAsync(
-            It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
-
-        await sut.HandleAsync(
-            Guid.NewGuid(), Guid.NewGuid(), PlatformType.Trendyol,
-            15.50m, 8.5m, CancellationToken.None);
-
-        // Handler JournalEntry.Create() + UoW.SaveChangesAsync kullanır (AddAsync değil)
-        _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task HandleAsync_ShouldIncludeCommissionAmountInEntry()
-    {
-        var sut = CreateSut();
-        _journalRepo.Setup(r => r.ExistsByReferenceAsync(
-            It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
-
-        // Handler JournalEntry.Create() ile domain entity oluşturur — UoW change tracking ile kaydeder
-        // AddAsync çağrılmaz — doğrudan SaveChangesAsync çağrılır
-        var act = () => sut.HandleAsync(
-            Guid.NewGuid(), Guid.NewGuid(), PlatformType.Hepsiburada,
-            25.00m, 10.0m, CancellationToken.None);
-
-        await act.Should().NotThrowAsync();
-        _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
-    }
-}
-
-#endregion
+// CommissionChargedGLHandlerTests → ayrı dosya: CommissionChargedGLHandlerTests.cs
+// Duplicate kaldırıldı (CS0101 fix)
 
 #region InvoiceApprovedGLHandler
 
@@ -182,7 +135,7 @@ public class OrderConfirmedRevenueHandlerTests
             250.00m, Guid.NewGuid(), CancellationToken.None);
 
         _incomeRepo.Verify(r => r.AddAsync(
-            It.IsAny<Income>()), Times.Once);
+            It.IsAny<Income>(), It.IsAny<CancellationToken>()), Times.Once);
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 

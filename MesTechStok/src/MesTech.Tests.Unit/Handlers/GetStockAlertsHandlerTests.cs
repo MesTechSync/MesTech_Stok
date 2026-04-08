@@ -21,11 +21,10 @@ public class GetStockAlertsHandlerTests
     [Fact]
     public async Task Handle_ReturnsLowStockAlerts()
     {
-        var products = new List<Product>
-        {
-            new Product { Id = Guid.NewGuid(), Name = "Ürün A", SKU = "SKU-A", Stock = 2, MinimumStock = 10 },
-            new Product { Id = Guid.NewGuid(), Name = "Ürün B", SKU = "SKU-B", Stock = 0, MinimumStock = 5 }
-        };
+        var pa = new Product { Id = Guid.NewGuid(), Name = "Ürün A", SKU = "SKU-A", MinimumStock = 10 };
+        pa.SyncStock(2);
+        var pb = new Product { Id = Guid.NewGuid(), Name = "Ürün B", SKU = "SKU-B", MinimumStock = 5 };
+        var products = new List<Product> { pa, pb };
         _productRepoMock.Setup(r => r.GetLowStockAsync(It.IsAny<CancellationToken>())).ReturnsAsync(products.AsReadOnly());
 
         var query = new GetStockAlertsQuery(_tenantId);

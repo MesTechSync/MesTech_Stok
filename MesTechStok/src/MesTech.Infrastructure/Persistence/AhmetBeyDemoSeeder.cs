@@ -214,7 +214,7 @@ public sealed class AhmetBeyDemoSeeder
         {
             TenantId = AhmetBeyTenantId,
             StoreId = TrendyolStoreId,
-            Key = "SellerId",
+            Key = "SupplierId",
             EncryptedValue = "DEMO-TY-SELLERID-456789",
             CreatedBy = "AhmetBeyDemoSeeder"
         };
@@ -379,7 +379,6 @@ public sealed class AhmetBeyDemoSeeder
                 PurchasePrice = p.PurchasePrice,
                 SalePrice = p.SalePrice,
                 ListPrice = p.SalePrice * 1.25m, // Trendyol liste fiyati ~%25 yukarda
-                Stock = p.Stock,
                 MinimumStock = 5,
                 MaximumStock = 500,
                 ReorderLevel = 10,
@@ -393,6 +392,7 @@ public sealed class AhmetBeyDemoSeeder
                 IsActive = true,
                 CreatedBy = "AhmetBeyDemoSeeder"
             };
+            product.SyncStock(p.Stock, "demo-seed");
             SetEntityId(product, p.Id);
             _context.Products.Add(product);
         }

@@ -42,7 +42,7 @@ public partial class MappingDialog : Window
                 Text = source,
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Foreground = (IBrush?)global::Avalonia.Application.Current?.FindResource("TextPrimaryBrush") ?? Brushes.Black
+                Foreground = (global::Avalonia.Application.Current?.Resources.TryGetResource("TextPrimaryBrush", null, out var vtp) == true ? vtp as IBrush : null) ?? Brushes.Black
             };
             Grid.SetColumn(sourceLabel, 0);
 
@@ -51,7 +51,7 @@ public partial class MappingDialog : Window
                 Text = "\u2192",
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Foreground = (IBrush?)global::Avalonia.Application.Current?.FindResource("TextSecondaryBrush") ?? Brushes.Gray
+                Foreground = (global::Avalonia.Application.Current?.Resources.TryGetResource("TextSecondaryBrush", null, out var vts) == true ? vts as IBrush : null) ?? Brushes.Gray
             };
             Grid.SetColumn(arrow, 1);
 

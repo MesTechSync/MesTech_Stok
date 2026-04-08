@@ -63,7 +63,7 @@ public sealed class ZeroStockPlatformDeactivationHandler
                 "Platform pasif — {Platform} SKU={SKU} stok=0 gönderildi",
                 adapter.PlatformCode, evt.SKU);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "Platform pasif FAIL — {Platform} SKU={SKU}. " +

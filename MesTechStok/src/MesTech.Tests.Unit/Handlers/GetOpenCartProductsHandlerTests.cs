@@ -197,11 +197,10 @@ public class GetOpenCartProductsHandlerTests
             Name = name,
             SKU = sku,
             SalePrice = price,
-            Stock = stock,
             Barcode = $"BAR-{sku}",
             IsActive = isActive
         };
-
+        product.SyncStock(stock, "test-seed");
         return product;
     }
 

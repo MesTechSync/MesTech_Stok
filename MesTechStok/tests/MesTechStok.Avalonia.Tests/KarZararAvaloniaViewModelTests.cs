@@ -1,5 +1,8 @@
 using FluentAssertions;
+using MesTech.Application.DTOs.Accounting;
+using MesTech.Application.Queries.GetKarZarar;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Interfaces;
 using MediatR;
 using Moq;
 
@@ -10,12 +13,33 @@ namespace MesTechStok.Avalonia.Tests;
 public class KarZararAvaloniaViewModelTests
 {
     private readonly Mock<IMediator> _mediatorMock;
+    private readonly Mock<ICurrentUserService> _mockCurrentUser;
     private readonly KarZararAvaloniaViewModel _sut;
+
+    /// <summary>
+    /// Seed KarZararDto: revenue=125480, expenses=87320, profit=38160, margin~30.4%
+    /// </summary>
+    private static KarZararDto CreateSeedDto() => new()
+    {
+        ToplamGelir = 125480m,
+        ToplamGider = 87320m,
+        NetKar = 38160m,
+        DönemBasi = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1),
+        DönemSonu = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).AddMonths(1).AddDays(-1)
+    };
 
     public KarZararAvaloniaViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _sut = new KarZararAvaloniaViewModel(_mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
+        _mockCurrentUser = new Mock<ICurrentUserService>();
+        _mockCurrentUser.Setup(x => x.TenantId).Returns(Guid.NewGuid());
+
+        // Default setup: return populated KarZararDto
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetKarZararQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateSeedDto());
+
+        _sut = new KarZararAvaloniaViewModel(_mediatorMock.Object, _mockCurrentUser.Object);
     }
 
     [Fact]
@@ -40,10 +64,10 @@ public class KarZararAvaloniaViewModelTests
         // Act
         await _sut.LoadAsync();
 
-        // Assert
-        _sut.LineItems.Should().HaveCount(7);
-        _sut.LineItems.Should().Contain(x => x.Name == "Yurtici Satislar");
-        _sut.LineItems.Should().Contain(x => x.Name == "Kargo Giderleri");
+        // Assert — ViewModel creates 2 summary lines: Toplam Gelir + Toplam Gider
+        _sut.LineItems.Should().HaveCount(2);
+        _sut.LineItems.Should().Contain(x => x.Name == "Toplam Gelir");
+        _sut.LineItems.Should().Contain(x => x.Name == "Toplam Gider");
         _sut.LineItems.Should().Contain(x => x.Type == "Gelir");
         _sut.LineItems.Should().Contain(x => x.Type == "Gider");
     }
@@ -93,7 +117,7 @@ public class KarZararAvaloniaViewModelTests
         // Assert — period label should change
         _sut.PeriodLabel.Should().NotBe(initialLabel);
         // After going back one month, items should still load
-        _sut.LineItems.Should().HaveCount(7);
+        _sut.LineItems.Should().HaveCount(2);
         _sut.IsLoading.Should().BeFalse();
     }
 
@@ -109,7 +133,7 @@ public class KarZararAvaloniaViewModelTests
 
         // Assert — should return to original period
         _sut.PeriodLabel.Should().NotBe(afterPrevLabel);
-        _sut.LineItems.Should().HaveCount(7);
+        _sut.LineItems.Should().HaveCount(2);
     }
 
     [Fact]

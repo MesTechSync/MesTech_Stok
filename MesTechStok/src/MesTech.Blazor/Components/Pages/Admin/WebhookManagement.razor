@@ -8,12 +8,11 @@
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
 <div class="d-flex align-items-center mb-4">
-  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-       style="width: 48px; height: 48px; background-color: #2855AC;">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
     <i class="fas fa-satellite-dish text-white"></i>
   </div>
   <div>
-    <h3 class="mb-0" style="color: #2855AC;">Webhook Yonetimi</h3>
+    <h3 class="mb-0" >Webhook Yonetimi</h3>
     <small class="text-muted">Dead letter kuyrugu, basarisiz webhook'lar ve cozumleme</small>
   </div>
 </div>
@@ -45,7 +44,7 @@ else
       <div class="card shadow-sm mb-4 h-100">
         <div class="card-body text-center">
           <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2"
-               style="width: 48px; height: 48px; background-color: #ffc10720;">
+               style="width: 48px; height: 48px; background-color: var(--mestech-warning);">
             <i class="fas fa-clock text-warning fa-lg"></i>
           </div>
           <h4 class="mb-0 fw-bold">@pendingCount</h4>
@@ -57,7 +56,7 @@ else
       <div class="card shadow-sm mb-4 h-100">
         <div class="card-body text-center">
           <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2"
-               style="width: 48px; height: 48px; background-color: #dc354520;">
+               style="width: 48px; height: 48px; background-color: var(--mestech-danger)20;">
             <i class="fas fa-times-circle text-danger fa-lg"></i>
           </div>
           <h4 class="mb-0 fw-bold">@failedCount</h4>
@@ -69,7 +68,7 @@ else
       <div class="card shadow-sm mb-4 h-100">
         <div class="card-body text-center">
           <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2"
-               style="width: 48px; height: 48px; background-color: #19875420;">
+               style="width: 48px; height: 48px; background-color: var(--mestech-success)20;">
             <i class="fas fa-check-circle text-success fa-lg"></i>
           </div>
           <h4 class="mb-0 fw-bold">@resolvedCount</h4>
@@ -81,8 +80,8 @@ else
       <div class="card shadow-sm mb-4 h-100">
         <div class="card-body text-center">
           <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2"
-               style="width: 48px; height: 48px; background-color: #2855AC20;">
-            <i class="fas fa-database fa-lg" style="color: #2855AC;"></i>
+               style="width: 48px; height: 48px; background-color: rgba(var(--mestech-purple-rgb, 40,85,172), 0.12);">
+            <i class="fas fa-database fa-lg" ></i>
           </div>
           <h4 class="mb-0 fw-bold">@totalCount</h4>
           <small class="text-muted">Toplam</small>
@@ -95,7 +94,7 @@ else
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-white d-flex align-items-center justify-content-between">
       <h6 class="mb-0">
-        <i class="fas fa-filter me-2" style="color: #2855AC;"></i>Filtre
+        <i class="fas fa-filter me-2" ></i>Filtre
       </h6>
       <select class="form-select form-select-sm" style="width: 200px;" @onchange="OnStatusFilterChanged">
         <option value="">Tumu</option>
@@ -111,7 +110,7 @@ else
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-white d-flex align-items-center justify-content-between">
       <h6 class="mb-0">
-        <i class="fas fa-skull-crossbones me-2" style="color: #2855AC;"></i>Dead Letter Kuyrugu
+        <i class="fas fa-skull-crossbones me-2" ></i>Dead Letter Kuyrugu
       </h6>
       <span class="badge bg-secondary">@totalCount Kayit</span>
     </div>
@@ -159,8 +158,7 @@ else
                 <td class="text-end">
                   @if (item.Status is "Pending" or "Failed")
                   {
-                    <button class="btn btn-sm btn-outline-success"
-                            @onclick="() => ResolveItem(item.Id)"
+                    <button class="btn btn-sm btn-outline-success"@onclick="() => ResolveItem(item.Id)"
                             disabled="@isSubmitting"
                             title="Cozumle">
                       <i class="fas fa-check me-1"></i>Cozumle
@@ -374,9 +372,9 @@ else
   private static string GetPlatformColor(string platform) => platform switch
   {
     "Trendyol" => "#F27A1A",
-    "HepsiBurada" => "#FF6000",
+    "HepsiBurada" => "var(--mestech-hepsi)",
     "Shopify" => "#96bf48",
-    "Amazon" => "#FF9900",
+    "Amazon" => "var(--mestech-amazon)",
     "N11" => "#7B2D8E",
     "WooCommerce" => "#96588A",
     "eBay" => "#E53238",

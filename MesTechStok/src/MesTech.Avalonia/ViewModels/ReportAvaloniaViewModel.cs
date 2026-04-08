@@ -47,25 +47,7 @@ public partial class ReportAvaloniaViewModel : ViewModelBase
         SelectedReportType = ReportTypes[0];
     }
 
-    public override Task LoadAsync()
-    {
-        IsLoading = true;
-        HasError = false;
-        ErrorMessage = string.Empty;
-        try
-        {
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Raporlar yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
-        return Task.CompletedTask;
-    }
+    public override Task LoadAsync() => Task.CompletedTask;
 
     [RelayCommand]
     private Task Refresh() => LoadAsync();

@@ -11,14 +11,21 @@ public sealed class DropshippingPoolProductConfiguration : IEntityTypeConfigurat
         builder.HasKey(pp => pp.Id);
 
         builder.Property(pp => pp.PoolPrice)
-            .HasPrecision(18, 2);
+            .HasPrecision(18, 4);
 
         builder.Property(pp => pp.ReliabilityScore)
-            .HasPrecision(5, 2)
+            .HasPrecision(8, 4)
             .HasDefaultValue(0m);
 
         builder.Property(pp => pp.ReliabilityColor)
             .HasDefaultValue(0);
+
+        // D12-05: Ownership fields
+        builder.Property(pp => pp.OwnerCompanyName).HasMaxLength(200);
+        builder.Property(pp => pp.OwnerCountryCode).HasMaxLength(3);
+        builder.Property(pp => pp.OwnerTaxNumber).HasMaxLength(20);
+        builder.Property(pp => pp.ShipsFrom).HasMaxLength(100);
+        builder.Property(pp => pp.MinOrderQuantity).HasPrecision(18, 2);
 
         // Tenant + Pool bileşik index — havuz ürün listesi sorgusu için
         builder.HasIndex(pp => new { pp.TenantId, pp.PoolId })

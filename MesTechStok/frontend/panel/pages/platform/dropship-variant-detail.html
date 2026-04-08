@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<!--
+  MesTech Stok Panel - Dropship Varyant Detay
+  Version: 1.0.0
+  Date: 2026-04-07
+  Author: DEV 2 (Frontend & UI/UX)
+  Task: D12-09 — Dropshipping Variant Detail (Renk x Desen matris)
+  Status: ACTIVE
+
+  FEATURES:
+  - Renk/Desen matris grid (renk satir, desen sutun)
+  - Her hucre: stok, fiyat, barkod
+  - Varyant fotografi hover preview
+  - Toplu secim → stoguma ekle
+  - DOM-SAFE: createElement + textContent only (no innerHTML)
+  - Responsive breakpoints
+
+  DEPENDENCIES:
+  - Bootstrap 5.3.0
+  - mestech-tokens.css
+-->
+<html lang="tr" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Varyant Detay | MesTech Dropshipping</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7icsOsd1QObEIQozRYGnPbkztVcB3pC0zO0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3iYfN0LeAzKUYyp5meodHkCQ/9ctAU7Dzd0" crossorigin="anonymous">
+  <style>
+    :root { --mes-primary: #f27a1a; --mes-bg: #f4f5f7; --mes-card: #fff; --mes-border: #e5e9f2; }
+    body { font-family: 'Inter', sans-serif; background: var(--mes-bg); }
+    .variant-matrix { overflow-x: auto; }
+    .variant-matrix table { border-collapse: collapse; width: 100%; }
+    .variant-matrix th, .variant-matrix td { border: 1px solid var(--mes-border); padding: 8px 12px; text-align: center; font-size: 0.85rem; }
+    .variant-matrix th { background: #f8f9fa; font-weight: 600; position: sticky; top: 0; z-index: 1; }
+    .variant-matrix td.color-header { background: #f8f9fa; font-weight: 600; text-align: left; position: sticky; left: 0; z-index: 1; }
+    .variant-cell { cursor: pointer; transition: background 0.15s; min-width: 100px; }
+    .variant-cell:hover { background: #fff3e0; }
+    .variant-cell.selected { background: #e8f5e9; border: 2px solid #4caf50; }
+    .variant-cell.out-of-stock { background: #ffebee; color: #c62828; }
+    .variant-cell .stock { font-weight: 700; }
+    .variant-cell .price { color: #666; font-size: 0.8rem; }
+    .variant-cell .barcode { color: #999; font-size: 0.7rem; }
+    .preview-tooltip { position: fixed; z-index: 9999; pointer-events: none; max-width: 200px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: none; }
+    .summary-bar { background: var(--mes-card); border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .action-bar { position: sticky; bottom: 0; background: var(--mes-card); padding: 12px 16px; border-top: 1px solid var(--mes-border); box-shadow: 0 -2px 8px rgba(0,0,0,0.06); }
+  </style>
+</head>
+<body>
+  <div class="container-fluid p-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h4 class="mb-1" id="productTitle">Varyant Detay</h4>
+        <small class="text-muted" id="productSku">SKU: -</small>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary btn-sm" onclick="selectAll()"><i class="fas fa-check-double me-1"></i>Tumunu Sec</button>
+        <button class="btn btn-outline-secondary btn-sm" onclick="deselectAll()"><i class="fas fa-times me-1"></i>Secimi Kaldir</button>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="summary-bar d-flex gap-4">
+      <div><strong id="totalVariants">0</strong> <small class="text-muted">varyant</small></div>
+      <div><strong id="inStockCount">0</strong> <small class="text-muted">stokta</small></div>
+      <div><strong id="selectedCount">0</strong> <small class="text-muted">secili</small></div>
+      <div><strong id="avgPrice">₺0</strong> <small class="text-muted">ort. fiyat</small></div>
+    </div>
+
+    <!-- Loading -->
+    <div id="loadingState" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status"></div>
+      <div class="mt-2 text-muted">Varyantlar yukleniyor...</div>
+    </div>
+
+    <!-- Matrix -->
+    <div class="variant-matrix" id="matrixContainer" style="display:none;"></div>
+
+    <!-- Action Bar -->
+    <div class="action-bar d-flex justify-content-between align-items-center" id="actionBar" style="display:none;">
+      <span id="selectionInfo" class="text-muted">0 varyant secili</span>
+      <button class="btn btn-success" onclick="importSelected()"><i class="fas fa-plus me-1"></i>Stoguma Ekle</button>
+    </div>
+  </div>
+
+  <!-- Image preview tooltip -->
+  <img id="previewTooltip" class="preview-tooltip" src="" alt="">
+
+  <script>
+  var variants = [];
+  var colors = [];
+  var patterns = [];
+  var selected = new Set();
+
+  function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+  async function loadVariants() {
+    document.getElementById('loadingState').style.display = '';
+    document.getElementById('matrixContainer').style.display = 'none';
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var productId = params.get('productId') || params.get('id');
+      if (!productId) { showError('productId parametresi gerekli'); return; }
+
+      var resp = await fetch('/api/v1/products/' + encodeURIComponent(productId) + '/variants');
+      if (!resp.ok) throw new Error('API ' + resp.status);
+      var result = await resp.json();
+      variants = result.data || result.variants || result || [];
+
+      colors = [...new Set(variants.map(function(v) { return v.color || '-'; }))].sort();
+      patterns = [...new Set(variants.map(function(v) { return v.pattern || v.size || '-'; }))].sort();
+
+      renderMatrix();
+      updateSummary();
+    } catch (e) {
+      showError(e.message);
+    }
+    document.getElementById('loadingState').style.display = 'none';
+  }
+
+  function renderMatrix() {
+    var container = document.getElementById('matrixContainer');
+    container.style.display = '';
+    container.textContent = '';
+
+    var table = document.createElement('table');
+    // Header row
+    var thead = document.createElement('thead');
+    var headerRow = document.createElement('tr');
+    var cornerTh = document.createElement('th');
+    cornerTh.textContent = 'Renk / Desen';
+    headerRow.appendChild(cornerTh);
+    patterns.forEach(function(p) {
+      var th = document.createElement('th');
+      th.textContent = p;
+      headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    // Body rows
+    var tbody = document.createElement('tbody');
+    colors.forEach(function(color) {
+      var row = document.createElement('tr');
+      var colorTd = document.createElement('td');
+      colorTd.className = 'color-header';
+      colorTd.textContent = color;
+      row.appendChild(colorTd);
+
+      patterns.forEach(function(pattern) {
+        var v = variants.find(function(x) { return (x.color || '-') === color && (x.pattern || x.size || '-') === pattern; });
+        var td = document.createElement('td');
+        td.className = 'variant-cell';
+        if (v) {
+          var stock = v.stock || v.quantity || 0;
+          if (stock <= 0) td.classList.add('out-of-stock');
+          var key = color + '|' + pattern;
+          td.dataset.key = key;
+          td.dataset.variantId = v.id || '';
+
+          var stockDiv = document.createElement('div');
+          stockDiv.className = 'stock';
+          stockDiv.textContent = stock + ' adet';
+          td.appendChild(stockDiv);
+
+          var priceDiv = document.createElement('div');
+          priceDiv.className = 'price';
+          priceDiv.textContent = '₺' + (v.price || v.salePrice || 0).toLocaleString('tr-TR');
+          td.appendChild(priceDiv);
+
+          if (v.barcode) {
+            var barcodeDiv = document.createElement('div');
+            barcodeDiv.className = 'barcode';
+            barcodeDiv.textContent = v.barcode;
+            td.appendChild(barcodeDiv);
+          }
+
+          td.addEventListener('click', function() { toggleSelect(this, key); });
+          if (v.imageUrl) {
+            td.addEventListener('mouseenter', function(e) { showPreview(e, v.imageUrl); });
+            td.addEventListener('mouseleave', hidePreview);
+          }
+        } else {
+          td.textContent = '-';
+          td.style.color = '#ccc';
+        }
+        row.appendChild(td);
+      });
+      tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+    container.appendChild(table);
+  }
+
+  function toggleSelect(td, key) {
+    if (selected.has(key)) { selected.delete(key); td.classList.remove('selected'); }
+    else { selected.add(key); td.classList.add('selected'); }
+    updateSelectionInfo();
+  }
+
+  function selectAll() {
+    document.querySelectorAll('.variant-cell[data-key]').forEach(function(td) {
+      selected.add(td.dataset.key); td.classList.add('selected');
+    });
+    updateSelectionInfo();
+  }
+
+  function deselectAll() {
+    selected.clear();
+    document.querySelectorAll('.variant-cell.selected').forEach(function(td) { td.classList.remove('selected'); });
+    updateSelectionInfo();
+  }
+
+  function updateSelectionInfo() {
+    var count = selected.size;
+    document.getElementById('selectedCount').textContent = count;
+    document.getElementById('selectionInfo').textContent = count + ' varyant secili';
+    document.getElementById('actionBar').style.display = count > 0 ? '' : 'none';
+  }
+
+  function updateSummary() {
+    document.getElementById('totalVariants').textContent = variants.length;
+    var inStock = variants.filter(function(v) { return (v.stock || v.quantity || 0) > 0; }).length;
+    document.getElementById('inStockCount').textContent = inStock;
+    var total = variants.reduce(function(s, v) { return s + (v.price || v.salePrice || 0); }, 0);
+    document.getElementById('avgPrice').textContent = '₺' + Math.round(total / (variants.length || 1)).toLocaleString('tr-TR');
+  }
+
+  function showPreview(e, url) {
+    var img = document.getElementById('previewTooltip');
+    img.src = url;
+    img.style.display = 'block';
+    img.style.left = (e.clientX + 16) + 'px';
+    img.style.top = (e.clientY + 16) + 'px';
+  }
+  function hidePreview() { document.getElementById('previewTooltip').style.display = 'none'; }
+
+  function showError(msg) {
+    var container = document.getElementById('matrixContainer');
+    container.style.display = '';
+    container.textContent = '';
+    var div = document.createElement('div');
+    div.className = 'alert alert-danger text-center m-4';
+    div.textContent = 'Varyantlar yuklenemedi: ' + msg;
+    container.appendChild(div);
+  }
+
+  async function importSelected() {
+    if (selected.size === 0) return;
+    var ids = [];
+    selected.forEach(function(key) {
+      var td = document.querySelector('[data-key="' + CSS.escape(key) + '"]');
+      if (td && td.dataset.variantId) ids.push(td.dataset.variantId);
+    });
+    alert(ids.length + ' varyant stoguma ekleniyor...');
+    // TODO: POST /api/v1/dropshipping/import
+  }
+
+  document.addEventListener('DOMContentLoaded', loadVariants);
+  </script>
+</body>
+</html>

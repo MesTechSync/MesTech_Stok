@@ -27,14 +27,10 @@ public partial class DepartmentAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var tenantId = _tenantProvider.GetCurrentTenantId();
-            var result = await _mediator.Send(new GetDepartmentsQuery(tenantId), CancellationToken);
+            var result = await _mediator.Send(new GetDepartmentsQuery(tenantId), ct);
 
             Departments.Clear();
             foreach (var d in result)
@@ -49,16 +45,7 @@ public partial class DepartmentAvaloniaViewModel : ViewModelBase
             }
             TotalCount = Departments.Count;
             IsEmpty = Departments.Count == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Departmanlar yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Departmanlar yuklenirken hata");
     }
 
     [RelayCommand]

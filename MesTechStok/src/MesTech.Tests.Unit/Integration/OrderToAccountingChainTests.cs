@@ -45,17 +45,17 @@ public class OrderToAccountingChainTests
         _stockCalc = new StockCalculationService();
 
         // Capture order on AddAsync
-        _orderRepo.Setup(r => r.AddAsync(It.IsAny<Order>()))
-            .Callback<Order>(o => _capturedOrder = o)
+        _orderRepo.Setup(r => r.AddAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()))
+            .Callback<Order, CancellationToken>((o, _) => _capturedOrder = o)
             .Returns(Task.CompletedTask);
 
         // Capture income on AddAsync
-        _incomeRepo.Setup(r => r.AddAsync(It.IsAny<Income>()))
-            .Callback<Income>(i => _capturedIncome = i)
+        _incomeRepo.Setup(r => r.AddAsync(It.IsAny<Income>(), It.IsAny<CancellationToken>()))
+            .Callback<Income, CancellationToken>((i, _) => _capturedIncome = i)
             .Returns(Task.CompletedTask);
 
         _placeOrderHandler = new PlaceOrderHandler(
-            _orderRepo.Object, _productRepo.Object, _uow.Object, _stockCalc);
+            _orderRepo.Object, _productRepo.Object, _uow.Object, _stockCalc, Mock.Of<ITenantProvider>());
 
         _revenueHandler = new OrderConfirmedRevenueHandler(
             _incomeRepo.Object, _uow.Object,
@@ -80,11 +80,11 @@ public class OrderToAccountingChainTests
         {
             SKU = sku,
             Name = $"Test Product {sku}",
-            Stock = stock,
             SalePrice = price,
             PurchasePrice = price * 0.6m,
             CategoryId = Guid.NewGuid()
         };
+        product.SyncStock(stock, "test-seed");
         _registeredProducts.Add(product);
         // Handler uses batch GetByIdsAsync — return all registered products matching requested ids
         _productRepo.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))
@@ -129,7 +129,7 @@ public class OrderToAccountingChainTests
         _capturedIncome!.OrderId.Should().Be(orderId, "Income should reference the order");
         _capturedIncome.Amount.Should().Be(totalAmount, "Income amount should match order total");
         _capturedIncome.IncomeType.Should().Be(IncomeType.Satis, "Income type should be Satis");
-        _incomeRepo.Verify(r => r.AddAsync(It.IsAny<Income>()), Times.Once());
+        _incomeRepo.Verify(r => r.AddAsync(It.IsAny<Income>(), It.IsAny<CancellationToken>()), Times.Once());
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.AtLeast(2));
 
         // === STEP 3: CommissionChargedGL — commission expense GL entry ===
@@ -302,7 +302,7 @@ public class OrderToAccountingChainTests
 
         await _placeOrderHandler.Handle(command, CancellationToken.None);
 
-        product.Stock.Should().Be(45, "Stock should decrease by ordered quantity (50 - 5)");
+        product.Stock.Should().Be(50, "Stock deduction is now handled by OrderPlacedStockDeductionHandler (Z1 chain), not PlaceOrderHandler");
     }
 
     [Fact]

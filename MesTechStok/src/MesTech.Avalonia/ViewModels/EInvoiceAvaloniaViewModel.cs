@@ -28,11 +28,7 @@ public partial class EInvoiceAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var result = await _mediator.Send(
                 new GetEInvoicesQuery(
@@ -42,7 +38,7 @@ public partial class EInvoiceAvaloniaViewModel : ViewModelBase
                     ProviderId: null,
                     Page: 1,
                     PageSize: 50),
-                CancellationToken);
+                ct);
 
             _allInvoices = result.Items.Select(dto => new EInvoiceItemDto
             {
@@ -54,16 +50,7 @@ public partial class EInvoiceAvaloniaViewModel : ViewModelBase
             }).ToList();
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"E-faturalar yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "E-faturalar yuklenirken hata");
     }
 
     private void ApplyFilters()

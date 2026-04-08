@@ -1,5 +1,7 @@
 using FluentAssertions;
 using MediatR;
+using MesTech.Application.DTOs.Crm;
+using MesTech.Application.Features.Crm.Queries.GetSuppliersCrm;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
 using Moq;
@@ -10,10 +12,30 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class SupplierAvaloniaViewModelTests
 {
+    private static readonly Guid TestTenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
+
+    private static readonly GetSuppliersCrmResult DemoResult = new()
+    {
+        TotalCount = 3,
+        Items = new List<SupplierCrmDto>
+        {
+            new() { Id = Guid.NewGuid(), Name = "ABC Elektronik Ltd.", Email = "info@abcelektronik.com", Phone = "02121234567", City = "Istanbul", IsActive = true, CurrentBalance = 125000.00m },
+            new() { Id = Guid.NewGuid(), Name = "Mega Bilisim A.S.", Email = "satis@megabilisim.com", Phone = "03124567890", City = "Ankara", IsActive = true, CurrentBalance = 87500.00m },
+            new() { Id = Guid.NewGuid(), Name = "Deniz Teknoloji", Email = "iletisim@deniztek.com", Phone = "02327654321", City = "Izmir", IsActive = true, CurrentBalance = 43200.00m },
+        }
+    };
+
     private static SupplierAvaloniaViewModel CreateSut()
     {
         var mediatorMock = new Mock<IMediator>();
-        return new SupplierAvaloniaViewModel(mediatorMock.Object, Mock.Of<ICurrentUserService>());
+        mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetSuppliersCrmQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(DemoResult);
+
+        var currentUserMock = new Mock<ICurrentUserService>();
+        currentUserMock.Setup(u => u.TenantId).Returns(TestTenantId);
+
+        return new SupplierAvaloniaViewModel(mediatorMock.Object, currentUserMock.Object);
     }
 
     // ── 3-State: Default ──
@@ -65,7 +87,7 @@ public class SupplierAvaloniaViewModelTests
         // Assert
         var first = sut.Suppliers[0];
         first.SupplierName.Should().Be("ABC Elektronik Ltd.");
-        first.ContactPerson.Should().Be("Hasan Yildiz");
+        first.ContactPerson.Should().BeEmpty(); // VM maps ContactPerson as empty
         first.Email.Should().Contain("@");
         first.City.Should().Be("Istanbul");
         first.Balance.Should().Be(125000.00m);

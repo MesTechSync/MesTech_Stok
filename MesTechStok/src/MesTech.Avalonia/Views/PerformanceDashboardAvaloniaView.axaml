@@ -1,0 +1,80 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
+             x:Class="MesTech.Avalonia.Views.PerformanceDashboardAvaloniaView"
+             x:DataType="vm:PerformanceDashboardAvaloniaViewModel"
+             AutomationProperties.Name="Performans Paneli">
+<UserControl.KeyBindings><KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" /></UserControl.KeyBindings>
+
+    <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
+        <Border Grid.Row="0" Background="{DynamicResource MesTeal}" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="Performans Paneli" Foreground="{DynamicResource MesBgPrimary}"
+                           FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="Yenile" Command="{Binding RefreshCommand}" ToolTip.Tip="Verileri yenile"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesTeal}" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+            </Grid>
+        </Border>
+
+        <!-- KPI -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*" Margin="16,16,16,0">
+            <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="6"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*"><Border Grid.Column="0" Background="{DynamicResource MesPrimaryBlue}" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Toplam Servis" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding TotalServices}" FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold"
+                                   Foreground="{DynamicResource MesPrimaryBlue}" Margin="0,8,0,0" />
+                    </StackPanel></Grid>
+            </Border>
+            <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="6"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*"><Border Grid.Column="0" Background="{DynamicResource MesEmerald}" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Saglikli" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding HealthyCount}" FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold"
+                                   Foreground="{DynamicResource MesEmerald}" Margin="0,8,0,0" />
+                    </StackPanel></Grid>
+            </Border>
+            <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="6"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*"><Border Grid.Column="0" Background="#EF4444" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Sorunlu" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding UnhealthyCount}" FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold"
+                                   Foreground="#EF4444" Margin="0,8,0,0" />
+                    </StackPanel></Grid>
+            </Border>
+        </Grid>
+
+        <!-- Service List -->
+        <Border Grid.Row="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="22,16,22,22"
+                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+            <DataGrid ItemsSource="{Binding Services}" AutoGenerateColumns="False"
+                      CanUserSortColumns="True" CanUserResizeColumns="True" IsReadOnly="True"
+                      GridLinesVisibility="Horizontal" BorderThickness="0" Background="{DynamicResource MesBgPrimary}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Servis" Binding="{Binding ServiceName}" Width="200" />
+                    <DataGridTextColumn Header="Durum" Binding="{Binding StatusText}" Width="120" />
+                    <DataGridTextColumn Header="Yanit Suresi" Binding="{Binding ResponseTime}" Width="120" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <Border Grid.Row="0" Grid.RowSpan="3" Background="{DynamicResource MesBgPage}" IsVisible="{Binding IsLoading}" ZIndex="100">
+            <controls:SkeletonLoader ShowKpi="True" ShowChart="False" /></Border>
+        <Border Grid.Row="2" Background="{DynamicResource MesBgSurface}" IsVisible="{Binding IsEmpty}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
+                <TextBlock Text="Servis durumu bilgisi bulunamadi" FontSize="{StaticResource FontSizeTitle}" FontWeight="SemiBold"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" />
+                <Button Content="Yenile" Command="{Binding RefreshCommand}" Margin="0,16,0,0" Padding="16,8" />
+            </StackPanel></Border>
+        <fa:InfoBar Grid.Row="0" Title="Hata" Message="{Binding ErrorMessage}" Severity="Error"
+                    IsOpen="{Binding HasError}" IsClosable="True" Margin="16,8" ZIndex="50">
+            <fa:InfoBar.ActionButton><Button Content="Tekrar Dene" Command="{Binding RefreshCommand}" /></fa:InfoBar.ActionButton>
+        </fa:InfoBar>
+    </Grid>
+</UserControl>

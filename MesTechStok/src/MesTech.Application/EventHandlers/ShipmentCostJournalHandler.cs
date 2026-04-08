@@ -39,6 +39,14 @@ public sealed class ShipmentCostJournalHandler : IShipmentCostJournalHandler
         string cargoProvider, decimal shippingCost,
         CancellationToken ct)
     {
+        if (shippingCost <= 0)
+        {
+            _logger.LogDebug(
+                "Kargo maliyeti 0 veya negatif — gider kaydı atlanıyor. Order={OrderId}, Cost={ShippingCost}",
+                orderId, shippingCost);
+            return;
+        }
+
         _logger.LogInformation(
             "ShipmentCostRecorded → kargo gider kaydı oluşturuluyor. Order={OrderId}, Carrier={CargoProvider}, Cost={ShippingCost}, TenantId={TenantId}",
             orderId, cargoProvider, shippingCost, tenantId);

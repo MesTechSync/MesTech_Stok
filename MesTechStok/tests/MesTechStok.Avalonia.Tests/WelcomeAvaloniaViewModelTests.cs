@@ -1,5 +1,10 @@
 using FluentAssertions;
+using MediatR;
+using MesTech.Application.DTOs.Dashboard;
+using MesTech.Application.Features.Dashboard.Queries.GetDashboardSummary;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Interfaces;
+using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
 
@@ -7,90 +12,87 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class WelcomeAvaloniaViewModelTests
 {
-    private WelcomeAvaloniaViewModel CreateSut() => new();
+    private readonly Mock<IMediator> _mediatorMock = new();
+    private readonly Mock<ICurrentUserService> _userMock = new();
+
+    public WelcomeAvaloniaViewModelTests()
+    {
+        _userMock.Setup(u => u.TenantId).Returns(Guid.NewGuid());
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetDashboardSummaryQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new DashboardSummaryDto
+            {
+                ActiveProductCount = 3284,
+                TodayOrderCount = 156,
+                ActivePlatformCount = 5,
+                RecentOrders = new List<RecentOrderItemDto>
+                {
+                    new() { OrderNumber = "TY-001", CustomerName = "Trendyol Musteri", TotalAmount = 299.99m, CreatedAt = DateTime.Now.AddMinutes(-5) },
+                    new() { OrderNumber = "HB-002", CustomerName = "HB Musteri", TotalAmount = 150m, CreatedAt = DateTime.Now.AddHours(-1) },
+                    new() { OrderNumber = "N11-003", CustomerName = "N11 Musteri", TotalAmount = 89m, CreatedAt = DateTime.Now.AddHours(-3) }
+                }
+            });
+    }
+
+    private WelcomeAvaloniaViewModel CreateSut() => new(_mediatorMock.Object, _userMock.Object);
 
     [Fact]
     public void Constructor_ShouldSetDefaultValues()
     {
-        // Act
         var sut = CreateSut();
 
-        // Assert
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
         sut.IsEmpty.Should().BeFalse();
         sut.ErrorMessage.Should().BeEmpty();
         sut.WelcomeText.Should().Be("Entegrator Stok Yonetim Sistemi");
-        sut.TotalProducts.Should().Be("0");
-        sut.TotalOrders.Should().Be("0");
-        sut.ActivePlatforms.Should().Be("0");
+        sut.TotalProducts.Should().Be("-");
+        sut.TotalOrders.Should().Be("-");
+        sut.ActivePlatforms.Should().Be("-");
         sut.RecentActivities.Should().BeEmpty();
     }
 
     [Fact]
     public async Task LoadAsync_ShouldPopulateKPIValues()
     {
-        // Arrange
         var sut = CreateSut();
-
-        // Act
         await sut.LoadAsync();
 
-        // Assert
-        sut.TotalProducts.Should().Be("3,284");
+        sut.TotalProducts.Should().MatchRegex(@"3[\.,]284");
         sut.TotalOrders.Should().Be("156");
         sut.ActivePlatforms.Should().Be("5");
-        sut.WelcomeText.Should().Be("Entegrator Stok Yonetim Sistemi");
     }
 
     [Fact]
-    public async Task LoadAsync_ShouldPopulate5RecentActivities()
+    public async Task LoadAsync_ShouldPopulateRecentActivities()
     {
-        // Arrange
         var sut = CreateSut();
-
-        // Act
         await sut.LoadAsync();
 
-        // Assert
-        sut.RecentActivities.Should().HaveCount(5);
-        sut.RecentActivities[0].Description.Should().Contain("Trendyol");
-        sut.RecentActivities.Should().AllSatisfy(a =>
-        {
-            a.Description.Should().NotBeNullOrEmpty();
-            a.TimeAgo.Should().NotBeNullOrEmpty();
-        });
+        sut.RecentActivities.Should().HaveCount(3);
+        sut.RecentActivities[0].Description.Should().Contain("TY-001");
     }
 
     [Fact]
     public async Task LoadAsync_3StateTransition_ShouldEndInSuccessState()
     {
-        // Arrange
         var sut = CreateSut();
-
-        // Act
         await sut.LoadAsync();
 
-        // Assert — 3-state check
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
         sut.ErrorMessage.Should().BeEmpty();
-        sut.IsEmpty.Should().BeFalse();
     }
 
     [Fact]
-    public async Task LoadAsync_RepeatedCalls_ShouldClearPreviousData()
+    public async Task LoadAsync_RepeatedCalls_ShouldNotDoubleUp()
     {
-        // Arrange
         var sut = CreateSut();
         await sut.LoadAsync();
-        sut.RecentActivities.Should().HaveCount(5);
+        sut.RecentActivities.Should().HaveCount(3);
 
-        // Act — second load should clear and repopulate
         await sut.LoadAsync();
-
-        // Assert — should not double up
-        sut.RecentActivities.Should().HaveCount(5);
-        sut.TotalProducts.Should().Be("3,284");
+        sut.RecentActivities.Should().HaveCount(3);
+        sut.TotalProducts.Should().MatchRegex(@"3[\.,]284");
     }
 }

@@ -98,12 +98,13 @@ public sealed class InProcessDistributedLockService : IDistributedLockService
 
         public ValueTask DisposeAsync()
         {
-            if (Interlocked.Exchange(ref _released, 1) == 1)
-                return ValueTask.CompletedTask;
+            // Always cancel+dispose CTS to prevent resource leak
+            // (if expiry timer won the race, CTS was never disposed)
+            try { _expiryCts.Cancel(); } catch (ObjectDisposedException) { }
+            try { _expiryCts.Dispose(); } catch (ObjectDisposedException) { }
 
-            // Cancel the expiry timer — we are releasing manually
-            _expiryCts.Cancel();
-            _expiryCts.Dispose();
+            if (Interlocked.Exchange(ref _released, 1) == 1)
+                return ValueTask.CompletedTask; // Timer already released semaphore
 
             try
             {

@@ -42,7 +42,7 @@ public class OnMuhasebeQueryTests
     public async Task GetIncomes_NoFilter_ReturnsAllIncomes()
     {
         var tenantId = Guid.NewGuid();
-        _incomeRepo.Setup(r => r.GetAllAsync(tenantId))
+        _incomeRepo.Setup(r => r.GetAllAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Income>
             {
                 MakeIncome(tenantId, 1000m),
@@ -60,7 +60,7 @@ public class OnMuhasebeQueryTests
     public async Task GetIncomes_FilterByType_CallsGetByTypeAsync()
     {
         var tenantId = Guid.NewGuid();
-        _incomeRepo.Setup(r => r.GetByTypeAsync(IncomeType.Hizmet, tenantId))
+        _incomeRepo.Setup(r => r.GetByTypeAsync(IncomeType.Hizmet, tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Income> { MakeIncome(tenantId, 200m, IncomeType.Hizmet) });
 
         var result = await IncomesHandler().Handle(
@@ -69,8 +69,8 @@ public class OnMuhasebeQueryTests
 
         result.Should().HaveCount(1);
         result[0].IncomeType.Should().Be(IncomeType.Hizmet);
-        _incomeRepo.Verify(r => r.GetByTypeAsync(IncomeType.Hizmet, tenantId), Times.Once);
-        _incomeRepo.Verify(r => r.GetAllAsync(It.IsAny<Guid?>()), Times.Never);
+        _incomeRepo.Verify(r => r.GetByTypeAsync(IncomeType.Hizmet, tenantId, It.IsAny<CancellationToken>()), Times.Once);
+        _incomeRepo.Verify(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -79,7 +79,7 @@ public class OnMuhasebeQueryTests
         var tenantId = Guid.NewGuid();
         var from = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         var to = new DateTime(2026, 1, 31, 0, 0, 0, DateTimeKind.Utc);
-        _incomeRepo.Setup(r => r.GetByDateRangeAsync(from, to, tenantId))
+        _incomeRepo.Setup(r => r.GetByDateRangeAsync(from, to, tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Income> { MakeIncome(tenantId, 3000m) });
 
         var result = await IncomesHandler().Handle(
@@ -87,8 +87,8 @@ public class OnMuhasebeQueryTests
             CancellationToken.None);
 
         result.Should().HaveCount(1);
-        _incomeRepo.Verify(r => r.GetByDateRangeAsync(from, to, tenantId), Times.Once);
-        _incomeRepo.Verify(r => r.GetAllAsync(It.IsAny<Guid?>()), Times.Never);
+        _incomeRepo.Verify(r => r.GetByDateRangeAsync(from, to, tenantId, It.IsAny<CancellationToken>()), Times.Once);
+        _incomeRepo.Verify(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     // ── GetExpenses ──
@@ -97,7 +97,7 @@ public class OnMuhasebeQueryTests
     public async Task GetExpenses_NoFilter_ReturnsAllExpenses()
     {
         var tenantId = Guid.NewGuid();
-        _expenseRepo.Setup(r => r.GetAllAsync(tenantId))
+        _expenseRepo.Setup(r => r.GetAllAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Expense>
             {
                 MakeExpense(tenantId, 100m, ExpenseType.Kargo),
@@ -115,7 +115,7 @@ public class OnMuhasebeQueryTests
     public async Task GetExpenses_FilterByType_CallsGetByTypeAsync()
     {
         var tenantId = Guid.NewGuid();
-        _expenseRepo.Setup(r => r.GetByTypeAsync(ExpenseType.Kargo, tenantId))
+        _expenseRepo.Setup(r => r.GetByTypeAsync(ExpenseType.Kargo, tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Expense> { MakeExpense(tenantId, 150m, ExpenseType.Kargo) });
 
         var result = await ExpensesHandler().Handle(
@@ -124,8 +124,8 @@ public class OnMuhasebeQueryTests
 
         result.Should().HaveCount(1);
         result[0].ExpenseType.Should().Be(ExpenseType.Kargo);
-        _expenseRepo.Verify(r => r.GetByTypeAsync(ExpenseType.Kargo, tenantId), Times.Once);
-        _expenseRepo.Verify(r => r.GetAllAsync(It.IsAny<Guid?>()), Times.Never);
+        _expenseRepo.Verify(r => r.GetByTypeAsync(ExpenseType.Kargo, tenantId, It.IsAny<CancellationToken>()), Times.Once);
+        _expenseRepo.Verify(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     // ── GetKarZarar ──
@@ -137,13 +137,13 @@ public class OnMuhasebeQueryTests
         var from = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         var to = new DateTime(2026, 1, 31, 0, 0, 0, DateTimeKind.Utc);
 
-        _incomeRepo.Setup(r => r.GetByDateRangeAsync(from, to, tenantId))
+        _incomeRepo.Setup(r => r.GetByDateRangeAsync(from, to, tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Income>
             {
                 MakeIncome(tenantId, 5000m),
                 MakeIncome(tenantId, 2000m)
             });
-        _expenseRepo.Setup(r => r.GetByDateRangeAsync(from, to, tenantId))
+        _expenseRepo.Setup(r => r.GetByDateRangeAsync(from, to, tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Expense> { MakeExpense(tenantId, 1500m) });
 
         var result = await KarZararHandler().Handle(
@@ -163,9 +163,9 @@ public class OnMuhasebeQueryTests
         var from = new DateTime(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc);
         var to = new DateTime(2026, 2, 28, 0, 0, 0, DateTimeKind.Utc);
 
-        _incomeRepo.Setup(r => r.GetByDateRangeAsync(from, to, tenantId))
+        _incomeRepo.Setup(r => r.GetByDateRangeAsync(from, to, tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Income> { MakeIncome(tenantId, 1000m) });
-        _expenseRepo.Setup(r => r.GetByDateRangeAsync(from, to, tenantId))
+        _expenseRepo.Setup(r => r.GetByDateRangeAsync(from, to, tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Expense>
             {
                 MakeExpense(tenantId, 800m),
@@ -185,9 +185,9 @@ public class OnMuhasebeQueryTests
         var from = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc);
         var to = new DateTime(2026, 3, 31, 0, 0, 0, DateTimeKind.Utc);
 
-        _incomeRepo.Setup(r => r.GetByDateRangeAsync(from, to, tenantId))
+        _incomeRepo.Setup(r => r.GetByDateRangeAsync(from, to, tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Income>());
-        _expenseRepo.Setup(r => r.GetByDateRangeAsync(from, to, tenantId))
+        _expenseRepo.Setup(r => r.GetByDateRangeAsync(from, to, tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Expense>());
 
         var result = await KarZararHandler().Handle(

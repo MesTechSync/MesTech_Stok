@@ -8,7 +8,7 @@ const OFFLINE_URL = '/offline.html';
 const PRECACHE_URLS = [
   OFFLINE_URL,
   '/css/app.css',
-  '/css/mestech-theme.css',
+  '/css/theme.css',
   '/icon-192.png',
   '/icon-512.png',
   '/manifest.json'

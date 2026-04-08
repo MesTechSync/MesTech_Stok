@@ -434,9 +434,9 @@ public class DataIntegrityTests : IDisposable
                 TenantId = TenantA,
                 PurchasePrice = 10m,
                 SalePrice = 20m,
-                CategoryId = Guid.NewGuid(),
-                Stock = 100
+                CategoryId = Guid.NewGuid()
             };
+            product.SyncStock(100, "test-seed");
             ctx.Products.Add(product);
             await ctx.SaveChangesAsync();
             productId = product.Id;
@@ -479,9 +479,9 @@ public class DataIntegrityTests : IDisposable
                 TenantId = TenantA,
                 PurchasePrice = 5m,
                 SalePrice = 15m,
-                CategoryId = Guid.NewGuid(),
-                Stock = 100
+                CategoryId = Guid.NewGuid()
             };
+            product.SyncStock(100, "test-seed");
             ctx.Products.Add(product);
             await ctx.SaveChangesAsync();
             productId = product.Id;
@@ -679,9 +679,9 @@ public class DataIntegrityTests : IDisposable
             TenantId = TenantA,
             PurchasePrice = 5m,
             SalePrice = 10m,
-            CategoryId = Guid.NewGuid(),
-            Stock = 50
+            CategoryId = Guid.NewGuid()
         };
+        product.SyncStock(50, "test-seed");
 
         product.AdjustStock(-10, StockMovementType.Sale);
 
@@ -700,9 +700,9 @@ public class DataIntegrityTests : IDisposable
             TenantId = TenantA,
             PurchasePrice = 5m,
             SalePrice = 10m,
-            CategoryId = Guid.NewGuid(),
-            Stock = 50
+            CategoryId = Guid.NewGuid()
         };
+        product.SyncStock(50, "test-seed");
 
         // Negative quantity for inbound is a business logic error
         // The domain entity itself allows it (no guard), but it creates a logically invalid state

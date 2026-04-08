@@ -31,7 +31,7 @@ public static class OpenCartProductsEndpoint
                     searchTerm), ct);
             return Results.Ok(result);
         })
-        .WithName("GetOpenCartProducts")
+        .WithName("GetOpenCartProductsPaged")
         .WithSummary("OpenCart platform ürün listesi — sayfalı arama destekli")
         .Produces<GetOpenCartProductsResult>(200);
     }

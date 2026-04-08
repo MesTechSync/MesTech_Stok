@@ -109,10 +109,10 @@ public class AccountingExtraHandlerTests
         var expenseRepo = new Mock<IExpenseRepository>();
 
         incomeRepo.Setup(r => r.GetByDateRangeAsync(
-                It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>()))
+                It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<Income>());
         expenseRepo.Setup(r => r.GetByDateRangeAsync(
-                It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>()))
+                It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<Expense>());
 
         var sut = new GetCashFlowTrendHandler(
@@ -135,10 +135,10 @@ public class AccountingExtraHandlerTests
         var expenseRepo = new Mock<IExpenseRepository>();
 
         incomeRepo.Setup(r => r.GetByDateRangeAsync(
-                It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>()))
+                It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<Income>());
         expenseRepo.Setup(r => r.GetByDateRangeAsync(
-                It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>()))
+                It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Array.Empty<Expense>());
 
         var sut = new GetCashFlowTrendHandler(

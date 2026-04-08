@@ -25,7 +25,7 @@ public sealed class UblTrXmlValidator : IUblTrXmlValidator
             using var reader = XmlReader.Create(ms, readerSettings);
             doc = XDocument.Load(reader);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             errors.Add($"XML parse hatası: {ex.Message}");
             return Task.FromResult<IReadOnlyList<string>>(errors);
@@ -70,9 +70,14 @@ public sealed class UblTrXmlValidator : IUblTrXmlValidator
         else if (!Guid.TryParse(uuid, out _))
             errors.Add($"UUID geçerli bir GUID formatında olmalı: '{uuid}'.");
 
-        // 6. IssueDate
-        if (string.IsNullOrWhiteSpace(root.Element(Cbc + "IssueDate")?.Value))
+        // 6. IssueDate — gelecek tarih YASAK (Şematron 2025)
+        var issueDateStr = root.Element(Cbc + "IssueDate")?.Value;
+        if (string.IsNullOrWhiteSpace(issueDateStr))
             errors.Add("IssueDate zorunlu alan eksik.");
+        else if (DateTime.TryParse(issueDateStr, System.Globalization.CultureInfo.InvariantCulture,
+                     System.Globalization.DateTimeStyles.None, out var issueDate)
+                 && issueDate.Date > DateTime.UtcNow.Date.AddDays(1))
+            errors.Add($"IssueDate gelecek tarih olamaz: {issueDateStr}. GİB Şematron 2025 kuralı.");
 
         // 7. IssueTime — GİB UBL-TR 1.2.1 zorunlu
         if (string.IsNullOrWhiteSpace(root.Element(Cbc + "IssueTime")?.Value))
@@ -82,8 +87,9 @@ public sealed class UblTrXmlValidator : IUblTrXmlValidator
         var typeCode = root.Element(Cbc + "InvoiceTypeCode")?.Value;
         if (string.IsNullOrWhiteSpace(typeCode))
             errors.Add("InvoiceTypeCode zorunlu alan eksik.");
-        else if (typeCode is not ("SATIS" or "IADE" or "TEVKIFAT" or "ISTISNA" or "OZELMATRAH" or "IHRACKAYITLI"))
-            errors.Add($"InvoiceTypeCode geçersiz: '{typeCode}'. GİB geçerli değerler: SATIS/IADE/TEVKIFAT/ISTISNA/OZELMATRAH/IHRACKAYITLI.");
+        else if (typeCode is not ("SATIS" or "IADE" or "TEVKIFAT" or "ISTISNA" or "OZELMATRAH"
+                 or "IHRACKAYITLI" or "YTBSATIS" or "YTBISTISNA" or "YTBIADE"))
+            errors.Add($"InvoiceTypeCode geçersiz: '{typeCode}'. GİB geçerli değerler: SATIS/IADE/TEVKIFAT/ISTISNA/OZELMATRAH/IHRACKAYITLI/YTBSATIS/YTBISTISNA/YTBIADE.");
 
         // 9. DocumentCurrencyCode
         if (string.IsNullOrWhiteSpace(root.Element(Cbc + "DocumentCurrencyCode")?.Value))
@@ -115,6 +121,22 @@ public sealed class UblTrXmlValidator : IUblTrXmlValidator
                     errors.Add("TaxSubtotal/TaxCategory/TaxScheme zorunlu alan eksik.");
                 else if (string.IsNullOrWhiteSpace(taxScheme.Element(Cbc + "TaxTypeCode")?.Value))
                     errors.Add("TaxScheme/TaxTypeCode zorunlu alan eksik (ör. 0015=KDV).");
+
+                // Business rule: TaxAmount vs TaxableAmount tutarlılık
+                var subTaxAmountStr = sub.Element(Cbc + "TaxAmount")?.Value;
+                var taxableAmountStr = sub.Element(Cbc + "TaxableAmount")?.Value;
+                if (decimal.TryParse(subTaxAmountStr, System.Globalization.NumberStyles.Any,
+                        System.Globalization.CultureInfo.InvariantCulture, out var subTaxAmount)
+                    && decimal.TryParse(taxableAmountStr, System.Globalization.NumberStyles.Any,
+                        System.Globalization.CultureInfo.InvariantCulture, out var taxableAmount))
+                {
+                    if (subTaxAmount < 0)
+                        errors.Add($"TaxSubtotal/TaxAmount negatif olamaz: {subTaxAmount}.");
+                    if (taxableAmount < 0)
+                        errors.Add($"TaxSubtotal/TaxableAmount negatif olamaz: {taxableAmount}.");
+                    if (taxableAmount > 0 && subTaxAmount > taxableAmount)
+                        errors.Add($"TaxSubtotal/TaxAmount ({subTaxAmount}) TaxableAmount'tan ({taxableAmount}) büyük olamaz.");
+                }
             }
         }
 
@@ -184,7 +206,9 @@ public sealed class UblTrXmlValidator : IUblTrXmlValidator
         if (element is null || string.IsNullOrWhiteSpace(element.Value))
             errors.Add($"LegalMonetaryTotal/{fieldName} zorunlu alan eksik.");
         else if (!decimal.TryParse(element.Value, System.Globalization.NumberStyles.Any,
-                     System.Globalization.CultureInfo.InvariantCulture, out _))
+                     System.Globalization.CultureInfo.InvariantCulture, out var amount))
             errors.Add($"LegalMonetaryTotal/{fieldName} geçerli bir sayısal değer olmalı.");
+        else if (amount < 0 && fieldName is "PayableAmount" or "TaxInclusiveAmount" or "LineExtensionAmount")
+            errors.Add($"LegalMonetaryTotal/{fieldName} negatif olamaz: {amount}. GİB reddetir.");
     }
 }

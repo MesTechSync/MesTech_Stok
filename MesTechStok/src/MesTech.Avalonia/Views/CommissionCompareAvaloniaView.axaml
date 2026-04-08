@@ -1,0 +1,110 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
+             x:Class="MesTech.Avalonia.Views.CommissionCompareAvaloniaView"
+             x:DataType="vm:CommissionCompareAvaloniaViewModel"
+             AutomationProperties.Name="Komisyon Karsilastirma">
+<UserControl.KeyBindings><KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" /></UserControl.KeyBindings>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Background="{DynamicResource MesBgPage}">
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{DynamicResource MesBrandAccent}" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="Komisyon Karsilastirma" Foreground="{DynamicResource MesBgPrimary}"
+                           FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="Yenile" Command="{Binding RefreshCommand}" ToolTip.Tip="Verileri yenile"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesBrandAccent}" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+            </Grid>
+        </Border>
+
+        <!-- KPI -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*" Margin="16,16,16,0">
+            <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="6"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*"><Border Grid.Column="0" Background="{DynamicResource MesPrimaryBlue}" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Toplam Kural" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding TotalCount}" FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold"
+                                   Foreground="{DynamicResource MesPrimaryBlue}" Margin="0,8,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="6"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*"><Border Grid.Column="0" Background="{DynamicResource MesEmerald}" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Ort. Komisyon" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding AvgRate, StringFormat='%{0:F1}'}" FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold"
+                                   Foreground="{DynamicResource MesEmerald}" Margin="0,8,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="6"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*"><Border Grid.Column="0" Background="{DynamicResource MesAmber}" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Min Oran" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding MinRate, StringFormat='%{0:F1}'}" FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold"
+                                   Foreground="{DynamicResource MesAmber}" Margin="0,8,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <Border Grid.Column="3" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="6"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*"><Border Grid.Column="0" Background="#EF4444" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Max Oran" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding MaxRate, StringFormat='%{0:F1}'}" FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold"
+                                   Foreground="#EF4444" Margin="0,8,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Filter -->
+        <Border Grid.Row="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                Padding="16,10" Margin="22,12,22,0" BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBox Text="{Binding SearchText}" Watermark="Platform veya kategori ara..." AutomationProperties.Name="Ara"
+                         Width="280" HorizontalAlignment="Left" />
+                <ComboBox Grid.Column="1" SelectedItem="{Binding SelectedPlatform}" ItemsSource="{Binding PlatformOptions}"
+                          Width="160" AutomationProperties.Name="Platform" />
+            </Grid>
+        </Border>
+
+        <!-- DataGrid -->
+        <Border Grid.Row="3" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="22,12,22,22"
+                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+            <DataGrid ItemsSource="{Binding Rates}" AutoGenerateColumns="False"
+                      CanUserSortColumns="True" CanUserResizeColumns="True" IsReadOnly="True"
+                      GridLinesVisibility="Horizontal" BorderThickness="0" Background="{DynamicResource MesBgPrimary}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="130" />
+                    <DataGridTextColumn Header="Kategori" Binding="{Binding CategoryName}" Width="180" />
+                    <DataGridTextColumn Header="Komisyon Tipi" Binding="{Binding CommissionType}" Width="120" />
+                    <DataGridTextColumn Header="Oran (%)" Binding="{Binding Rate, StringFormat='{}{0:F2}'}" Width="90" />
+                    <DataGridTextColumn Header="Min Tutar" Binding="{Binding MinAmount, StringFormat='₺{0:N2}'}" Width="100" />
+                    <DataGridTextColumn Header="Max Tutar" Binding="{Binding MaxAmount, StringFormat='₺{0:N2}'}" Width="100" />
+                    <DataGridTextColumn Header="Gecerlilik" Binding="{Binding EffectiveFrom, StringFormat='{}{0:dd.MM.yyyy}'}" Width="100" />
+                    <DataGridCheckBoxColumn Header="Aktif" Binding="{Binding IsActive}" Width="60" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <Border Grid.Row="0" Grid.RowSpan="4" Background="{DynamicResource MesBgPage}" IsVisible="{Binding IsLoading}" ZIndex="100">
+            <controls:SkeletonLoader ShowKpi="True" ShowChart="False" /></Border>
+        <Border Grid.Row="3" Background="{DynamicResource MesBgSurface}" IsVisible="{Binding IsEmpty}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
+                <TextBlock Text="Komisyon kaydi bulunamadi" FontSize="{StaticResource FontSizeTitle}" FontWeight="SemiBold"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" />
+                <Button Content="Yenile" Command="{Binding RefreshCommand}" Margin="0,16,0,0" Padding="16,8" />
+            </StackPanel></Border>
+        <fa:InfoBar Grid.Row="0" Title="Hata" Message="{Binding ErrorMessage}" Severity="Error"
+                    IsOpen="{Binding HasError}" IsClosable="True" Margin="16,8" ZIndex="50">
+            <fa:InfoBar.ActionButton><Button Content="Tekrar Dene" Command="{Binding RefreshCommand}" /></fa:InfoBar.ActionButton>
+        </fa:InfoBar>
+    </Grid>
+</UserControl>

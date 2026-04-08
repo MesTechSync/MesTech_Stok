@@ -19,6 +19,13 @@ public partial class StockPlacementAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int totalCount;
 
+    // Pagination
+    [ObservableProperty] private int currentPage = 1;
+    [ObservableProperty] private int pageSize = 25;
+    [ObservableProperty] private int totalPages = 1;
+    [ObservableProperty] private string paginationInfo = string.Empty;
+    public int[] PageSizeOptions { get; } = [25, 50, 100];
+
     [ObservableProperty] private string? selectedWarehouse;
     [ObservableProperty] private string? selectedShelf;
 
@@ -38,13 +45,9 @@ public partial class StockPlacementAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var placements = await _mediator.Send(new GetStockPlacementsQuery(_currentUser.TenantId)) ?? [];
+            var placements = await _mediator.Send(new GetStockPlacementsQuery(_currentUser.TenantId), ct) ?? [];
 
             Warehouses.Clear();
             var warehouseNames = placements.Select(p => p.WarehouseName ?? "—").Distinct().OrderBy(w => w);
@@ -64,13 +67,7 @@ public partial class StockPlacementAvaloniaViewModel : ViewModelBase
                 SelectedWarehouse = Warehouses[0];
 
             ApplyFilters();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Yerlesim verileri yuklenemedi: {ex.Message}";
-        }
-        finally { IsLoading = false; }
+        }, "Yerlesim verileri yuklenirken hata");
     }
 
     partial void OnSelectedWarehouseChanged(string? value)
@@ -125,13 +122,27 @@ public partial class StockPlacementAvaloniaViewModel : ViewModelBase
                 i.Ad.Contains(search, StringComparison.OrdinalIgnoreCase));
         }
 
+        var all = filtered.ToList();
+        TotalCount = all.Count;
+        TotalPages = Math.Max(1, (int)Math.Ceiling((double)TotalCount / PageSize));
+        if (CurrentPage > TotalPages) CurrentPage = TotalPages;
+
         Items.Clear();
-        foreach (var item in filtered)
+        foreach (var item in all.Skip((CurrentPage - 1) * PageSize).Take(PageSize))
             Items.Add(item);
 
-        TotalCount = Items.Count;
-        IsEmpty = Items.Count == 0;
+        IsEmpty = TotalCount == 0;
+        PaginationInfo = TotalCount > 0
+            ? $"Sayfa {CurrentPage}/{TotalPages} ({TotalCount} yerlesim)"
+            : string.Empty;
     }
+
+    partial void OnPageSizeChanged(int value) { CurrentPage = 1; ApplyFilters(); }
+
+    [RelayCommand]
+    private void NextPage() { if (CurrentPage < TotalPages) { CurrentPage++; ApplyFilters(); } }
+    [RelayCommand]
+    private void PrevPage() { if (CurrentPage > 1) { CurrentPage--; ApplyFilters(); } }
 
     [RelayCommand]
     private async Task RefreshAsync() => await LoadAsync();

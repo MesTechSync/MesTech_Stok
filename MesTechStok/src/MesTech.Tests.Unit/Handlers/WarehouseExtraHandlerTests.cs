@@ -21,7 +21,7 @@ public class WarehouseExtraHandlerTests
     public async Task UpdateWarehouse_WarehouseNotFound_ReturnsFalse()
     {
         var repo = new Mock<IWarehouseRepository>();
-        repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+        repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Warehouse?)null);
         var uow = new Mock<IUnitOfWork>();
         var sut = new UpdateWarehouseHandler(repo.Object, uow.Object);
@@ -38,7 +38,7 @@ public class WarehouseExtraHandlerTests
     {
         var warehouse = new Warehouse { TenantId = Guid.NewGuid(), Name = "Old", Code = "WH-00" };
         var repo = new Mock<IWarehouseRepository>();
-        repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(warehouse);
+        repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(warehouse);
         var uow = new Mock<IUnitOfWork>();
         var sut = new UpdateWarehouseHandler(repo.Object, uow.Object);
 
@@ -55,7 +55,7 @@ public class WarehouseExtraHandlerTests
         var whId = Guid.NewGuid();
         var warehouse = new Warehouse { TenantId = _tenantId, Name = "Old", Code = "WH-00" };
         var repo = new Mock<IWarehouseRepository>();
-        repo.Setup(r => r.GetByIdAsync(whId)).ReturnsAsync(warehouse);
+        repo.Setup(r => r.GetByIdAsync(whId, It.IsAny<CancellationToken>())).ReturnsAsync(warehouse);
         var uow = new Mock<IUnitOfWork>();
         var sut = new UpdateWarehouseHandler(repo.Object, uow.Object);
 
@@ -65,7 +65,7 @@ public class WarehouseExtraHandlerTests
         result.Should().BeTrue();
         warehouse.Name.Should().Be("Updated Depo");
         warehouse.Code.Should().Be("WH-99");
-        repo.Verify(r => r.UpdateAsync(warehouse), Times.Once());
+        repo.Verify(r => r.UpdateAsync(warehouse, It.IsAny<CancellationToken>()), Times.Once());
         uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once());
     }
 
@@ -87,7 +87,7 @@ public class WarehouseExtraHandlerTests
         var activeWarehouse = new Warehouse { Name = "Active", Code = "WH-A", IsActive = true };
         var inactiveWarehouse = new Warehouse { Name = "Inactive", Code = "WH-I", IsActive = false };
         var repo = new Mock<IWarehouseRepository>();
-        repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Warehouse> { activeWarehouse, inactiveWarehouse });
+        repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Warehouse> { activeWarehouse, inactiveWarehouse });
         var sut = new GetWarehousesHandler(repo.Object);
 
         var result = await sut.Handle(new GetWarehousesQuery(ActiveOnly: true), CancellationToken.None);
@@ -102,7 +102,7 @@ public class WarehouseExtraHandlerTests
         var w1 = new Warehouse { Name = "A", Code = "WH-A", IsActive = true };
         var w2 = new Warehouse { Name = "B", Code = "WH-B", IsActive = false };
         var repo = new Mock<IWarehouseRepository>();
-        repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Warehouse> { w1, w2 });
+        repo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Warehouse> { w1, w2 });
         var sut = new GetWarehousesHandler(repo.Object);
 
         var result = await sut.Handle(new GetWarehousesQuery(ActiveOnly: false), CancellationToken.None);
@@ -116,7 +116,7 @@ public class WarehouseExtraHandlerTests
     public async Task GetWarehouseById_NotFound_ReturnsNull()
     {
         var repo = new Mock<IWarehouseRepository>();
-        repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Warehouse?)null);
+        repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Warehouse?)null);
         var sut = new GetWarehouseByIdHandler(repo.Object);
 
         var result = await sut.Handle(new GetWarehouseByIdQuery(Guid.NewGuid()), CancellationToken.None);
@@ -129,7 +129,7 @@ public class WarehouseExtraHandlerTests
     {
         var wh = new Warehouse { Name = "Ana Depo", Code = "WH-01", IsActive = true, City = "Istanbul" };
         var repo = new Mock<IWarehouseRepository>();
-        repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(wh);
+        repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync(wh);
         var sut = new GetWarehouseByIdHandler(repo.Object);
 
         var result = await sut.Handle(new GetWarehouseByIdQuery(Guid.NewGuid()), CancellationToken.None);
@@ -158,7 +158,7 @@ public class WarehouseExtraHandlerTests
     {
         var productRepo = new Mock<IProductRepository>();
         var warehouseRepo = new Mock<IWarehouseRepository>();
-        warehouseRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Warehouse?)null);
+        warehouseRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Warehouse?)null);
         var sut = new GetWarehouseStockHandler(productRepo.Object, warehouseRepo.Object);
 
         var result = await sut.Handle(new GetWarehouseStockQuery(Guid.NewGuid(), _tenantId), CancellationToken.None);
@@ -191,7 +191,7 @@ public class WarehouseExtraHandlerTests
     public async Task GetWarehouseSummary_ValidRequest_ReturnsEmptyList()
     {
         var warehouseRepo = new Mock<IWarehouseRepository>();
-        warehouseRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Warehouse>().AsReadOnly());
+        warehouseRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<Warehouse>().AsReadOnly());
         var sut = new GetWarehouseSummaryHandler(
             warehouseRepo.Object,
             new Mock<IProductRepository>().Object);

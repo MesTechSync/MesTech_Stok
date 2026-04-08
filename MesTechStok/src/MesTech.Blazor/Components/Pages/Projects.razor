@@ -10,12 +10,11 @@
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
 <div class="d-flex align-items-center mb-4">
-  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-       style="width: 48px; height: 48px; background-color: #2855AC;">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
     <i class="fas fa-project-diagram text-white"></i>
   </div>
   <div>
-    <h3 class="mb-0" style="color: #2855AC;">Proje & Gorev Yonetimi</h3>
+    <h3 class="mb-0" >Proje & Gorev Yonetimi</h3>
     <small class="text-muted">Projelerinizi ve gorevlerinizi kanban tahtasinda yonetin</small>
   </div>
 </div>
@@ -45,7 +44,7 @@ else
     <div class="col-12 col-md-3">
       <div class="card shadow-sm">
         <div class="card-header bg-white d-flex align-items-center justify-content-between">
-          <h6 class="mb-0"><i class="fas fa-folder-open me-2" style="color: #2855AC;"></i>Projeler</h6>
+          <h6 class="mb-0"><i class="fas fa-folder-open me-2" ></i>Projeler</h6>
           <button class="btn btn-sm btn-outline-primary" @onclick="() => showProjectForm = true" title="Yeni Proje">
             <i class="fas fa-plus"></i>
           </button>
@@ -112,7 +111,7 @@ else
       {
         <!-- Kanban Toolbar -->
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="mb-0 fw-bold" style="color: #2855AC;">@selectedProject.Name</h5>
+          <h5 class="mb-0 fw-bold" >@selectedProject.Name</h5>
           <button class="btn btn-sm btn-primary" @onclick="() => showTaskForm = true">
             <i class="fas fa-plus me-1"></i>Yeni Gorev
           </button>
@@ -203,11 +202,11 @@ else
   <!-- New Project Modal -->
   @if (showProjectForm)
   {
-    <div class="modal d-block" style="background-color: rgba(0,0,0,0.5);" tabindex="-1">
+    <div class="modal d-block" style="background-color: var(--mestech-modal-overlay);" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title"><i class="fas fa-folder-plus me-2" style="color: #2855AC;"></i>Yeni Proje</h5>
+            <h5 class="modal-title"><i class="fas fa-folder-plus me-2" ></i>Yeni Proje</h5>
             <button type="button" class="btn-close" @onclick="() => showProjectForm = false"></button>
           </div>
           <div class="modal-body">
@@ -242,11 +241,11 @@ else
   <!-- New Task Modal -->
   @if (showTaskForm)
   {
-    <div class="modal d-block" style="background-color: rgba(0,0,0,0.5);" tabindex="-1">
+    <div class="modal d-block" style="background-color: var(--mestech-modal-overlay);" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title"><i class="fas fa-tasks me-2" style="color: #2855AC;"></i>Yeni Gorev</h5>
+            <h5 class="modal-title"><i class="fas fa-tasks me-2" ></i>Yeni Gorev</h5>
             <button type="button" class="btn-close" @onclick="() => showTaskForm = false"></button>
           </div>
           <div class="modal-body">

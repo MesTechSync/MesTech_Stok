@@ -16,7 +16,7 @@ public sealed class GetSuppliersPagedHandler : IRequestHandler<GetSuppliersPaged
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var allSuppliers = await _supplierRepository.GetAllAsync().ConfigureAwait(false);
+        var allSuppliers = await _supplierRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
         var filtered = string.IsNullOrWhiteSpace(request.SearchTerm)
             ? allSuppliers

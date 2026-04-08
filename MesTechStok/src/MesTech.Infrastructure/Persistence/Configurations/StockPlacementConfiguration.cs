@@ -28,7 +28,7 @@ public sealed class StockPlacementConfiguration : IEntityTypeConfiguration<Stock
 
         builder.HasQueryFilter(p => !p.IsDeleted);
 
-        builder.Property(p => p.RowVersion).IsRowVersion();
-        builder.Property<uint>("xmin").HasColumnType("xid");
+        builder.Ignore(p => p.RowVersion);
+        builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
     }
 }

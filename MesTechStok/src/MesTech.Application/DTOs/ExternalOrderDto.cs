@@ -18,8 +18,16 @@ public sealed class ExternalOrderDto
     public string? CustomerCity { get; set; }
     public string? CustomerTaxNumber { get; set; }
 
+    // Fatura adresi (invoiceAddress) — e-fatura kesimi icin gerekli
+    public string? InvoiceAddress { get; set; }
+    public string? InvoiceCity { get; set; }
+    public string? InvoiceDistrict { get; set; }
+    public string? InvoiceFullName { get; set; }
+
     // Tutar
     public decimal TotalAmount { get; set; }
+    public decimal? GrossAmount { get; set; }
+    public decimal? TotalDiscount { get; set; }
     public decimal? DiscountAmount { get; set; }
     public decimal? ShippingCost { get; set; }
     public string Currency { get; set; } = "TRY";
@@ -28,6 +36,9 @@ public sealed class ExternalOrderDto
     public string? ShipmentPackageId { get; set; }
     public string? CargoProviderName { get; set; }
     public string? CargoTrackingNumber { get; set; }
+
+    // Fatura
+    public string? InvoiceLink { get; set; }
 
     // Tarihler
     public DateTime OrderDate { get; set; }
@@ -46,6 +57,7 @@ public sealed class ExternalOrderLineDto
     public int Quantity { get; set; }
     public decimal UnitPrice { get; set; }
     public decimal? DiscountAmount { get; set; }
+    public decimal? CommissionAmount { get; set; }
     public decimal TaxRate { get; set; }
     public decimal LineTotal { get; set; }
 }

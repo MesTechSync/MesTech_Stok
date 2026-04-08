@@ -17,6 +17,12 @@ public sealed class ProductPlatformMapping : BaseEntity, ITenantEntity
     public string? ExternalProductId { get; set; }
     public string? ExternalCategoryId { get; set; }
     public string? ExternalUrl { get; set; }
+
+    // D12-03: Platform-specific identifiers (index'lenebilir — PlatformSpecificData JSON'dan ayri)
+    public string? PlatformBarcode { get; set; }
+    public string? PlatformModelCode { get; set; }
+    public string? PlatformStockCode { get; set; }
+
     public SyncStatus SyncStatus { get; set; } = SyncStatus.NotSynced;
     public DateTime? LastSyncDate { get; set; }
     public bool IsEnabled { get; set; } = true;

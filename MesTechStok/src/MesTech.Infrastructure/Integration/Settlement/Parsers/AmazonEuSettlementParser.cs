@@ -1,5 +1,6 @@
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Integration.Settlement.Parsers;
@@ -13,11 +14,11 @@ public sealed class AmazonEuSettlementParser : ISettlementParser
 {
     private readonly AmazonSettlementParser _inner;
 
-    public string Platform => "AmazonEu";
+    public string Platform => nameof(PlatformType.AmazonEu);
 
     public AmazonEuSettlementParser(ILogger<AmazonSettlementParser> logger)
     {
-        _inner = new AmazonSettlementParser(logger);
+        _inner = new AmazonSettlementParser(logger, platformOverride: nameof(PlatformType.AmazonEu));
     }
 
     public Task<SettlementBatch> ParseAsync(Stream rawData, string format, CancellationToken ct = default)

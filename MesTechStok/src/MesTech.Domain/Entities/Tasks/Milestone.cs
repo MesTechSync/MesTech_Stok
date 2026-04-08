@@ -16,6 +16,7 @@ public sealed class Milestone : BaseEntity, ITenantEntity
 
     public static Milestone Create(Guid tenantId, Guid projectId, string name, int position, DateTime? dueDate = null)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         return new Milestone
         {

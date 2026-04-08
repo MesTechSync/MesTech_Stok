@@ -24,6 +24,7 @@ public sealed class FinancialGoal : BaseEntity, ITenantEntity
         DateTime startDate,
         DateTime endDate)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
         if (targetAmount <= 0)
             throw new ArgumentOutOfRangeException(nameof(targetAmount), "Target amount must be positive.");

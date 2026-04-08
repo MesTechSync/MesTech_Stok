@@ -30,7 +30,7 @@ public class CreateWarehouseHandlerTests
         result.IsSuccess.Should().BeTrue();
         result.WarehouseId.Should().NotBe(Guid.Empty);
         _warehouseRepo.Verify(r => r.AddAsync(It.Is<Warehouse>(w =>
-            w.Name == "Ana Depo" && w.Code == "WH-001")), Times.Once());
+            w.Name == "Ana Depo" && w.Code == "WH-001"), It.IsAny<CancellationToken>()), Times.Once());
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once());
     }
 
@@ -64,6 +64,6 @@ public class CreateWarehouseHandlerTests
         var result = await _sut.Handle(command, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
-        _warehouseRepo.Verify(r => r.AddAsync(It.IsAny<Warehouse>()), Times.Once());
+        _warehouseRepo.Verify(r => r.AddAsync(It.IsAny<Warehouse>(), It.IsAny<CancellationToken>()), Times.Once());
     }
 }

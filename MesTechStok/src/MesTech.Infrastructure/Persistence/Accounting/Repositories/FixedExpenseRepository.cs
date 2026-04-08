@@ -21,6 +21,7 @@ public sealed class FixedExpenseRepository : IFixedExpenseRepository
 
         return await query
             .OrderBy(e => e.Name)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct);
     }
 

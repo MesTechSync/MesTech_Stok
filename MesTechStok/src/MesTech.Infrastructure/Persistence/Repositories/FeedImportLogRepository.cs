@@ -21,24 +21,24 @@ public sealed class FeedImportLogRepository(AppDbContext db) : IFeedImportLogRep
             .Where(l => l.SupplierFeedId == feedId && !l.IsDeleted)
             .OrderByDescending(l => l.StartedAt);
 
-        var total = await query.CountAsync(ct);
+        var total = await query.CountAsync(ct).ConfigureAwait(false);
         var items = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .AsNoTracking().ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
         return ((IReadOnlyList<FeedImportLog>)items, total);
     }
 
     public async Task AddAsync(FeedImportLog log, CancellationToken ct = default)
     {
-        await db.FeedImportLogs.AddAsync(log, ct);
-        await db.SaveChangesAsync(ct);
+        await db.FeedImportLogs.AddAsync(log, ct).ConfigureAwait(false);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 
     public async Task UpdateAsync(FeedImportLog log, CancellationToken ct = default)
     {
         db.FeedImportLogs.Update(log);
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
     }
 }

@@ -23,4 +23,31 @@ public sealed class Store : BaseEntity, ITenantEntity
     public Tenant Tenant { get; set; } = null!;
     public ICollection<StoreCredential> Credentials { get; set; } = new List<StoreCredential>();
     public ICollection<ProductPlatformMapping> ProductMappings { get; set; } = new List<ProductPlatformMapping>();
+
+    /// <summary>
+    /// Factory method — yeni mağaza oluşturur.
+    /// Guard: TenantId boş olamaz, StoreName zorunlu.
+    /// </summary>
+    public static Store Create(
+        Guid tenantId,
+        PlatformType platformType,
+        string storeName,
+        string? externalStoreId = null)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
+        ArgumentException.ThrowIfNullOrWhiteSpace(storeName, nameof(storeName));
+
+        return new Store
+        {
+            Id = Guid.NewGuid(),
+            TenantId = tenantId,
+            PlatformType = platformType,
+            StoreName = storeName,
+            ExternalStoreId = externalStoreId,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+        };
+    }
 }

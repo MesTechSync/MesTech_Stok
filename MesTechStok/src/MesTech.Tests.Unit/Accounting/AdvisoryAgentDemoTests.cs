@@ -372,18 +372,19 @@ public class AdvisoryAgentDemoTests
 
     private static Product CreateProduct(string name, string sku, decimal purchasePrice, decimal salePrice)
     {
-        return new Product
+        var product = new Product
         {
             Name = name,
             SKU = sku,
             PurchasePrice = purchasePrice,
             SalePrice = salePrice,
-            Stock = 100,
             CategoryId = Guid.NewGuid(),
             TaxRate = 0.18m,
             CurrencyCode = "TRY",
             IsActive = true
         };
+        product.SyncStock(100);
+        return product;
     }
 
     private static List<PlatformCommission> BuildCommissions()

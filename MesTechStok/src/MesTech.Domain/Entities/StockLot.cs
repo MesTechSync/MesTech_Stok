@@ -38,6 +38,7 @@ public sealed class StockLot : BaseEntity, ITenantEntity
         Guid? supplierId = null, string? supplierName = null,
         DateTime? expiryDate = null, string? notes = null)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(lotNumber);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(quantity);
         ArgumentOutOfRangeException.ThrowIfNegative(unitCost);

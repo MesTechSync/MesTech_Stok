@@ -10,6 +10,7 @@ using MesTech.Application.Features.Dropshipping.Queries.GetDropshipOrders;
 using MesTech.Application.Features.Dropshipping.Queries.GetDropshipProducts;
 using MesTech.Application.Features.Dropshipping.Queries.GetDropshipSuppliers;
 using MesTech.Application.Features.Dropshipping.Queries.GetSupplierPerformance;
+using MesTech.Application.DTOs.Dropshipping;
 using Microsoft.AspNetCore.OutputCaching;
 
 namespace MesTech.WebApi.Endpoints;
@@ -33,7 +34,7 @@ public static class DropshippingEndpoints
         })
         .WithName("GetDropshipSuppliers")
         .WithSummary("Dropship tedarikçi listesi")
-        .Produces(200)
+        .Produces<IReadOnlyList<DropshipSupplierDto>>(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/dropshipping/suppliers — yeni tedarikçi oluştur
@@ -77,7 +78,7 @@ public static class DropshippingEndpoints
         })
         .WithName("GetDropshipProducts")
         .WithSummary("Dropship ürün listesi (linked/unlinked filtresi)")
-        .Produces(200)
+        .Produces<IReadOnlyList<DropshipProductDto>>(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/dropshipping/products/{id}/link — ürün eşleştir
@@ -109,7 +110,7 @@ public static class DropshippingEndpoints
         })
         .WithName("GetDropshipOrders")
         .WithSummary("Dropship sipariş listesi")
-        .Produces(200)
+        .Produces<IReadOnlyList<DropshipOrderDto>>(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/dropshipping/orders — yeni dropship siparişi oluştur
@@ -140,7 +141,7 @@ public static class DropshippingEndpoints
         })
         .WithName("GetSupplierPerformance")
         .WithSummary("Tedarikçi performans raporu (fulfillment, hız, rating)")
-        .Produces(200)
+        .Produces<List<SupplierPerformanceDto>>(200)
         .CacheOutput("Report120s");
 
         // POST /api/v1/dropshipping/auto-order — düşük stoklu ürünler için otomatik sipariş

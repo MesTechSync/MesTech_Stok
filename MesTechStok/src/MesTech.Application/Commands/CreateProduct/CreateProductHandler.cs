@@ -9,23 +9,26 @@ public sealed class CreateProductHandler : IRequestHandler<CreateProductCommand,
 {
     private readonly IProductRepository _productRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ITenantProvider _tenantProvider;
 
-    public CreateProductHandler(IProductRepository productRepository, IUnitOfWork unitOfWork)
+    public CreateProductHandler(IProductRepository productRepository, IUnitOfWork unitOfWork, ITenantProvider tenantProvider)
     {
         _productRepository = productRepository;
         _unitOfWork = unitOfWork;
+        _tenantProvider = tenantProvider;
     }
 
     public async Task<CreateProductResult> Handle(CreateProductCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
         // Duplicate SKU kontrolü
-        var existing = await _productRepository.GetBySKUAsync(request.SKU).ConfigureAwait(false);
+        var existing = await _productRepository.GetBySKUAsync(request.SKU, cancellationToken).ConfigureAwait(false);
         if (existing != null)
             return new CreateProductResult { IsSuccess = false, ErrorMessage = $"SKU '{request.SKU}' already exists." };
 
         var product = new Product
         {
+            TenantId = _tenantProvider.GetCurrentTenantId(),
             Name = request.Name,
             SKU = request.SKU,
             Barcode = request.Barcode,
@@ -43,7 +46,7 @@ public sealed class CreateProductHandler : IRequestHandler<CreateProductCommand,
         };
 
         product.MarkAsCreated();
-        await _productRepository.AddAsync(product).ConfigureAwait(false);
+        await _productRepository.AddAsync(product, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new CreateProductResult

@@ -38,7 +38,8 @@ public class BulkUpdateStockHandlerTests
     public async Task Handle_AllValid_ReturnsFullSuccess()
     {
         // Arrange
-        var product = new Product { SKU = "SKU-001", Stock = 10 };
+        var product = new Product { SKU = "SKU-001" };
+        product.SyncStock(10);
         var products = new List<Product> { product };
         _productRepo.Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(products);
@@ -89,7 +90,8 @@ public class BulkUpdateStockHandlerTests
     [Fact]
     public async Task Handle_MixedItems_ReportsPartialSuccess()
     {
-        var product = new Product { SKU = "OK-SKU", Stock = 5 };
+        var product = new Product { SKU = "OK-SKU" };
+        product.SyncStock(5);
         _productRepo.Setup(r => r.GetBySKUsAsync(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product> { product });
 

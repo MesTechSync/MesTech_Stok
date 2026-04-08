@@ -45,9 +45,11 @@ public sealed class HangfireDashboardAuthFilter : IDashboardAuthorizationFilter
         if (string.IsNullOrEmpty(providedKey))
             return false;
 
-        // Constant-time comparison to prevent timing-based side-channel attacks
-        return CryptographicOperations.FixedTimeEquals(
-            Encoding.UTF8.GetBytes(providedKey),
-            Encoding.UTF8.GetBytes(_allowedApiKey));
+        // Constant-time comparison via SHA256 hash — prevents length-based timing leak.
+        // FixedTimeEquals returns false immediately on different lengths, leaking key length.
+        // Hashing both values produces fixed 32-byte arrays regardless of input length.
+        var providedHash = SHA256.HashData(Encoding.UTF8.GetBytes(providedKey));
+        var expectedHash = SHA256.HashData(Encoding.UTF8.GetBytes(_allowedApiKey));
+        return CryptographicOperations.FixedTimeEquals(providedHash, expectedHash);
     }
 }

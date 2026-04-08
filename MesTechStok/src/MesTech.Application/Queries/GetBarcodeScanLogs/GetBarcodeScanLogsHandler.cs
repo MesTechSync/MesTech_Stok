@@ -21,11 +21,13 @@ public sealed class GetBarcodeScanLogsHandler : IRequestHandler<GetBarcodeScanLo
         var items = await _repository.GetPagedAsync(
             request.Page, request.PageSize,
             request.BarcodeFilter, request.SourceFilter,
-            request.IsValidFilter, request.From, request.To);
+            request.IsValidFilter, request.From, request.To,
+            cancellationToken);
 
         var count = await _repository.GetCountAsync(
             request.BarcodeFilter, request.SourceFilter,
-            request.IsValidFilter, request.From, request.To);
+            request.IsValidFilter, request.From, request.To,
+            cancellationToken);
 
         return new GetBarcodeScanLogsResult
         {

@@ -18,7 +18,7 @@ public sealed class SearchProductsForImageMatchHandler
     public async Task<IReadOnlyList<ProductDto>> Handle(
         SearchProductsForImageMatchQuery request, CancellationToken cancellationToken)
     {
-        var products = await _productRepository.GetAllAsync().ConfigureAwait(false);
+        var products = await _productRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
         return products.Select(p =>
         {
             var dto = p.Adapt<ProductDto>();

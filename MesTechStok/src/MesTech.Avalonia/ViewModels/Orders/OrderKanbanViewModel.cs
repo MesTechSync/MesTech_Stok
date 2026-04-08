@@ -34,25 +34,14 @@ public partial class OrderKanbanViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var tenantId = _tenantProvider.GetCurrentTenantId();
             var result = await _mediator.Send(
-                new GetOrdersByStatusQuery(tenantId), CancellationToken);
+                new GetOrdersByStatusQuery(tenantId), ct);
 
             BuildKanbanBoard(result);
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Kanban yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Siparis kanban panosu yuklenirken hata");
     }
 
     private static ISolidColorBrush GetBrush(string key, string fallback = "#888888")

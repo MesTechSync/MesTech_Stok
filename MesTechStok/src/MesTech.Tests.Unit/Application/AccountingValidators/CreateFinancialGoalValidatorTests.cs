@@ -61,10 +61,11 @@ public class CreateFinancialGoalValidatorTests
     }
 
     [Fact]
-    public async Task ZeroTargetAmount_PassesValidation()
+    public async Task ZeroTargetAmount_FailsValidation()
     {
         var cmd = ValidCommand() with { TargetAmount = 0m };
         var result = await _validator.ValidateAsync(cmd);
-        result.IsValid.Should().BeTrue();
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "TargetAmount");
     }
 }

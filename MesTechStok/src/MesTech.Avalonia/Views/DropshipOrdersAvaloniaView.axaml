@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
              x:Class="MesTech.Avalonia.Views.DropshipOrdersAvaloniaView"
              x:Name="RootDropshipOrdersAvaloniaView"
              x:DataType="vm:DropshipOrdersAvaloniaViewModel">
@@ -49,7 +50,7 @@
                   BorderThickness="0"
                   Background="{DynamicResource MesBgPrimary}"
                   Margin="0"
-                  IsVisible="{Binding !IsLoading}">
+                 >
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Sipariş No" Binding="{Binding OrderId}" Width="140" />
                 <DataGridTextColumn Header="Müşteri" Binding="{Binding Customer}" Width="160" />
@@ -93,19 +94,19 @@
             </StackPanel>
         </Border>
     
-        <!-- Error State -->
-        <Border IsVisible="{Binding HasError}" VerticalAlignment="Center" HorizontalAlignment="Center" ZIndex="90">
-            <StackPanel HorizontalAlignment="Center" Spacing="8" MaxWidth="400">
-                <TextBlock Text="Hata olustu" FontSize="{StaticResource FontSizeTitle}"
-                           Foreground="{DynamicResource StatusDangerBrush}" HorizontalAlignment="Center" />
-                <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource FontSizeBody}"
-                           Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center"
-                           TextWrapping="Wrap" />
-                <Button Content="Tekrar Dene" Command="{Binding RefreshCommand}"
-                        ToolTip.Tip="Verileri tekrar yukle"
-                        Classes="mestech-raised" HorizontalAlignment="Center" Margin="0,8,0,0" />
-            </StackPanel>
-        </Border>
+                <!-- Error State — FluentAvalonia InfoBar -->
+        <fa:InfoBar Title="Bir sorun olustu"
+                    Message="{Binding ErrorMessage}"
+                    Severity="Error"
+                    IsOpen="{Binding HasError}"
+                    IsClosable="True"
+                    Margin="16,8"
+                    ZIndex="50">
+            <fa:InfoBar.ActionButton>
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                        Command="{Binding RefreshCommand}" />
+            </fa:InfoBar.ActionButton>
+        </fa:InfoBar>
 
 </Grid>
 </UserControl>

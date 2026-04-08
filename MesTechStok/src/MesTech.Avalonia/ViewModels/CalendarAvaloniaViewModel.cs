@@ -26,13 +26,9 @@ public partial class CalendarAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetCalendarEventsQuery(_currentUser.TenantId));
+            var result = await _mediator.Send(new GetCalendarEventsQuery(_currentUser.TenantId), ct);
 
             Events.Clear();
             foreach (var e in result)
@@ -49,16 +45,7 @@ public partial class CalendarAvaloniaViewModel : ViewModelBase
             }
             TotalCount = Events.Count;
             IsEmpty = Events.Count == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Takvim yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Takvim yuklenirken hata");
     }
 
     [RelayCommand]

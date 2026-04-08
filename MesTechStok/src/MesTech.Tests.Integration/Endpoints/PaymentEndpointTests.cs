@@ -43,7 +43,7 @@ public sealed class PaymentEndpointTests : IClassFixture<EndpointTestWebAppFacto
     }
 
     [Fact]
-    public async Task GetPaymentStatus_NonExistentId_ReturnsError()
+    public async Task GetPaymentStatus_NonExistentId_ReturnsNotFoundOrError()
     {
         var response = await _authClient.GetAsync("/api/v1/payments/TXN-NONEXISTENT-001");
         response.StatusCode.Should().BeOneOf(

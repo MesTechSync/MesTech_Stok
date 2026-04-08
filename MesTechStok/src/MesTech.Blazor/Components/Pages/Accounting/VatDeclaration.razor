@@ -1,0 +1,202 @@
+@page "/accounting/vat-declaration"
+@attribute [Authorize(Roles = "Admin,Accountant")]
+@using Microsoft.AspNetCore.Authorization
+@inject MesTechApiClient ApiClient
+@inject ILogger<VatDeclaration> Logger
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<PageTitle>KDV Beyanname</PageTitle>
+
+<div class="container-fluid">
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width:48px;height:48px;background:linear-gradient(135deg,#ef4444,#dc2626)">
+      <i class="fas fa-file-invoice-dollar text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0">KDV Beyanname</h3>
+      <small class="text-muted">Aylik KDV beyanname hazirlama ve takip</small>
+    </div>
+  </div>
+
+  @if (isLoading)
+  {
+    <LoadingSpinner />
+  }
+  else
+  {
+    <!-- Donem secimi -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <label class="form-label">Yil</label>
+        <select class="form-select" @bind="selectedYear">
+          @for (int y = DateTime.Now.Year; y >= 2020; y--)
+          {
+            <option value="@y">@y</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Ay</label>
+        <select class="form-select" @bind="selectedMonth">
+          @foreach (var m in months)
+          {
+            <option value="@m.Key">@m.Value</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-3 d-flex align-items-end">
+        <button class="btn btn-primary" @onclick="CalculateVat">
+          <i class="fas fa-calculator me-1"></i>Hesapla
+        </button>
+      </div>
+    </div>
+
+    <!-- KDV Ozet -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <small class="text-muted">Hesaplanan KDV</small>
+            <h4 class="text-danger mb-0">@vatCollected.ToString("N2") TL</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <small class="text-muted">Indirilecek KDV</small>
+            <h4 class="text-success mb-0">@vatDeducted.ToString("N2") TL</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <small class="text-muted">Odenecek KDV</small>
+            <h4 class="@(netVat >= 0 ? "text-danger" : "text-success") mb-0">@netVat.ToString("N2") TL</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <small class="text-muted">Durum</small>
+            <h4 class="mb-0"><span class="badge bg-@(statusBadge)">@statusText</span></h4>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detay tablosu -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white">
+        <strong>KDV Detay</strong>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>KDV Orani</th>
+              <th class="text-end">Matrah</th>
+              <th class="text-end">KDV Tutari</th>
+              <th class="text-end">Fatura Sayisi</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var row in vatRows)
+            {
+              <tr>
+                <td>%@row.Rate</td>
+                <td class="text-end">@row.TaxBase.ToString("N2") TL</td>
+                <td class="text-end">@row.VatAmount.ToString("N2") TL</td>
+                <td class="text-end">@row.InvoiceCount</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>
+
+@code {
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private int selectedYear = DateTime.Now.Year;
+    private int selectedMonth = DateTime.Now.Month;
+    private decimal vatCollected, vatDeducted, netVat;
+    private string statusText = "Hazirlanmadi";
+    private string statusBadge = "secondary";
+    private List<VatRow> vatRows = new();
+
+    private readonly Dictionary<int, string> months = new()
+    {
+        {1,"Ocak"},{2,"Subat"},{3,"Mart"},{4,"Nisan"},{5,"Mayis"},{6,"Haziran"},
+        {7,"Temmuz"},{8,"Agustos"},{9,"Eylul"},{10,"Ekim"},{11,"Kasim"},{12,"Aralik"}
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await CalculateVat();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "VatDeclaration init failed, using demo data");
+            _isDemoMode = true;
+            LoadDemoData();
+        }
+        finally { isLoading = false; }
+    }
+
+    private async Task CalculateVat()
+    {
+        try
+        {
+            var result = await ApiClient.SafeGetAsync<VatSummaryDto>(
+                $"accounting/vat-declaration?year={selectedYear}&month={selectedMonth}");
+            if (result.IsSuccess && result.Data is not null)
+            {
+                vatCollected = result.Data.VatCollected;
+                vatDeducted = result.Data.VatDeducted;
+                netVat = result.Data.NetVat;
+                statusText = result.Data.Status;
+                statusBadge = result.Data.Status == "Onaylandi" ? "success" : "warning";
+                vatRows = result.Data.Rows;
+            }
+            else
+            {
+                _isDemoMode = true;
+                LoadDemoData();
+            }
+        }
+        catch
+        {
+            _isDemoMode = true;
+            LoadDemoData();
+        }
+    }
+
+    private void LoadDemoData()
+    {
+        vatRows = new()
+        {
+            new(20, 45000m, 9000m, 12),
+            new(10, 18000m, 1800m, 8),
+            new(1, 5000m, 50m, 3),
+        };
+        vatCollected = vatRows.Sum(r => r.VatAmount);
+        vatDeducted = 4200m;
+        netVat = vatCollected - vatDeducted;
+        statusText = "Taslak";
+        statusBadge = "warning";
+    }
+
+    private sealed record VatRow(int Rate, decimal TaxBase, decimal VatAmount, int InvoiceCount);
+    private sealed record VatSummaryDto(
+        decimal VatCollected, decimal VatDeducted, decimal NetVat,
+        string Status, List<VatRow> Rows);
+}

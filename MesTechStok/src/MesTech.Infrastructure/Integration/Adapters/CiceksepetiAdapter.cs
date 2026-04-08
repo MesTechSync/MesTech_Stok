@@ -4,10 +4,13 @@ using System.Text;
 using System.Text.Json;
 using MesTech.Application.DTOs;
 using MesTech.Application.DTOs.Cargo;
+using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using System.Net;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
+using MesTech.Infrastructure.Integration.Security;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -23,13 +26,14 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// </summary>
 public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdapter,
     IOrderCapableAdapter, IShipmentCapableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter,
-    IInvoiceCapableAdapter, IPingableAdapter
+    IInvoiceCapableAdapter, IPingableAdapter, IReviewCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<CiceksepetiAdapter> _logger;
     private readonly CiceksepetiOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
 
@@ -37,9 +41,10 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
     private bool _isConfigured;
 
     public CiceksepetiAdapter(HttpClient httpClient, ILogger<CiceksepetiAdapter> logger,
-        IOptions<CiceksepetiOptions>? options = null)
+        IOptions<CiceksepetiOptions>? options = null, IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        _scopeFactory = scopeFactory;
         _options = options?.Value ?? new CiceksepetiOptions();
         _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -129,9 +134,8 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
                 (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
                 throw new ArgumentException($"Invalid Ciceksepeti base URL scheme: {rawBaseUrl}. Only HTTP(S) allowed.");
 
-            if (parsedUri.Host is "localhost" or "127.0.0.1" || parsedUri.Host.StartsWith("10.") ||
-                parsedUri.Host.StartsWith("172.") || parsedUri.Host.StartsWith("192.168."))
-                _logger.LogWarning("[CiceksepetiAdapter] BaseUrl points to internal/private network: {BaseUrl}", rawBaseUrl);
+            if (SsrfGuard.IsPrivateHost(parsedUri.Host))
+                _logger.LogWarning("[CiceksepetiAdapter] BaseUrl points to private network: {BaseUrl}", rawBaseUrl);
 
             _httpClient.BaseAddress = parsedUri;
         }
@@ -166,7 +170,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
 
             ConfigureAuth(credentials);
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, "/api/v1/Products?PageSize=1&Page=1"), ct).ConfigureAwait(false);
 
             result.HttpStatusCode = (int)response.StatusCode;
@@ -222,7 +226,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         };
 
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Post, "/api/v1/Products");
@@ -250,7 +254,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
 
         while (!ct.IsCancellationRequested)
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, $"/api/v1/Products?PageSize={pageSize}&Page={page}"), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -268,16 +272,17 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
 
             foreach (var cp in csResponse.Products)
             {
-                products.Add(new Product
+                var product = new Product
                 {
                     Name = cp.ProductName,
                     SKU = cp.StockCode,
                     Barcode = cp.Barcode,
                     Description = cp.Description,
                     SalePrice = cp.SalesPrice,
-                    Stock = cp.StockQuantity,
                     IsActive = true
-                });
+                };
+                product.SyncStock(cp.StockQuantity, "ciceksepeti-sync");
+                products.Add(product);
             }
 
             if (products.Count >= csResponse.TotalCount)
@@ -294,10 +299,17 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
     {
         EnsureConfigured();
 
-        var payload = new { items = new[] { new { stockCode = productId.ToString(), quantity = newStock } } };
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Ciceksepeti, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} StockUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
+        var payload = new { items = new[] { new { stockCode = externalId, quantity = newStock } } };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products/stock");
@@ -320,10 +332,17 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
     {
         EnsureConfigured();
 
-        var payload = new { items = new[] { new { stockCode = productId.ToString(), salesPrice = newPrice } } };
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Ciceksepeti, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} PriceUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
+        var payload = new { items = new[] { new { stockCode = externalId, salesPrice = newPrice } } };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products/price");
@@ -356,7 +375,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
 
         while (!ct.IsCancellationRequested)
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, $"{url}&Page={page}"), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -423,7 +442,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         var payload = new { subOrderId = long.Parse(packageId), status };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Order/Status");
@@ -443,23 +462,88 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
     }
 
     // ── Webhook methods ─────────────────────────────────
-    public Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default)
+
+    /// <summary>
+    /// Ciceksepeti API v2: POST /api/v2/webhooks — webhook URL kaydeder.
+    /// Events: OrderCreated, OrderStatusChanged, OrderCancelled, ReturnCreated.
+    /// </summary>
+    public async Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default)
     {
-        _logger.LogInformation("Ciceksepeti webhook registration not supported via API — manual panel config");
-        return Task.FromResult(false);
+        EnsureConfigured();
+        _logger.LogInformation("Ciceksepeti RegisterWebhook: {Url}", callbackUrl);
+
+        try
+        {
+            var payload = JsonSerializer.Serialize(new
+            {
+                url = callbackUrl,
+                events = new[] { "OrderCreated", "OrderStatusChanged", "OrderCancelled", "ReturnCreated" }
+            }, _jsonOptions);
+
+            using var response = await ExecuteWithRetryAsync(
+                () =>
+                {
+                    var req = new HttpRequestMessage(HttpMethod.Post, "api/v2/webhooks");
+                    req.Content = new StringContent(payload, Encoding.UTF8, "application/json");
+                    return req;
+                }, ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("Ciceksepeti webhook registered: {Url}", callbackUrl);
+                return true;
+            }
+
+            var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("Ciceksepeti RegisterWebhook failed: {Status} {Error}", response.StatusCode, error);
+            return false;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Ciceksepeti RegisterWebhook exception");
+            return false;
+        }
     }
 
-    public Task<bool> UnregisterWebhookAsync(CancellationToken ct = default)
+    /// <summary>
+    /// Ciceksepeti API v2: DELETE /api/v2/webhooks — tüm webhook kayıtlarını siler.
+    /// </summary>
+    public async Task<bool> UnregisterWebhookAsync(CancellationToken ct = default)
     {
-        _logger.LogInformation("Ciceksepeti webhook unregistration not supported via API — manual panel config");
-        return Task.FromResult(false);
+        EnsureConfigured();
+        _logger.LogInformation("Ciceksepeti UnregisterWebhook");
+
+        try
+        {
+            using var response = await ExecuteWithRetryAsync(
+                () => new HttpRequestMessage(HttpMethod.Delete, "api/v2/webhooks"), ct).ConfigureAwait(false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("Ciceksepeti webhooks unregistered");
+                return true;
+            }
+
+            var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            _logger.LogWarning("Ciceksepeti UnregisterWebhook failed: {Status} {Error}", response.StatusCode, error);
+            return false;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Ciceksepeti UnregisterWebhook exception");
+            return false;
+        }
     }
 
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
+        string? eventType = null;
+        string? orderId = null;
         try
         {
             var webhook = JsonSerializer.Deserialize<CsWebhookPayload>(payload, _jsonOptions);
+            eventType = webhook?.EventType;
+            orderId = webhook?.OrderId?.ToString();
             _logger.LogInformation("Ciceksepeti webhook received: {EventType} Order={OrderId} Sub={SubOrderId}",
                 webhook?.EventType, webhook?.OrderId, webhook?.SubOrderId);
         }
@@ -467,7 +551,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         {
             _logger.LogWarning(ex, "[Ciceksepeti] Malformed webhook payload ({Length}b)", payload?.Length ?? 0);
         }
-        return Task.CompletedTask;
+        await WebhookDispatchHelper.DispatchAsync(_scopeFactory, PlatformCode, eventType, orderId, payload!, _logger, ct).ConfigureAwait(false);
     }
 
     // ── Shipment notification ───────────────────────────
@@ -492,7 +576,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Post, "/api/v1/Order/Shipping");
@@ -529,7 +613,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
 
         while (!ct.IsCancellationRequested)
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, $"{url}&Page={page}"), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -567,7 +651,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         var payload = new { returnId, status = "Approved" };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Order/Returns/Approve");
@@ -596,7 +680,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         var payload = new { subOrderId, cancelReason = reason };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Order/Cancel");
@@ -628,7 +712,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
 
         var json = JsonSerializer.Serialize(product, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products");
@@ -654,7 +738,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
     {
         EnsureConfigured();
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Delete, $"/api/v1/Products/{productId}"), ct).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
@@ -677,7 +761,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
     {
         EnsureConfigured();
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Get, "/api/v1/Categories"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
@@ -702,7 +786,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
     {
         EnsureConfigured();
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Get, $"/api/v1/Categories/{categoryId}/attributes"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
@@ -734,7 +818,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         var payload = new { items };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products/stock/batch");
@@ -764,7 +848,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         var payload = new { items };
         var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () =>
             {
                 var req = new HttpRequestMessage(HttpMethod.Put, "/api/v1/Products/price/batch");
@@ -792,7 +876,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
     {
         EnsureConfigured();
 
-        var response = await ExecuteWithRetryAsync(
+        using var response = await ExecuteWithRetryAsync(
             () => new HttpRequestMessage(HttpMethod.Get, $"/api/v1/Order/Tracking?orderId={orderId}"), ct).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
@@ -850,7 +934,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         {
             var url = $"/api/v1/settlement?startDate={startDate:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}";
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, url), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -929,7 +1013,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
             if (since.HasValue)
                 url += "?startDate=" + since.Value.ToString("yyyy-MM-dd'T'HH:mm:ss");
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Get, url), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -969,7 +1053,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
 
             _logger.LogInformation("Ciceksepeti PullClaims: {Count} claims fetched", claims.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Ciceksepeti PullClaims exception");
         }
@@ -983,7 +1067,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         EnsureConfigured();
         try
         {
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () => new HttpRequestMessage(HttpMethod.Put, $"/api/v1/returns/{claimId}/approve"), ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
@@ -997,7 +1081,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
                 claimId, response.StatusCode, errorBody);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Ciceksepeti ApproveClaimAsync exception for {ClaimId}", claimId);
             return false;
@@ -1011,7 +1095,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         try
         {
             var body = JsonSerializer.Serialize(new { reason }, _jsonOptions);
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () =>
                 {
                     var req = new HttpRequestMessage(HttpMethod.Put, $"/api/v1/returns/{claimId}/reject")
@@ -1032,7 +1116,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
                 claimId, response.StatusCode, errorBody);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Ciceksepeti RejectClaimAsync exception for {ClaimId}", claimId);
             return false;
@@ -1075,7 +1159,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
             var payload = new { invoiceUrl };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () =>
                 {
                     var req = new HttpRequestMessage(HttpMethod.Post,
@@ -1095,7 +1179,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
             _logger.LogInformation("Ciceksepeti SendInvoiceLink OK: Package={PackageId}", shipmentPackageId);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Ciceksepeti SendInvoiceLink exception: Package={PackageId}", shipmentPackageId);
             return false;
@@ -1115,7 +1199,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
             formContent.Add(new StringContent(shipmentPackageId), "shipmentPackageId");
             formContent.Add(new ByteArrayContent(pdfBytes), "file", fileName);
 
-            var response = await ExecuteWithRetryAsync(
+            using var response = await ExecuteWithRetryAsync(
                 () =>
                 {
                     var req = new HttpRequestMessage(HttpMethod.Post,
@@ -1135,7 +1219,7 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
             _logger.LogInformation("Ciceksepeti SendInvoiceFile OK: Package={PackageId}", shipmentPackageId);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Ciceksepeti SendInvoiceFile exception: Package={PackageId}", shipmentPackageId);
             return false;
@@ -1179,6 +1263,70 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
         }
     }
 
+    // ═══════════════════════════════════════════
+    // IReviewCapableAdapter — Product Reviews
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Gets product reviews from Ciceksepeti.
+    /// GET /api/v1/products/reviews?page={page}&amp;size={size}
+    /// </summary>
+    public async Task<IReadOnlyList<TrendyolProductReviewDto>> GetProductReviewsAsync(
+        int page = 0, int size = 20, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("CiceksepetiAdapter.GetProductReviewsAsync page={Page} size={Size}", page, size);
+
+        try
+        {
+            using var response = await ExecuteWithRetryAsync(
+                () => CreateAuthenticatedRequest(HttpMethod.Get,
+                    $"/api/v1/products/reviews?page={page}&size={size}"), ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Ciceksepeti GetProductReviews failed: {Status} - {Error}", response.StatusCode, error);
+                return Array.Empty<TrendyolProductReviewDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var reviews = new List<TrendyolProductReviewDto>();
+            var items = doc.RootElement.TryGetProperty("productReviews", out var revArr) ? revArr
+                : doc.RootElement.TryGetProperty("data", out var dataArr) ? dataArr
+                : doc.RootElement;
+
+            if (items.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in items.EnumerateArray())
+                {
+                    reviews.Add(new TrendyolProductReviewDto(
+                        Id: item.TryGetProperty("id", out var id) ? id.GetInt64() : 0,
+                        ProductId: item.TryGetProperty("productId", out var pid) ? pid.GetInt64() : 0,
+                        Comment: item.TryGetProperty("comment", out var comment) ? comment.GetString() ?? ""
+                            : item.TryGetProperty("text", out var text) ? text.GetString() ?? "" : "",
+                        Rate: item.TryGetProperty("rating", out var rate) ? rate.GetInt32()
+                            : item.TryGetProperty("star", out var star) ? star.GetInt32() : 0,
+                        UserFullName: item.TryGetProperty("customerName", out var name) ? name.GetString() ?? "" : "",
+                        CreatedAt: item.TryGetProperty("createdDate", out var cd)
+                            ? (DateTime.TryParse(cd.GetString(), out var dt) ? dt : DateTime.MinValue)
+                            : DateTime.MinValue,
+                        IsReplied: item.TryGetProperty("isReplied", out var replied) && replied.GetBoolean()));
+                }
+            }
+
+            _logger.LogInformation("Ciceksepeti GetProductReviews: {Count} reviews fetched", reviews.Count);
+            return reviews;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Ciceksepeti GetProductReviews exception");
+            return Array.Empty<TrendyolProductReviewDto>();
+        }
+    }
+
     // ── IPingableAdapter ──
     public async Task<bool> PingAsync(CancellationToken ct = default)
     {
@@ -1188,10 +1336,10 @@ public sealed class CiceksepetiAdapter : IIntegratorAdapter, IWebhookCapableAdap
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(TimeSpan.FromSeconds(5));
             using var request = CreateAuthenticatedRequest(HttpMethod.Get, _httpClient.BaseAddress.ToString());
-            var resp = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
+            using var resp = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
             return (int)resp.StatusCode < 500;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Ciceksepeti ping failed");
             return false;

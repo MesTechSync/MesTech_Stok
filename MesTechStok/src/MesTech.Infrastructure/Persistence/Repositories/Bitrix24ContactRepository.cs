@@ -25,6 +25,7 @@ public sealed class Bitrix24ContactRepository : IBitrix24ContactRepository
     public async Task<IReadOnlyList<Bitrix24Contact>> GetUnsyncedAsync(CancellationToken ct = default)
         => await _context.Bitrix24Contacts
             .Where(c => c.SyncStatus == SyncStatus.NotSynced)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task AddAsync(Bitrix24Contact contact, CancellationToken ct = default)

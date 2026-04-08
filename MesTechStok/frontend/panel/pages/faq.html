@@ -269,7 +269,7 @@
     // ========================================
     // Category Definitions — 10 categories
     // ========================================
-    var categories = [
+    const categories = [
       { id: 'genel', title: 'Genel', icon: 'fas fa-globe', bg: 'rgba(59,130,246,0.12)', color: '#3b82f6' },
       { id: 'urun', title: 'Urun Yonetimi', icon: 'fas fa-box', bg: 'rgba(139,92,246,0.12)', color: '#8b5cf6' },
       { id: 'stok', title: 'Stok', icon: 'fas fa-warehouse', bg: 'rgba(16,185,129,0.12)', color: '#10b981' },
@@ -285,7 +285,7 @@
     // ========================================
     // FAQ Data — 50 items, 5 per category
     // ========================================
-    var faqData = [
+    const faqData = [
       // GENEL (5)
       { cat: 'genel', q: 'MesTech nedir?', a: 'MesTech, coklu pazaryeri stok ve siparis yonetimi platformudur. Trendyol, Hepsiburada, N11, Amazon ve diger pazaryerlerini tek bir panelden yonetmenizi saglar.' },
       { cat: 'genel', q: 'Hangi platformlarda kullanabilirim?', a: 'MesTech 4 farkli arayuz sunar: WPF (Windows masaustu), Avalonia (cross-platform masaustu), Blazor (web/PWA) ve HTML Panel (tarayici). Ihtiyaciniza uygun olani secebilirsiniz.' },
@@ -361,7 +361,7 @@
     // DOM Helper
     // ========================================
     function el(tag, attrs, children) {
-      var node = document.createElement(tag);
+      const node = document.createElement(tag);
       if (attrs) {
         Object.keys(attrs).forEach(function(key) {
           if (key === 'className') node.className = attrs[key];
@@ -386,20 +386,20 @@
     // ========================================
     // Active category filter
     // ========================================
-    var activeCategory = 'all';
+    let activeCategory = 'all';
 
     // ========================================
     // Render Category Tabs (DOM-SAFE)
     // ========================================
     function renderTabs() {
-      var container = document.getElementById('category-tabs');
+      const container = document.getElementById('category-tabs');
       clearChildren(container);
 
-      var nav = el('ul', { className: 'nav nav-pills flex-nowrap' });
+      const nav = el('ul', { className: 'nav nav-pills flex-nowrap' });
 
       // "All" tab
-      var allLi = el('li', { className: 'nav-item' });
-      var allLink = el('button', {
+      const allLi = el('li', { className: 'nav-item' });
+      const allLink = el('button', {
         className: 'nav-link active',
         type: 'button',
         'data-category': 'all',
@@ -411,9 +411,9 @@
       nav.appendChild(allLi);
 
       categories.forEach(function(cat) {
-        var count = faqData.filter(function(f) { return f.cat === cat.id; }).length;
-        var li = el('li', { className: 'nav-item' });
-        var link = el('button', {
+        const count = faqData.filter(function(f) { return f.cat === cat.id; }).length;
+        const li = el('li', { className: 'nav-item' });
+        const link = el('button', {
           className: 'nav-link',
           type: 'button',
           'data-category': cat.id,
@@ -432,7 +432,7 @@
       activeCategory = catId;
 
       // Update tab active state
-      var tabs = document.querySelectorAll('.category-tabs .nav-link');
+      const tabs = document.querySelectorAll('.category-tabs .nav-link');
       tabs.forEach(function(tab) {
         if (tab.getAttribute('data-category') === catId) {
           tab.classList.add('active');
@@ -442,7 +442,7 @@
       });
 
       // Show/hide categories
-      var sections = document.querySelectorAll('.faq-category');
+      const sections = document.querySelectorAll('.faq-category');
       sections.forEach(function(section) {
         if (catId === 'all' || section.getAttribute('data-category') === catId) {
           section.classList.remove('hidden');
@@ -452,15 +452,15 @@
       });
 
       // Clear search when switching tabs
-      var input = document.getElementById('faq-search-input');
+      const input = document.getElementById('faq-search-input');
       if (input) input.value = '';
-      var resultCount = document.getElementById('result-count');
+      const resultCount = document.getElementById('result-count');
       if (resultCount) resultCount.textContent = '';
-      var noResults = document.getElementById('no-results');
+      const noResults = document.getElementById('no-results');
       if (noResults) noResults.style.display = 'none';
 
       // Show all items within visible categories
-      var items = document.querySelectorAll('.faq-item');
+      const items = document.querySelectorAll('.faq-item');
       items.forEach(function(item) { item.classList.remove('hidden'); });
     }
 
@@ -468,20 +468,20 @@
     // Render FAQ (DOM-SAFE)
     // ========================================
     function renderFaq() {
-      var container = document.getElementById('faq-content');
+      const container = document.getElementById('faq-content');
       clearChildren(container);
 
-      var globalIndex = 0;
+      let globalIndex = 0;
 
       categories.forEach(function(cat) {
-        var items = faqData.filter(function(f) { return f.cat === cat.id; });
+        const items = faqData.filter(function(f) { return f.cat === cat.id; });
         if (items.length === 0) return;
 
-        var section = el('div', { className: 'faq-category', 'data-category': cat.id });
+        const section = el('div', { className: 'faq-category', 'data-category': cat.id });
 
         // Category header
-        var header = el('div', { className: 'faq-category-header' });
-        var iconEl = el('div', { className: 'cat-icon' });
+        const header = el('div', { className: 'faq-category-header' });
+        const iconEl = el('div', { className: 'cat-icon' });
         iconEl.style.background = cat.bg;
         iconEl.style.color = cat.color;
         iconEl.appendChild(el('i', { className: cat.icon }));
@@ -491,19 +491,19 @@
         section.appendChild(header);
 
         // Accordion
-        var accordion = el('div', { className: 'accordion', id: 'accordion-' + cat.id });
+        const accordion = el('div', { className: 'accordion', id: 'accordion-' + cat.id });
 
         items.forEach(function(item) {
           globalIndex++;
-          var itemId = 'faq-item-' + globalIndex;
+          const itemId = 'faq-item-' + globalIndex;
 
-          var accItem = el('div', {
+          const accItem = el('div', {
             className: 'accordion-item faq-item',
             'data-search': (item.q + ' ' + item.a).toLowerCase()
           });
 
-          var accHeader = el('h2', { className: 'accordion-header' });
-          var accButton = el('button', {
+          const accHeader = el('h2', { className: 'accordion-header' });
+          const accButton = el('button', {
             className: 'accordion-button collapsed',
             type: 'button',
             'data-bs-toggle': 'collapse',
@@ -515,12 +515,12 @@
           accHeader.appendChild(accButton);
           accItem.appendChild(accHeader);
 
-          var accCollapse = el('div', {
+          const accCollapse = el('div', {
             className: 'accordion-collapse collapse',
             id: itemId,
             'data-bs-parent': '#accordion-' + cat.id
           });
-          var accBody = el('div', { className: 'accordion-body', textContent: item.a });
+          const accBody = el('div', { className: 'accordion-body', textContent: item.a });
           accCollapse.appendChild(accBody);
           accItem.appendChild(accCollapse);
 
@@ -536,24 +536,24 @@
     // Search / Filter
     // ========================================
     function initSearch() {
-      var input = document.getElementById('faq-search-input');
-      var resultCount = document.getElementById('result-count');
-      var noResults = document.getElementById('no-results');
+      const input = document.getElementById('faq-search-input');
+      const resultCount = document.getElementById('result-count');
+      const noResults = document.getElementById('no-results');
       if (!input) return;
 
       input.addEventListener('input', function() {
-        var query = input.value.toLowerCase().trim();
-        var faqItems = document.querySelectorAll('.faq-item');
-        var visible = 0;
+        const query = input.value.toLowerCase().trim();
+        const faqItems = document.querySelectorAll('.faq-item');
+        let visible = 0;
 
         faqItems.forEach(function(item) {
-          var searchData = item.getAttribute('data-search') || '';
+          const searchData = item.getAttribute('data-search') || '';
           // Also check if parent category is visible (tab filter)
-          var parentCat = item.closest('.faq-category');
-          var catVisible = !parentCat.classList.contains('hidden') || activeCategory === 'all';
+          const parentCat = item.closest('.faq-category');
+          let catVisible = !parentCat.classList.contains('hidden') || activeCategory === 'all';
 
           if (activeCategory !== 'all') {
-            var catId = parentCat.getAttribute('data-category');
+            const catId = parentCat.getAttribute('data-category');
             catVisible = catId === activeCategory;
           }
 
@@ -566,14 +566,14 @@
         });
 
         // Show/hide category headers if all items hidden
-        var cats = document.querySelectorAll('.faq-category');
+        const cats = document.querySelectorAll('.faq-category');
         cats.forEach(function(cat) {
-          var catId = cat.getAttribute('data-category');
+          const catId = cat.getAttribute('data-category');
           if (activeCategory !== 'all' && catId !== activeCategory) {
             cat.classList.add('hidden');
             return;
           }
-          var visibleItems = cat.querySelectorAll('.faq-item:not(.hidden)');
+          const visibleItems = cat.querySelectorAll('.faq-item:not(.hidden)');
           if (visibleItems.length === 0) {
             cat.classList.add('hidden');
           } else {

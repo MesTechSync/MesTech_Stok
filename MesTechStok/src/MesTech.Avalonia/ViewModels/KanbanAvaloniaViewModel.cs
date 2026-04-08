@@ -51,11 +51,10 @@ public partial class KanbanAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var tenantId = _tenantProvider.GetCurrentTenantId();
-            var board = await _mediator.Send(new GetPipelineKanbanQuery(tenantId, Guid.Empty));
+            var board = await _mediator.Send(new GetPipelineKanbanQuery(tenantId, Guid.Empty), ct);
 
             Stages.Clear();
             AllDeals.Clear();
@@ -82,19 +81,8 @@ public partial class KanbanAvaloniaViewModel : ViewModelBase
                 stageVm.DealCount = stageVm.Deals.Count;
                 Stages.Add(stageVm);
             }
-        }
-        catch (Exception ex)
-        {
-#if DEBUG
-            System.Diagnostics.Debug.WriteLine($"[KanbanAvaloniaViewModel] LoadAsync error: {ex.Message}");
-#endif
-            InitDefaultStages();
-        }
-        finally
-        {
-            IsLoading = false;
             IsEmpty = Stages.Count == 0;
-        }
+        }, "Kanban verileri yuklenirken hata");
     }
 
     [RelayCommand]
@@ -110,7 +98,7 @@ public partial class KanbanAvaloniaViewModel : ViewModelBase
     [RelayCommand]
     private async Task SwitchToList()
     {
-        await Task.CompletedTask;
+        await _dialog.ShowInfoAsync("Liste gorunumune gecmek icin sol menuden 'Siparisler' ekranini kullanin.", "MesTech");
     }
 }
 

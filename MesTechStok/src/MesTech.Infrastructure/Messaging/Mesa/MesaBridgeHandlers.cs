@@ -33,18 +33,25 @@ public sealed class ProductCreatedBridgeHandler : INotificationHandler<DomainEve
     public async Task Handle(
         DomainEventNotification<ProductCreatedEvent> wrapper, CancellationToken ct)
     {
-        var e = wrapper.DomainEvent;
-        _logger.LogDebug(
-            "[MESA Bridge] ProductCreated yakalandi: {SKU}", e.SKU);
+        try
+        {
+            var e = wrapper.DomainEvent;
+            _logger.LogDebug(
+                "[MESA Bridge] ProductCreated yakalandi: {SKU}", e.SKU);
 
-        var mesaEvent = new MesaProductCreatedEvent(
-            e.ProductId, e.SKU, e.Name,
-            null, e.SalePrice, null,
-            _tenantProvider.GetCurrentTenantId(),
-            e.OccurredAt);
+            var mesaEvent = new MesaProductCreatedEvent(
+                e.ProductId, e.SKU, e.Name,
+                null, e.SalePrice, null,
+                _tenantProvider.GetCurrentTenantId(),
+                e.OccurredAt);
 
-        await _mesaPublisher.PublishProductCreatedAsync(mesaEvent, ct).ConfigureAwait(false);
-        _monitor.RecordPublish("product.created");
+            await _mesaPublisher.PublishProductCreatedAsync(mesaEvent, ct).ConfigureAwait(false);
+            // RecordPublish now called inside MesaEventPublisher — no double-count
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[MESA Bridge] ProductCreatedBridgeHandler failed");
+        }
     }
 }
 
@@ -74,23 +81,27 @@ public sealed class LowStockBridgeHandler : INotificationHandler<DomainEventNoti
     public async Task Handle(
         DomainEventNotification<LowStockDetectedEvent> wrapper, CancellationToken ct)
     {
-        var e = wrapper.DomainEvent;
-        _logger.LogDebug(
-            "[MESA Bridge] LowStockDetected yakalandi: {SKU}, stok={Stock}",
-            e.SKU, e.CurrentStock);
+        try
+        {
+            var e = wrapper.DomainEvent;
+            _logger.LogDebug(
+                "[MESA Bridge] LowStockDetected yakalandi: {SKU}, stok={Stock}",
+                e.SKU, e.CurrentStock);
 
-        var mesaEvent = new MesaStockLowEvent(
-            e.ProductId, e.SKU,
-            e.CurrentStock, e.MinimumStock,
-            null,
-            _tenantProvider.GetCurrentTenantId(),
-            e.OccurredAt);
+            var mesaEvent = new MesaStockLowEvent(
+                e.ProductId, e.SKU,
+                e.CurrentStock, e.MinimumStock,
+                null,
+                _tenantProvider.GetCurrentTenantId(),
+                e.OccurredAt);
 
-        await _mesaPublisher.PublishStockLowAsync(mesaEvent, ct).ConfigureAwait(false);
-        _monitor.RecordPublish("stock.low");
-
-        // WPF realtime WebSocket push
-        await _notifier.NotifyLowStockAsync(e.SKU, e.SKU, e.CurrentStock, e.MinimumStock, ct).ConfigureAwait(false);
+            await _mesaPublisher.PublishStockLowAsync(mesaEvent, ct).ConfigureAwait(false);
+            // NOTE: WebSocket push handled by SignalRNotificationBridge (same event, avoid duplicate broadcast)
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[MESA Bridge] LowStockBridgeHandler failed");
+        }
     }
 }
 
@@ -120,21 +131,26 @@ public sealed class OrderPlacedBridgeHandler : INotificationHandler<DomainEventN
     public async Task Handle(
         DomainEventNotification<OrderPlacedEvent> wrapper, CancellationToken ct)
     {
-        var e = wrapper.DomainEvent;
-        _logger.LogDebug(
-            "[MESA Bridge] OrderPlaced yakalandi: {OrderId}", e.OrderId);
+        try
+        {
+            var e = wrapper.DomainEvent;
+            _logger.LogDebug(
+                "[MESA Bridge] OrderPlaced yakalandi: {OrderId}", e.OrderId);
 
-        var mesaEvent = new MesaOrderReceivedEvent(
-            e.OrderId, "MesTech", e.OrderNumber,
-            e.TotalAmount, null,
-            _tenantProvider.GetCurrentTenantId(),
-            e.OccurredAt);
+            var mesaEvent = new MesaOrderReceivedEvent(
+                e.OrderId, "MesTech", e.OrderNumber,
+                e.TotalAmount, null,
+                _tenantProvider.GetCurrentTenantId(),
+                e.OccurredAt);
 
-        await _mesaPublisher.PublishOrderReceivedAsync(mesaEvent, ct).ConfigureAwait(false);
-        _monitor.RecordPublish("order.placed");
-
-        // WPF realtime WebSocket push
-        await _notifier.NotifyNewOrderAsync("MesTech", e.OrderNumber, e.TotalAmount, 0, ct).ConfigureAwait(false);
+            await _mesaPublisher.PublishOrderReceivedAsync(mesaEvent, ct).ConfigureAwait(false);
+            // WPF realtime WebSocket push
+            await _notifier.NotifyNewOrderAsync("MesTech", e.OrderNumber, e.TotalAmount, 0, ct).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[MESA Bridge] OrderPlacedBridgeHandler failed");
+        }
     }
 }
 
@@ -160,18 +176,25 @@ public sealed class PriceChangedBridgeHandler : INotificationHandler<DomainEvent
     public async Task Handle(
         DomainEventNotification<PriceChangedEvent> wrapper, CancellationToken ct)
     {
-        var e = wrapper.DomainEvent;
-        _logger.LogDebug(
-            "[MESA Bridge] PriceChanged yakalandi: {SKU}", e.SKU);
+        try
+        {
+            var e = wrapper.DomainEvent;
+            _logger.LogDebug(
+                "[MESA Bridge] PriceChanged yakalandi: {SKU}", e.SKU);
 
-        var mesaEvent = new MesaPriceChangedEvent(
-            e.ProductId, e.SKU,
-            e.OldPrice, e.NewPrice,
-            _tenantProvider.GetCurrentTenantId(),
-            e.OccurredAt);
+            var mesaEvent = new MesaPriceChangedEvent(
+                e.ProductId, e.SKU,
+                e.OldPrice, e.NewPrice,
+                _tenantProvider.GetCurrentTenantId(),
+                e.OccurredAt);
 
-        await _mesaPublisher.PublishPriceChangedAsync(mesaEvent, ct).ConfigureAwait(false);
-        _monitor.RecordPublish("price.changed");
+            await _mesaPublisher.PublishPriceChangedAsync(mesaEvent, ct).ConfigureAwait(false);
+            // RecordPublish inside MesaEventPublisher
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[MESA Bridge] PriceChangedBridgeHandler failed");
+        }
     }
 }
 
@@ -201,22 +224,27 @@ public sealed class InvoiceGeneratedBridgeHandler : INotificationHandler<DomainE
     public async Task Handle(
         DomainEventNotification<InvoiceSentEvent> wrapper, CancellationToken ct)
     {
-        var e = wrapper.DomainEvent;
-        _logger.LogDebug(
-            "[MESA Bridge] InvoiceSent yakalandi: InvoiceId={InvoiceId}", e.InvoiceId);
+        try
+        {
+            var e = wrapper.DomainEvent;
+            _logger.LogDebug(
+                "[MESA Bridge] InvoiceSent yakalandi: InvoiceId={InvoiceId}", e.InvoiceId);
 
-        var mesaEvent = new MesaInvoiceGeneratedEvent(
-            e.InvoiceId, e.OrderId, e.GibInvoiceId ?? string.Empty,
-            "EFatura", null, null, null, 0m, e.PdfUrl,
-            _tenantProvider.GetCurrentTenantId(),
-            e.OccurredAt);
+            var mesaEvent = new MesaInvoiceGeneratedEvent(
+                e.InvoiceId, e.OrderId, e.GibInvoiceId ?? string.Empty,
+                "EFatura", null, null, null, 0m, e.PdfUrl,
+                _tenantProvider.GetCurrentTenantId(),
+                e.OccurredAt);
 
-        await _mesaPublisher.PublishInvoiceGeneratedAsync(mesaEvent, ct).ConfigureAwait(false);
-        _monitor.RecordPublish("invoice.generated");
-
-        // WPF realtime WebSocket push
-        await _notifier.NotifyInvoiceGeneratedAsync(
-            e.GibInvoiceId ?? e.InvoiceId.ToString(), string.Empty, 0m, ct).ConfigureAwait(false);
+            await _mesaPublisher.PublishInvoiceGeneratedAsync(mesaEvent, ct).ConfigureAwait(false);
+            // WPF realtime WebSocket push
+            await _notifier.NotifyInvoiceGeneratedAsync(
+                e.GibInvoiceId ?? e.InvoiceId.ToString(), string.Empty, 0m, ct).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[MESA Bridge] InvoiceGeneratedBridgeHandler failed");
+        }
     }
 }
 
@@ -242,17 +270,24 @@ public sealed class InvoiceCancelledBridgeHandler : INotificationHandler<DomainE
     public async Task Handle(
         DomainEventNotification<InvoiceCancelledEvent> wrapper, CancellationToken ct)
     {
-        var e = wrapper.DomainEvent;
-        _logger.LogDebug(
-            "[MESA Bridge] InvoiceCancelled yakalandi: {InvoiceNumber}", e.InvoiceNumber);
+        try
+        {
+            var e = wrapper.DomainEvent;
+            _logger.LogDebug(
+                "[MESA Bridge] InvoiceCancelled yakalandi: {InvoiceNumber}", e.InvoiceNumber);
 
-        var mesaEvent = new MesaInvoiceCancelledEvent(
-            e.InvoiceId, e.InvoiceNumber, e.Reason,
-            _tenantProvider.GetCurrentTenantId(),
-            e.OccurredAt);
+            var mesaEvent = new MesaInvoiceCancelledEvent(
+                e.InvoiceId, e.InvoiceNumber, e.Reason,
+                _tenantProvider.GetCurrentTenantId(),
+                e.OccurredAt);
 
-        await _mesaPublisher.PublishInvoiceCancelledAsync(mesaEvent, ct).ConfigureAwait(false);
-        _monitor.RecordPublish("invoice.cancelled");
+            await _mesaPublisher.PublishInvoiceCancelledAsync(mesaEvent, ct).ConfigureAwait(false);
+            // RecordPublish inside MesaEventPublisher
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[MESA Bridge] InvoiceCancelledBridgeHandler failed");
+        }
     }
 }
 
@@ -282,24 +317,29 @@ public sealed class ReturnCreatedBridgeHandler : INotificationHandler<DomainEven
     public async Task Handle(
         DomainEventNotification<ReturnCreatedEvent> wrapper, CancellationToken ct)
     {
-        var e = wrapper.DomainEvent;
-        _logger.LogDebug(
-            "[MESA Bridge] ReturnCreated yakalandi: ReturnId={ReturnId}", e.ReturnRequestId);
+        try
+        {
+            var e = wrapper.DomainEvent;
+            _logger.LogDebug(
+                "[MESA Bridge] ReturnCreated yakalandi: ReturnId={ReturnId}", e.ReturnRequestId);
 
-        var mesaEvent = new MesaReturnCreatedEvent(
-            e.ReturnRequestId, e.OrderId,
-            e.Platform.ToString(), null, null,
-            e.Reason.ToString(), 0, 0m,
-            _tenantProvider.GetCurrentTenantId(),
-            e.OccurredAt);
+            var mesaEvent = new MesaReturnCreatedEvent(
+                e.ReturnRequestId, e.OrderId,
+                e.Platform.ToString(), null, null,
+                e.Reason.ToString(), 0, 0m,
+                _tenantProvider.GetCurrentTenantId(),
+                e.OccurredAt);
 
-        await _mesaPublisher.PublishReturnCreatedAsync(mesaEvent, ct).ConfigureAwait(false);
-        _monitor.RecordPublish("return.created");
-
-        // WPF realtime WebSocket push
-        await _notifier.NotifyReturnCreatedAsync(
-            e.Platform.ToString(), e.ReturnRequestId.ToString(),
-            e.OrderId.ToString(), e.Reason.ToString(), ct).ConfigureAwait(false);
+            await _mesaPublisher.PublishReturnCreatedAsync(mesaEvent, ct).ConfigureAwait(false);
+            // WPF realtime WebSocket push
+            await _notifier.NotifyReturnCreatedAsync(
+                e.Platform.ToString(), e.ReturnRequestId.ToString(),
+                e.OrderId.ToString(), e.Reason.ToString(), ct).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[MESA Bridge] ReturnCreatedBridgeHandler failed");
+        }
     }
 }
 
@@ -325,18 +365,25 @@ public sealed class ReturnResolvedBridgeHandler : INotificationHandler<DomainEve
     public async Task Handle(
         DomainEventNotification<ReturnResolvedEvent> wrapper, CancellationToken ct)
     {
-        var e = wrapper.DomainEvent;
-        _logger.LogDebug(
-            "[MESA Bridge] ReturnResolved yakalandi: ReturnId={ReturnId}", e.ReturnRequestId);
+        try
+        {
+            var e = wrapper.DomainEvent;
+            _logger.LogDebug(
+                "[MESA Bridge] ReturnResolved yakalandi: ReturnId={ReturnId}", e.ReturnRequestId);
 
-        var mesaEvent = new MesaReturnResolvedEvent(
-            e.ReturnRequestId, e.OrderId,
-            e.FinalStatus.ToString(), e.RefundAmount,
-            _tenantProvider.GetCurrentTenantId(),
-            e.OccurredAt);
+            var mesaEvent = new MesaReturnResolvedEvent(
+                e.ReturnRequestId, e.OrderId,
+                e.FinalStatus.ToString(), e.RefundAmount,
+                _tenantProvider.GetCurrentTenantId(),
+                e.OccurredAt);
 
-        await _mesaPublisher.PublishReturnResolvedAsync(mesaEvent, ct).ConfigureAwait(false);
-        _monitor.RecordPublish("return.resolved");
+            await _mesaPublisher.PublishReturnResolvedAsync(mesaEvent, ct).ConfigureAwait(false);
+            // RecordPublish inside MesaEventPublisher
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[MESA Bridge] ReturnResolvedBridgeHandler failed");
+        }
     }
 }
 
@@ -362,20 +409,27 @@ public sealed class BuyboxLostBridgeHandler : INotificationHandler<DomainEventNo
     public async Task Handle(
         DomainEventNotification<BuyboxLostEvent> wrapper, CancellationToken ct)
     {
-        var e = wrapper.DomainEvent;
-        _logger.LogDebug(
-            "[MESA Bridge] BuyboxLost yakalandi: {SKU}, rakip={Competitor}",
-            e.SKU, e.CompetitorName);
+        try
+        {
+            var e = wrapper.DomainEvent;
+            _logger.LogDebug(
+                "[MESA Bridge] BuyboxLost yakalandi: {SKU}, rakip={Competitor}",
+                e.SKU, e.CompetitorName);
 
-        var mesaEvent = new MesaBuyboxLostEvent(
-            e.ProductId, e.SKU,
-            e.CurrentPrice, e.CompetitorPrice, e.CompetitorName,
-            e.CurrentPrice - e.CompetitorPrice,
-            _tenantProvider.GetCurrentTenantId(),
-            e.OccurredAt);
+            var mesaEvent = new MesaBuyboxLostEvent(
+                e.ProductId, e.SKU,
+                e.CurrentPrice, e.CompetitorPrice, e.CompetitorName,
+                e.CurrentPrice - e.CompetitorPrice,
+                _tenantProvider.GetCurrentTenantId(),
+                e.OccurredAt);
 
-        await _mesaPublisher.PublishBuyboxLostAsync(mesaEvent, ct).ConfigureAwait(false);
-        _monitor.RecordPublish("buybox.lost");
+            await _mesaPublisher.PublishBuyboxLostAsync(mesaEvent, ct).ConfigureAwait(false);
+            // RecordPublish inside MesaEventPublisher
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[MESA Bridge] BuyboxLostBridgeHandler failed");
+        }
     }
 }
 
@@ -405,22 +459,27 @@ public sealed class SupplierFeedSyncedBridgeHandler : INotificationHandler<Domai
     public async Task Handle(
         DomainEventNotification<SupplierFeedSyncedEvent> wrapper, CancellationToken ct)
     {
-        var e = wrapper.DomainEvent;
-        _logger.LogDebug(
-            "[MESA Bridge] SupplierFeedSynced yakalandi: SupplierId={SupplierId}", e.SupplierId);
+        try
+        {
+            var e = wrapper.DomainEvent;
+            _logger.LogDebug(
+                "[MESA Bridge] SupplierFeedSynced yakalandi: SupplierId={SupplierId}", e.SupplierId);
 
-        var mesaEvent = new MesaSupplierFeedSyncedEvent(
-            e.SupplierId, string.Empty, string.Empty,
-            e.TotalProducts, 0, e.UpdatedProducts, e.DeactivatedProducts,
-            _tenantProvider.GetCurrentTenantId(),
-            e.OccurredAt);
+            var mesaEvent = new MesaSupplierFeedSyncedEvent(
+                e.SupplierId, string.Empty, string.Empty,
+                e.TotalProducts, 0, e.UpdatedProducts, e.DeactivatedProducts,
+                _tenantProvider.GetCurrentTenantId(),
+                e.OccurredAt);
 
-        await _mesaPublisher.PublishSupplierFeedSyncedAsync(mesaEvent, ct).ConfigureAwait(false);
-        _monitor.RecordPublish("supplier.feed.synced");
-
-        // WPF realtime sync status push
-        await _notifier.NotifySyncStatusAsync(
-            "SupplierFeed", "completed", e.TotalProducts, e.TotalProducts, ct).ConfigureAwait(false);
+            await _mesaPublisher.PublishSupplierFeedSyncedAsync(mesaEvent, ct).ConfigureAwait(false);
+            // WPF realtime sync status push
+            await _notifier.NotifySyncStatusAsync(
+                "SupplierFeed", "completed", e.TotalProducts, e.TotalProducts, ct).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[MESA Bridge] SupplierFeedSyncedBridgeHandler failed");
+        }
     }
 }
 
@@ -446,17 +505,24 @@ public sealed class DailySummaryBridgeHandler : INotificationHandler<DomainEvent
     public async Task Handle(
         DomainEventNotification<DailySummaryGeneratedEvent> wrapper, CancellationToken ct)
     {
-        var e = wrapper.DomainEvent;
-        _logger.LogDebug(
-            "[MESA Bridge] DailySummary yakalandi: {Date}", e.Date);
+        try
+        {
+            var e = wrapper.DomainEvent;
+            _logger.LogDebug(
+                "[MESA Bridge] DailySummary yakalandi: {Date}", e.Date);
 
-        var mesaEvent = new MesaDailySummaryEvent(
-            _tenantProvider.GetCurrentTenantId(),
-            e.Date, e.OrderCount, e.Revenue, e.StockAlerts, e.InvoiceCount,
-            e.OccurredAt);
+            var mesaEvent = new MesaDailySummaryEvent(
+                _tenantProvider.GetCurrentTenantId(),
+                e.Date, e.OrderCount, e.Revenue, e.StockAlerts, e.InvoiceCount,
+                e.OccurredAt);
 
-        await _mesaPublisher.PublishDailySummaryAsync(mesaEvent, ct).ConfigureAwait(false);
-        _monitor.RecordPublish("daily.summary");
+            await _mesaPublisher.PublishDailySummaryAsync(mesaEvent, ct).ConfigureAwait(false);
+            // RecordPublish inside MesaEventPublisher
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[MESA Bridge] DailySummaryBridgeHandler failed");
+        }
     }
 }
 
@@ -486,21 +552,24 @@ public sealed class SyncErrorBridgeHandler : INotificationHandler<DomainEventNot
     public async Task Handle(
         DomainEventNotification<SyncErrorOccurredEvent> wrapper, CancellationToken ct)
     {
-        var e = wrapper.DomainEvent;
-        _logger.LogDebug(
-            "[MESA Bridge] SyncError yakalandi: {Platform} — {ErrorType}", e.Platform, e.ErrorType);
+        try
+        {
+            var e = wrapper.DomainEvent;
+            _logger.LogDebug(
+                "[MESA Bridge] SyncError yakalandi: {Platform} — {ErrorType}", e.Platform, e.ErrorType);
 
-        var mesaEvent = new MesaSyncErrorEvent(
-            _tenantProvider.GetCurrentTenantId(),
-            e.Platform, e.ErrorType, e.Message,
-            e.OccurredAt);
+            var mesaEvent = new MesaSyncErrorEvent(
+                _tenantProvider.GetCurrentTenantId(),
+                e.Platform, e.ErrorType, e.Message,
+                e.OccurredAt);
 
-        await _mesaPublisher.PublishSyncErrorAsync(mesaEvent, ct).ConfigureAwait(false);
-        _monitor.RecordPublish("sync.error");
-
-        // WPF realtime sync error push
-        await _notifier.NotifySyncStatusAsync(
-            e.Platform, $"error:{e.ErrorType}", 0, 0, ct).ConfigureAwait(false);
+            await _mesaPublisher.PublishSyncErrorAsync(mesaEvent, ct).ConfigureAwait(false);
+            // NOTE: WebSocket push handled by SignalRNotificationBridge (same event, avoid duplicate broadcast)
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "[MESA Bridge] SyncErrorBridgeHandler failed");
+        }
     }
 }
 

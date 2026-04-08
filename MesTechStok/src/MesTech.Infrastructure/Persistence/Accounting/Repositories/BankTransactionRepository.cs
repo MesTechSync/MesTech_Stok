@@ -22,13 +22,14 @@ public sealed class BankTransactionRepository : IBankTransactionRepository
             .Where(t => t.TenantId == tenantId && t.BankAccountId == bankAccountId);
         if (from.HasValue) q = q.Where(t => t.TransactionDate >= from.Value);
         if (to.HasValue) q = q.Where(t => t.TransactionDate <= to.Value);
-        return await q.OrderByDescending(t => t.TransactionDate).AsNoTracking().ToListAsync(ct);
+        return await q.OrderByDescending(t => t.TransactionDate).Take(1000).AsNoTracking().ToListAsync(ct); // G485: pagination guard
     }
 
     public async Task<IReadOnlyList<BankTransaction>> GetUnreconciledAsync(Guid tenantId, CancellationToken ct = default)
         => await _context.AccountingBankTransactions
             .Where(t => t.TenantId == tenantId && !t.IsReconciled)
             .OrderByDescending(t => t.TransactionDate)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct);
 
     public async Task AddAsync(BankTransaction transaction, CancellationToken ct = default)

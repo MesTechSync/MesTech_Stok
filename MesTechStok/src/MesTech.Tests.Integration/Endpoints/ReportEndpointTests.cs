@@ -30,7 +30,7 @@ public sealed class ReportEndpointTests : IClassFixture<EndpointTestWebAppFactor
     public async Task GetProfitLoss_NoApiKey_Returns401()
     {
         var response = await _noAuthClient.GetAsync(
-            $"/api/v1/reports/profit-loss?tenantId={Guid.NewGuid()}&year=2026&month=3");
+            $"/api/v1/reports/profit-loss?tenantId={EndpointTestWebAppFactory.TestTenantId}&year=2026&month=3");
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
@@ -38,7 +38,7 @@ public sealed class ReportEndpointTests : IClassFixture<EndpointTestWebAppFactor
     public async Task GetProfitLoss_ValidRequest_ReturnsExpected()
     {
         var response = await _authClient.GetAsync(
-            $"/api/v1/reports/profit-loss?tenantId={Guid.NewGuid()}&year=2026&month=3");
+            $"/api/v1/reports/profit-loss?tenantId={EndpointTestWebAppFactory.TestTenantId}&year=2026&month=3");
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.InternalServerError);
     }
 
@@ -46,7 +46,7 @@ public sealed class ReportEndpointTests : IClassFixture<EndpointTestWebAppFactor
     public async Task GetMonthlySummary_InvalidMonth_Returns400()
     {
         var response = await _authClient.GetAsync(
-            $"/api/v1/reports/monthly-summary/2026/13?tenantId={Guid.NewGuid()}");
+            $"/api/v1/reports/monthly-summary/2026/13?tenantId={EndpointTestWebAppFactory.TestTenantId}");
         response.StatusCode.Should().BeOneOf(HttpStatusCode.BadRequest, HttpStatusCode.InternalServerError);
     }
 
@@ -54,7 +54,7 @@ public sealed class ReportEndpointTests : IClassFixture<EndpointTestWebAppFactor
     public async Task GetKdvReport_ValidRequest_ReturnsExpected()
     {
         var response = await _authClient.GetAsync(
-            $"/api/v1/reports/kdv/2026/3?tenantId={Guid.NewGuid()}");
+            $"/api/v1/reports/kdv/2026/3?tenantId={EndpointTestWebAppFactory.TestTenantId}");
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.InternalServerError);
     }
 
@@ -62,7 +62,7 @@ public sealed class ReportEndpointTests : IClassFixture<EndpointTestWebAppFactor
     public async Task GetSalesAnalytics_ValidRequest_ReturnsExpected()
     {
         var response = await _authClient.GetAsync(
-            $"/api/v1/reports/sales-analytics?tenantId={Guid.NewGuid()}&from=2026-01-01&to=2026-03-31");
+            $"/api/v1/reports/sales-analytics?tenantId={EndpointTestWebAppFactory.TestTenantId}&from=2026-01-01&to=2026-03-31");
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.InternalServerError);
     }
 

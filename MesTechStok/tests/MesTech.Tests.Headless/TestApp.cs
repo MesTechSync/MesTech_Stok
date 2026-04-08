@@ -37,6 +37,7 @@ public class HeadlessTestApp : global::Avalonia.Application
         Resources.Add("EqualConverter", new EqualConverter());
         Resources.Add("GreaterThanConverter", new GreaterThanConverter());
         Resources.Add("BetweenConverter", new BetweenConverter());
+        Resources.Add("StatusToColorConverter", new StatusToColorConverter());
         Resources.Add("StockLevelToBrushConverter", new StockLevelToBrushConverter());
 
         // MesTech tema ve design token'larini yukle

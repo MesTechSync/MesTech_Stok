@@ -19,7 +19,7 @@ public sealed class UpdateCustomerHandler : IRequestHandler<UpdateCustomerComman
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var customer = await _customerRepository.GetByIdAsync(request.Id).ConfigureAwait(false);
+        var customer = await _customerRepository.GetByIdAsync(request.Id, cancellationToken).ConfigureAwait(false);
         if (customer == null)
             return new CustomerCommandResult { IsSuccess = false, ErrorMessage = $"Customer {request.Id} not found." };
 
@@ -36,7 +36,7 @@ public sealed class UpdateCustomerHandler : IRequestHandler<UpdateCustomerComman
         customer.PaymentTermDays = request.PaymentTermDays;
         customer.IsActive = request.IsActive;
 
-        await _customerRepository.UpdateAsync(customer).ConfigureAwait(false);
+        await _customerRepository.UpdateAsync(customer, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new CustomerCommandResult

@@ -1,4 +1,7 @@
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Accounting;
+using MesTech.Application.DTOs.Finance;
+using MesTech.Application.DTOs.Reports;
 using MediatR;
 using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.Features.Accounting.Queries.GetExpenseReport;
@@ -45,7 +48,7 @@ public static class ReportEndpoints
         })
         .WithName("GetProfitLossReport")
         .WithSummary("Aylik kar/zarar raporu")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<ProfitLossDto>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/monthly-summary/{year}/{month} — aylik ozet rapor
@@ -64,7 +67,7 @@ public static class ReportEndpoints
         })
         .WithName("GetMonthlySummary")
         .WithSummary("Aylik ozet raporu (satis, komisyon, gider, vergi metrikleri)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<MonthlySummaryDto>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/kdv/{year}/{month} — KDV raporu
@@ -83,7 +86,7 @@ public static class ReportEndpoints
         })
         .WithName("GetKdvReport")
         .WithSummary("KDV raporu (hesaplanan, indirilecek, odenecek KDV)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<KdvReportDto>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // POST /api/v1/reports/generate-tax-calendar/{year} — vergi takvimi olustur (legacy compat)
@@ -100,7 +103,8 @@ public static class ReportEndpoints
             return Results.Ok(new CalendarGenerationResponse(year, count));
         })
         .WithName("GenerateTaxCalendarFromReports")
-        .WithSummary("Vergi takvimi olustur (yillik ~40 etkinlik)").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429);
+        .WithSummary("Vergi takvimi olustur (yillik ~40 etkinlik)").Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/reports/platform-comparison — platform bazli satis karsilastirmasi
         group.MapGet("/platform-comparison", async (
@@ -113,7 +117,7 @@ public static class ReportEndpoints
         })
         .WithName("GetPlatformComparison")
         .WithSummary("Platform bazli satis karsilastirma raporu (tarih araligi + platform filtresi)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<PlatformSalesReportDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/profitability — karlilik raporu (Net Kar formulu)
@@ -127,7 +131,7 @@ public static class ReportEndpoints
         })
         .WithName("GetProfitabilityReport")
         .WithSummary("Karlilik raporu — Net Kar = Gelir - Alis - Komisyon - Kargo - KDV")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<ProfitabilityReportDto>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // ─── DEFTER KAPATMA: 7 eksik rapor endpoint [ENT-DEV6] ───
@@ -143,7 +147,7 @@ public static class ReportEndpoints
         })
         .WithName("GetCargoPerformanceReport")
         .WithSummary("Kargo performans raporu (firma bazlı teslimat süresi + maliyet)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<CargoPerformanceReportDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/customer-lifetime-value — müşteri yaşam boyu değeri
@@ -157,7 +161,7 @@ public static class ReportEndpoints
         })
         .WithName("GetCustomerLifetimeValueReport")
         .WithSummary("Müşteri yaşam boyu değeri raporu (CLV)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<CustomerLifetimeValueReportDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/customer-segments — müşteri segment raporu
@@ -171,7 +175,7 @@ public static class ReportEndpoints
         })
         .WithName("GetCustomerSegmentReport")
         .WithSummary("Müşteri segment analizi (RFM bazlı)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<CustomerSegmentReportDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/inventory-valuation — envanter değerleme raporu
@@ -185,7 +189,7 @@ public static class ReportEndpoints
         })
         .WithName("GetInventoryValuationReport")
         .WithSummary("Envanter değerleme raporu (kategori filtresi)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<InventoryValuationReportDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/order-fulfillment — sipariş karşılama raporu
@@ -199,7 +203,7 @@ public static class ReportEndpoints
         })
         .WithName("GetOrderFulfillmentReport")
         .WithSummary("Sipariş karşılama performans raporu")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<OrderFulfillmentReportDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/stock-turnover — stok devir hızı raporu
@@ -213,7 +217,7 @@ public static class ReportEndpoints
         })
         .WithName("GetStockTurnoverReport")
         .WithSummary("Stok devir hızı raporu (kategori filtresi)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<StockTurnoverReportDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/tax-summary — vergi özet raporu
@@ -227,7 +231,7 @@ public static class ReportEndpoints
         })
         .WithName("GetTaxSummaryReport")
         .WithSummary("Vergi özet raporu (KDV, gelir vergisi, stopaj)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<IReadOnlyList<TaxSummaryReportDto>>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // ─── V5 YENİ RAPOR ENDPOINT'LERİ [ENT-DEV6] ───
@@ -244,7 +248,7 @@ public static class ReportEndpoints
         })
         .WithName("GetCommissionReport")
         .WithSummary("Platform bazlı komisyon raporu — dönem karşılaştırmalı")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<CommissionReportDto>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/fulfillment-cost — fulfillment maliyet raporu
@@ -262,7 +266,7 @@ public static class ReportEndpoints
         })
         .WithName("GetFulfillmentCostReport")
         .WithSummary("FBA + Hepsilojistik maliyet analizi raporu")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<FulfillmentCostReportDto>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/erp-reconciliation — ERP cari mutabakat raporu
@@ -276,7 +280,7 @@ public static class ReportEndpoints
         })
         .WithName("GetErpReconciliationReport")
         .WithSummary("ERP cari hesap mutabakat raporu (MesTech vs ERP eşleştirme)")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<ErpReconciliationReportDto>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/platform-performance — platform performans raporu
@@ -290,7 +294,7 @@ public static class ReportEndpoints
         })
         .WithName("GetPlatformPerformanceReport")
         .WithSummary("Platform performans raporu — sipariş, gelir, iade oranı, skor")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<PlatformPerformanceReportDto>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // ─── V5 EXPORT ENDPOINT'LERİ [ENT-DEV6] ───
@@ -442,7 +446,7 @@ public static class ReportEndpoints
         })
         .WithName("GetSalesAnalytics")
         .WithSummary("Satış analiz raporu — platform bazlı gelir, adet, trend")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .Produces<SalesAnalyticsDto>(200).ProducesProblem(401).ProducesProblem(429)
         .CacheOutput("Report120s");
 
         // G564 endpoints
@@ -522,9 +526,9 @@ public static class ReportEndpoints
                 tenantId, startDate ?? DateTime.UtcNow.AddMonths(-1), endDate ?? DateTime.UtcNow), ct);
             return Results.Ok(result);
         })
-        .WithName("GetCommissionReport")
+        .WithName("GetCommissionReportDetailed")
         .WithSummary("Komisyon raporu — platform bazli komisyon ozeti")
-        .Produces(200).Produces(400)
+        .Produces<CommissionReportDto>(200).Produces(400)
         .CacheOutput("Report120s")
         .WithRequestTimeout("LongRunning");
 
@@ -537,9 +541,9 @@ public static class ReportEndpoints
                 tenantId, DateTime.UtcNow.AddYears(-1), DateTime.UtcNow, 100), ct);
             return Results.Ok(result);
         })
-        .WithName("GetCustomerLifetimeValueReport")
+        .WithName("GetCustomerLifetimeValueReportV2")
         .WithSummary("Musteri yasam boyu degeri raporu — LTV analizi")
-        .Produces(200).Produces(400)
+        .Produces<IReadOnlyList<CustomerLifetimeValueReportDto>>(200).Produces(400)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/customer-segment
@@ -551,9 +555,9 @@ public static class ReportEndpoints
                 tenantId, DateTime.UtcNow.AddYears(-1), DateTime.UtcNow), ct);
             return Results.Ok(result);
         })
-        .WithName("GetCustomerSegmentReport")
+        .WithName("GetCustomerSegmentReportV2")
         .WithSummary("Musteri segmentasyon raporu — RFM analizi")
-        .Produces(200).Produces(400)
+        .Produces<IReadOnlyList<CustomerSegmentReportDto>>(200).Produces(400)
         .CacheOutput("Report120s");
 
         // GET /api/v1/reports/platform-sales
@@ -567,8 +571,89 @@ public static class ReportEndpoints
         })
         .WithName("GetPlatformSalesReport")
         .WithSummary("Platform satis raporu — kanal bazli gelir analizi")
-        .Produces(200).Produces(400)
+        .Produces<IReadOnlyList<PlatformSalesReportDto>>(200).Produces(400)
         .CacheOutput("Report120s")
         .WithRequestTimeout("LongRunning");
+
+        // ═══ E08: GÜNLÜK PERFORMANS ÖZETİ (DAILY DIGEST) ═══
+
+        // GET /api/v1/reports/daily-digest — dünün sipariş/ciro/iade/komisyon özeti
+        // PROF-50 E08: Sabah digest — Telegram/e-posta ile otomatik gönderilebilir.
+        // Dün saat 00:00–23:59:59 UTC aralığı, platform bazlı breakdown.
+        group.MapGet("/daily-digest", async (
+            Guid tenantId,
+            DateTime? date,
+            ISender mediator,
+            CancellationToken ct) =>
+        {
+            // Hedef gün: parametre verilmezse dün (UTC)
+            var targetDay = (date ?? DateTime.UtcNow.AddDays(-1)).Date;
+            var dayStart = new DateTime(targetDay.Year, targetDay.Month, targetDay.Day, 0, 0, 0, DateTimeKind.Utc);
+            var dayEnd = dayStart.AddDays(1).AddTicks(-1);
+
+            // Platform bazlı satış özeti
+            var platformData = await mediator.Send(
+                new PlatformSalesReportQuery(tenantId, dayStart, dayEnd), ct);
+
+            // Toplam aggregate
+            var totalOrders = platformData.Sum(p => p.TotalOrders);
+            var totalRevenue = platformData.Sum(p => p.TotalRevenue);
+            var totalReturns = platformData.Sum(p => p.Returns);
+            var totalCommissions = platformData.Sum(p => p.Commissions);
+            var totalNetRevenue = platformData.Sum(p => p.NetRevenue);
+
+            // En iyi platform
+            var topPlatform = platformData
+                .OrderByDescending(p => p.TotalRevenue)
+                .FirstOrDefault();
+
+            var digest = new DailyDigestResponse(
+                Date: targetDay.ToString("yyyy-MM-dd"),
+                TenantId: tenantId,
+                TotalOrders: totalOrders,
+                TotalRevenue: totalRevenue,
+                TotalReturns: totalReturns,
+                TotalCommissions: totalCommissions,
+                TotalNetRevenue: totalNetRevenue,
+                ReturnRate: totalOrders > 0
+                    ? Math.Round((decimal)totalReturns / totalOrders * 100, 1)
+                    : 0m,
+                TopPlatform: topPlatform?.Platform ?? "–",
+                TopPlatformRevenue: topPlatform?.TotalRevenue ?? 0m,
+                PlatformCount: platformData.Count,
+                PlatformBreakdown: platformData.ToDictionary(
+                    p => p.Platform,
+                    p => new DailyPlatformKpi(p.TotalOrders, p.TotalRevenue, p.Returns, p.NetRevenue)),
+                GeneratedAt: DateTime.UtcNow);
+
+            return Results.Ok(digest);
+        })
+        .WithName("GetDailyDigest")
+        .WithSummary("Günlük performans özeti — sipariş, ciro, iade, komisyon (E08)")
+        .Produces<DailyDigestResponse>(200).Produces(400)
+        .CacheOutput("Report120s");
     }
+
+    // ── E08 DTOs ──
+
+    public sealed record DailyDigestResponse(
+        string Date,
+        Guid TenantId,
+        int TotalOrders,
+        decimal TotalRevenue,
+        int TotalReturns,
+        decimal TotalCommissions,
+        decimal TotalNetRevenue,
+        decimal ReturnRate,
+        string TopPlatform,
+        decimal TopPlatformRevenue,
+        int PlatformCount,
+        Dictionary<string, DailyPlatformKpi> PlatformBreakdown,
+        DateTime GeneratedAt);
+
+    public sealed record DailyPlatformKpi(
+        int Orders,
+        decimal Revenue,
+        int Returns,
+        decimal NetRevenue);
 }

@@ -10,40 +10,40 @@ public sealed class StockMovementRepository : IStockMovementRepository
 
     public StockMovementRepository(AppDbContext context) => _context = context;
 
-    public async Task<StockMovement?> GetByIdAsync(Guid id)
-        => await _context.StockMovements.FirstOrDefaultAsync(m => m.Id == id).ConfigureAwait(false);
+    public async Task<StockMovement?> GetByIdAsync(Guid id, CancellationToken ct = default)
+        => await _context.StockMovements.FirstOrDefaultAsync(m => m.Id == id, ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<StockMovement>> GetByProductIdsAsync(IEnumerable<Guid> productIds, CancellationToken ct = default)
         => await _context.StockMovements
             .Where(m => productIds.Contains(m.ProductId))
             .OrderBy(m => m.Date).ThenBy(m => m.CreatedAt)
             .Take(5000) // G485: pagination guard
-            .AsNoTracking().ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
-    public async Task<IReadOnlyList<StockMovement>> GetByProductIdAsync(Guid productId)
+    public async Task<IReadOnlyList<StockMovement>> GetByProductIdAsync(Guid productId, CancellationToken ct = default)
         => await _context.StockMovements
             .Where(m => m.ProductId == productId)
             .OrderByDescending(m => m.Date)
             .Take(2000) // G485: pagination guard
-            .AsNoTracking().ToListAsync();
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<StockMovement>> GetByDateRangeAsync(DateTime from, DateTime to, CancellationToken ct = default)
         => await _context.StockMovements
             .Where(m => m.Date >= from && m.Date <= to)
             .OrderByDescending(m => m.Date)
             .Take(5000) // G485: pagination guard
-            .AsNoTracking().ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
     public async Task<IReadOnlyList<StockMovement>> GetRecentAsync(Guid tenantId, int count, CancellationToken ct = default)
         => await _context.StockMovements
             .Where(m => m.TenantId == tenantId)
             .OrderByDescending(m => m.Date)
             .Take(count)
-            .AsNoTracking().ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
-    public async Task AddAsync(StockMovement movement)
-        => await _context.StockMovements.AddAsync(movement);
+    public async Task AddAsync(StockMovement movement, CancellationToken ct = default)
+        => await _context.StockMovements.AddAsync(movement, ct).ConfigureAwait(false);
 
     public async Task<int> GetCountAsync(CancellationToken ct = default)
-        => await _context.StockMovements.CountAsync(ct);
+        => await _context.StockMovements.CountAsync(ct).ConfigureAwait(false);
 }

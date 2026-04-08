@@ -11,10 +11,12 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine@sha256:5e2228a03bcb9b75b9078f7a2379c2c82639422b785601ff271f744745ac2f71 AS restore
 WORKDIR /src
 
-# Copy solution and build props first for optimal layer caching
+# Copy solution, global.json and build props first for optimal layer caching
+COPY MesTech_Stok/MesTechStok/global.json ./global.json
 COPY MesTech_Stok/MesTechStok/MesTechStok.sln ./MesTechStok.sln
 COPY MesTech_Stok/MesTechStok/Directory.Build.props ./Directory.Build.props
 COPY MesTech_Stok/MesTechStok/Directory.Packages.props ./Directory.Packages.props
+COPY MesTech_Stok/MesTechStok/.editorconfig ./.editorconfig
 
 # Copy all project files for restore (csproj-only layer — changes rarely)
 COPY MesTech_Stok/MesTechStok/src/MesTech.Domain/MesTech.Domain.csproj ./src/MesTech.Domain/

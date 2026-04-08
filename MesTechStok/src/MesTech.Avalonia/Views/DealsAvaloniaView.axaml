@@ -1,6 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
              x:Class="MesTech.Avalonia.Views.DealsAvaloniaView"
              x:Name="RootDealsAvaloniaView"
              x:DataType="vm:DealsAvaloniaViewModel">
@@ -10,6 +12,12 @@
     </UserControl.KeyBindings>
 
     <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
+        <!-- Loading Skeleton -->
+        <Border Background="{DynamicResource BackgroundBrush}"
+                IsVisible="{Binding IsLoading}"
+                ZIndex="100">
+            <controls:SkeletonLoader />
+        </Border>
 
         <!-- Header -->
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
@@ -51,12 +59,19 @@
             <TextBlock Text="Yukleniyor..." IsVisible="{Binding IsLoading}"
                        Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" VerticalAlignment="Center" />
 
-            <!-- Error -->
-            <Border IsVisible="{Binding HasError}" Background="{DynamicResource MesBgDangerLight}" Margin="22"
-                    CornerRadius="{StaticResource MesRadiusMd}" Padding="16" BorderBrush="{DynamicResource MesBorderDanger}" BorderThickness="1"
-                    VerticalAlignment="Top">
-                <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" />
-            </Border>
+                    <!-- Error State — FluentAvalonia InfoBar -->
+        <fa:InfoBar Title="Bir sorun olustu"
+                    Message="{Binding ErrorMessage}"
+                    Severity="Error"
+                    IsOpen="{Binding HasError}"
+                    IsClosable="True"
+                    Margin="16,8"
+                    ZIndex="50">
+            <fa:InfoBar.ActionButton>
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                        Command="{Binding RefreshCommand}" />
+            </fa:InfoBar.ActionButton>
+        </fa:InfoBar>
 
             <!-- Empty -->
             <TextBlock Text="Henuz firsat bulunmuyor."
@@ -74,7 +89,7 @@
                       GridLinesVisibility="Horizontal"
                       BorderThickness="0"
                       Background="{DynamicResource MesBgPrimary}"
-                      IsVisible="{Binding !IsLoading}">
+                     >
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Firsat Adi" Binding="{Binding Title}" Width="200" />
                     <DataGridTextColumn Header="Kisi" Binding="{Binding ContactName}" Width="150" />

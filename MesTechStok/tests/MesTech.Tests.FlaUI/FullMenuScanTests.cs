@@ -29,7 +29,7 @@ public class FullMenuScanTests : FlaUITestBase
         ("Depolar Arasi Transfer", "StockTransfer"),
         ("Stok Uyarilari", "StockAlert"),
         ("Depo Yonetimi", "Warehouse"),
-        ("Stok Hareket Gecmisi", "StockTimeline"),
+        ("Stok Hareket Geçmişi", "StockTimeline"),
         ("Kategoriler", "Category"),
         ("Kargo Takip", "CargoTracking"),
         ("Kargo Firmalari", "CargoProviders"),
@@ -108,7 +108,7 @@ public class FullMenuScanTests : FlaUITestBase
         ("Bitrix24", "Bitrix24"),
         ("Barkod Okuyucu", "BarcodeScanner"),
         ("Dışa Aktar", "Export"),
-        ("AI Urun Aciklama", "ProductDescriptionAI"),
+        ("AI Ürün Açıklama", "ProductDescriptionAI"),
         ("Sistem Sagligi", "Health"),
         ("Denetim Kaydi", "AuditLog"),
         ("Log Izleyici", "LogViewer"),
@@ -149,7 +149,7 @@ public class FullMenuScanTests : FlaUITestBase
                     continue;
                 }
 
-                Thread.Sleep(1500);
+                Thread.Sleep(3000); // 3s — DbContext sorgusu tamamlansın
 
                 // Hata kontrolü — sadece gerçek exception mesajlarını yakala
                 var error = FindError("Hata Olustu", "Hata olustu", "Exception",
@@ -164,11 +164,42 @@ public class FullMenuScanTests : FlaUITestBase
                 }
                 else
                 {
-                    Screenshot($"SCAN_{cmdParam}", cmdParam, true);
-                    results.Add((cmdParam, "PASS", null));
-                    passCount++;
-                    Output.WriteLine($"  [{cmdParam}] PASS");
+                    // G95 FIX: Dashboard fallback kontrolü —
+                    // Menü tıklandı ama kendi view'ı açıldı mı?
+                    // Breadcrumb veya başlık toolTip'i içermeli (Dashboard hariç).
+                    var isDashboardFallback = false;
+                    if (cmdParam != "Dashboard")
+                    {
+                        // Breadcrumb "Ana Sayfa > X > Y" formatında — toolTip metnini ara
+                        var hasOwnContent = ContainsText(toolTip)
+                            || ContainsText(cmdParam);
+
+                        // "Kontrol Paneli" başlığı görünüyorsa = Dashboard'a düşmüş
+                        var showsDashboard = ContainsText("Kontrol Paneli")
+                            && !ContainsText(toolTip);
+
+                        isDashboardFallback = showsDashboard && !hasOwnContent;
+                    }
+
+                    if (isDashboardFallback)
+                    {
+                        Screenshot($"SCAN_{cmdParam}", cmdParam, false, "DashboardFallback");
+                        results.Add((cmdParam, "FALLBACK", $"Dashboard'a dustu — {toolTip} view acilmadi"));
+                        failCount++;
+                        Output.WriteLine($"  [{cmdParam}] FALLBACK — Dashboard'a dustu");
+                    }
+                    else
+                    {
+                        Screenshot($"SCAN_{cmdParam}", cmdParam, true);
+                        results.Add((cmdParam, "PASS", null));
+                        passCount++;
+                        Output.WriteLine($"  [{cmdParam}] PASS");
+                    }
                 }
+
+                // Menü geçişi öncesi Dashboard'a dön — DbContext reset
+                ClickMenu("Kontrol Paneli");
+                Thread.Sleep(1500);
             }
             catch (Exception ex)
             {

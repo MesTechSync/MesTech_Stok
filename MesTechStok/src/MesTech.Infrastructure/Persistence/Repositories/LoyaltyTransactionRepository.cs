@@ -17,6 +17,7 @@ public sealed class LoyaltyTransactionRepository : ILoyaltyTransactionRepository
         => await _context.LoyaltyTransactions
             .Where(t => t.TenantId == tenantId && t.CustomerId == customerId)
             .OrderByDescending(t => t.CreatedAt)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking()
             .ToListAsync(ct)
             .ConfigureAwait(false);
@@ -44,6 +45,7 @@ public sealed class LoyaltyTransactionRepository : ILoyaltyTransactionRepository
             .Where(t => t.Type == LoyaltyTransactionType.Earn
                      && t.CreatedAt < olderThan)
             .OrderBy(t => t.CreatedAt)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking()
             .ToListAsync(ct)
             .ConfigureAwait(false);

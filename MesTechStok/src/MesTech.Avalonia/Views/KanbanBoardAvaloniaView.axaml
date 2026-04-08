@@ -1,6 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
              x:Class="MesTech.Avalonia.Views.KanbanBoardAvaloniaView"
              x:Name="RootKanbanBoardAvaloniaView"
              x:DataType="vm:KanbanBoardAvaloniaViewModel"
@@ -35,12 +37,19 @@
           </StackPanel>
         </Border>
 
-            <!-- Error -->
-            <Border IsVisible="{Binding HasError}" Background="{DynamicResource MesBgDangerLight}" Margin="22"
-                    CornerRadius="{StaticResource MesRadiusMd}" Padding="16" BorderBrush="{DynamicResource MesBorderDanger}" BorderThickness="1"
-                    VerticalAlignment="Top">
-                <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource MesRedAlert}" TextWrapping="Wrap" />
-            </Border>
+                    <!-- Error State — FluentAvalonia InfoBar -->
+        <fa:InfoBar Title="Bir sorun olustu"
+                    Message="{Binding ErrorMessage}"
+                    Severity="Error"
+                    IsOpen="{Binding HasError}"
+                    IsClosable="True"
+                    Margin="16,8"
+                    ZIndex="50">
+            <fa:InfoBar.ActionButton>
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                        Command="{Binding RefreshCommand}" />
+            </fa:InfoBar.ActionButton>
+        </fa:InfoBar>
 
             <!-- Empty State -->
             <TextBlock Text="Kayit bulunamadi"
@@ -53,7 +62,7 @@
             <!-- Kanban Columns -->
             <ScrollViewer HorizontalScrollBarVisibility="Auto"
                           VerticalScrollBarVisibility="Disabled"
-                          IsVisible="{Binding !IsLoading}">
+                         >
                 <ItemsControl ItemsSource="{Binding Columns}" Margin="16">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -125,5 +134,6 @@
                 </ItemsControl>
             </ScrollViewer>
         </Grid>
+<!-- Loading Skeleton -->        <Border Grid.Row="0" Grid.RowSpan="2"                Background="{DynamicResource MesBgPage}"                IsVisible="{Binding IsLoading}"                ZIndex="100">            <controls:SkeletonLoader ShowKpi="False" ShowChart="False" />        </Border>
     </Grid>
 </UserControl>

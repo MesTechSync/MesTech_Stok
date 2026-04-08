@@ -57,7 +57,7 @@ public static class FulfillmentEndpoints
         })
         .WithName("GetFulfillmentOrders")
         .WithSummary("Fulfillment sipariş listesi")
-        .Produces(200)
+        .Produces<IReadOnlyList<FulfillmentOrderResult>>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/fulfillment/dashboard — fulfillment dashboard özeti
@@ -70,7 +70,7 @@ public static class FulfillmentEndpoints
         })
         .WithName("GetFulfillmentDashboard")
         .WithSummary("Fulfillment dashboard — envanter, sevkiyat, bekleyen özeti")
-        .Produces(200)
+        .Produces<FulfillmentDashboardDto>(200)
         .CacheOutput("Dashboard30s");
 
         // GET /api/v1/fulfillment/shipments — sevkiyat listesi
@@ -84,7 +84,7 @@ public static class FulfillmentEndpoints
         })
         .WithName("GetFulfillmentShipments")
         .WithSummary("Fulfillment sevkiyat listesi (merkez + durum filtresi)")
-        .Produces(200)
+        .Produces<FulfillmentShipmentsResultDto>(200)
         .CacheOutput("Lookup60s");
     }
 }

@@ -20,6 +20,7 @@ public sealed class AccountingSupplierAccountRepository : IAccountingSupplierAcc
         => await _context.AccountingSupplierAccounts
             .Where(a => a.TenantId == tenantId)
             .OrderBy(a => a.Name)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct);
 
     public async Task AddAsync(AccountingSupplierAccount account, CancellationToken ct = default)

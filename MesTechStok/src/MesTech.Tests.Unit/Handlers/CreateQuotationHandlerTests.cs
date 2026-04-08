@@ -32,7 +32,7 @@ public class CreateQuotationHandlerTests
         result.QuotationId.Should().NotBe(Guid.Empty);
 
         _quotationRepoMock.Verify(r => r.AddAsync(It.Is<Quotation>(q =>
-            q.QuotationNumber == "QUO-001" && q.CustomerName == "Test Müşteri")), Times.Once);
+            q.QuotationNumber == "QUO-001" && q.CustomerName == "Test Müşteri"), It.IsAny<CancellationToken>()), Times.Once);
         _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 

@@ -35,6 +35,7 @@ using MesTech.Infrastructure.Storage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Minio;
 
@@ -76,7 +77,7 @@ public static class InfrastructureServiceRegistration
         var rawConnectionString = configuration.GetConnectionString("PostgreSQL")
             ?? configuration.GetConnectionString("DefaultConnection");
 
-        // G176: Pool exhaustion korumas� � Hangfire+Web+SignalR concurrent connections
+        // G176: Pool exhaustion koruması — Hangfire+Web+SignalR concurrent connections
         var connectionString = rawConnectionString?.Contains("MaxPoolSize", StringComparison.OrdinalIgnoreCase) == true
             ? rawConnectionString
             : rawConnectionString + ";MaxPoolSize=50;MinPoolSize=10;Connection Idle Lifetime=300";
@@ -96,22 +97,32 @@ public static class InfrastructureServiceRegistration
 
         // P0 FIX: IDbContextFactory for parallel queries in desktop/background scenarios.
         // Web API scopes are automatic, but Desktop + Hangfire need explicit factory usage.
+        // KN-1 FIX: Factory context MUST include interceptors — without them:
+        //   - TenantContextInterceptor missing → TenantId not set → global filter returns empty
+        //   - AuditInterceptor missing → audit trail gaps
+        //   - SlowQueryInterceptor missing → no performance monitoring
         services.AddDbContextFactory<AppDbContext>((sp, options) =>
         {
             options.UseNpgsql(connectionString, npgsql =>
             {
                 npgsql.EnableRetryOnFailure(3);
             });
-        }, ServiceLifetime.Singleton);
+            options.AddInterceptors(
+                sp.GetRequiredService<AuditInterceptor>(),
+                sp.GetRequiredService<TenantContextInterceptor>(),
+                sp.GetRequiredService<SlowQueryInterceptor>());
+        }, ServiceLifetime.Scoped);
 
         // Repositories
         services.AddScoped<IProcessedDomainEventRepository, ProcessedDomainEventRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<IProductReviewRepository, ProductReviewRepository>();
         services.AddScoped<IProductPlatformMappingRepository, ProductPlatformMappingRepository>();
         services.AddScoped<IStockMovementRepository, StockMovementRepository>();
         services.AddScoped<IWarehouseRepository, WarehouseRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<ITenantRepository, TenantRepository>();
         services.AddScoped<IStoreRepository, StoreRepository>();
         services.AddScoped<IStoreCredentialRepository, StoreCredentialRepository>();
@@ -126,6 +137,7 @@ public static class InfrastructureServiceRegistration
         else
             services.AddSingleton<Application.Interfaces.IDistributedLockService, Services.InProcessDistributedLockService>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<IBrandRepository, BrandRepository>();
         services.AddScoped<ISupplierRepository, SupplierRepository>();
         services.AddScoped<IIncomeRepository, IncomeRepository>();
         services.AddScoped<IExpenseRepository, ExpenseRepository>();
@@ -134,6 +146,7 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IProductSetRepository, ProductSetRepository>();
         services.AddScoped<IProductVariantRepository, ProductVariantRepository>();
         services.AddScoped<IBarcodeScanLogRepository, BarcodeScanLogRepository>();
+        services.AddScoped<IPriceHistoryRepository, PriceHistoryRepository>();
         services.AddScoped<ILogEntryRepository, LogEntryRepository>();
         services.AddScoped<IQuotationRepository, QuotationRepository>();
         services.AddScoped<IInvoiceRepository, InvoiceRepository>();
@@ -200,6 +213,8 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<IFeedImportLogRepository, FeedImportLogRepository>();
         services.AddScoped<IFeedSyncJobService, MesTech.Infrastructure.Jobs.FeedSyncJobService>();
         services.AddScoped<IFeedReliabilityScoreService, MesTech.Infrastructure.Services.FeedReliabilityScoreServiceAdapter>();
+        services.AddScoped<IProductReliabilityCalculator, MesTech.Infrastructure.Services.ProductReliabilityCalculator>(); // D12-24: 4 boyutlu güvenilirlik
+        services.AddSingleton<MesTech.Infrastructure.Integration.Services.IPlatformSyncIssueService, MesTech.Infrastructure.Integration.Services.PlatformSyncIssueService>(); // D12-22: Sync issues
 
         // Dropship Feed Fetcher (K1d-05 — SyncDropshipProducts handler icin)
         services.AddScoped<MesTech.Application.Interfaces.Dropshipping.IDropshipFeedFetcher,
@@ -208,8 +223,14 @@ public static class InfrastructureServiceRegistration
         // UnitOfWork
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+        // ImportProgressReporter — NullObject fallback, WebApi overrides with SignalR impl
+        services.TryAddScoped<IImportProgressReporter, NullImportProgressReporter>();
+
         // Domain Events
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+
+        // Scoped MediatR — desktop app concurrent DbContext fix (KN-1 / G67)
+        services.AddSingleton<IScopedMediator, ScopedMediator>();
 
         // Domain Services
         services.AddSingleton<StockCalculationService>();
@@ -217,6 +238,12 @@ public static class InfrastructureServiceRegistration
         services.AddSingleton<BarcodeValidationService>();
         services.AddSingleton<MesTech.Infrastructure.Security.BruteForceProtectionService>();
         services.AddScoped<MesTech.Domain.Services.IAutoShipmentService, MesTech.Domain.Services.AutoShipmentService>();
+        services.AddSingleton<BalanceCalculationService>();
+        services.AddSingleton<OmnibusDirectiveService>();
+        services.AddSingleton<OrderSlaService>();
+        services.AddSingleton<ProductCompletenessService>();
+        services.AddSingleton<ProductSyncBatchService>();
+        services.AddSingleton<ReturnPolicyService>();
 
         // Reporting Repositories
         services.AddScoped<MesTech.Application.Interfaces.ISavedReportRepository,
@@ -250,9 +277,12 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<MesTech.Application.Interfaces.IMessagePublisher,
             MesTech.Infrastructure.Messaging.MassTransitMessagePublisher>();
 
-        // Encryption
-        var encryptionKey = configuration!["Security:EncryptionKey"]
-            ?? AesGcmEncryptionService.GenerateKey();
+        // Encryption — placeholder/invalid key ise ephemeral key üret (dev ortamı)
+        var encryptionKey = configuration!["Security:EncryptionKey"];
+        if (string.IsNullOrWhiteSpace(encryptionKey) || !IsValidBase64Key(encryptionKey))
+        {
+            encryptionKey = AesGcmEncryptionService.GenerateKey();
+        }
         services.AddSingleton(new AesGcmEncryptionService(encryptionKey));
 
         // JWT Token Service (Dalga 9 — Blazor SaaS authentication)
@@ -277,16 +307,7 @@ public static class InfrastructureServiceRegistration
         services.AddSingleton<ICacheService, RedisCacheService>();
 
         // Distributed Lock — Redis if available, InProcess fallback for dev/test
-        var redisConfig = configuration.GetConnectionString("Redis")
-            ?? configuration["Redis:Configuration"];
-        if (!string.IsNullOrEmpty(redisConfig))
-        {
-            services.AddSingleton<IDistributedLockService, RedisDistributedLockService>();
-        }
-        else
-        {
-            services.AddSingleton<IDistributedLockService, InProcessDistributedLockService>();
-        }
+        // IDistributedLockService already registered above (line 132-136) — Redis/InProcess conditional
 
         // Exchange Rate Service — TCMB XML API, IMemoryCache 1h TTL (Dalga 11 — Multi-currency)
         services.AddMemoryCache();
@@ -351,7 +372,7 @@ public static class InfrastructureServiceRegistration
 
         // HealthCheck
         services.AddSingleton<PlatformHealthCheckService>();
-        services.AddScoped<PostgresHealthCheck>();
+        services.AddSingleton<PostgresHealthCheck>();
         services.AddSingleton<RedisHealthCheck>();
         services.AddSingleton<RabbitMqHealthCheck>();
         services.AddScoped<IInfrastructureHealthService, InfrastructureHealthService>();
@@ -369,6 +390,9 @@ public static class InfrastructureServiceRegistration
                 new HealthCheckEndpoint(
                     sp.GetRequiredService<Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckService>(),
                     sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<HealthCheckEndpoint>>()));
+
+        // ── Event Publishing ──
+        services.AddSingleton<IEventPublisher, Messaging.InMemoryEventPublisher>();
 
         // ── Realtime Dashboard (port 3102) ──
         services.AddSingleton<WebSocketConnectionManager>();
@@ -466,6 +490,10 @@ public static class InfrastructureServiceRegistration
             MesTech.Domain.Accounting.Services.ProfitCalculationService>();
         services.AddSingleton<MesTech.Domain.Accounting.Services.IReconciliationScoringService,
             MesTech.Domain.Accounting.Services.ReconciliationScoringService>();
+        services.AddSingleton<MesTech.Domain.Accounting.Services.IKdvCalculationService,
+            MesTech.Domain.Accounting.Services.KdvCalculationService>();
+        services.AddSingleton<MesTech.Domain.Services.IFEFOSortingService,
+            MesTech.Domain.Services.FEFOSortingService>();
 
         // ── MESA Muhasebe AI (MUH-02: Feature flag swap — Mock veya Real) ──
         // MockMesaAccountingService her zaman kayitli: Real client fallback olarak kullanir
@@ -516,6 +544,26 @@ public static class InfrastructureServiceRegistration
             MesTech.Infrastructure.Persistence.Accounting.Repositories.SettlementBatchRepository>();
         services.AddScoped<MesTech.Application.Interfaces.Accounting.IBankTransactionRepository,
             MesTech.Infrastructure.Persistence.Accounting.Repositories.BankTransactionRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.IVatDeclarationRepository,
+            MesTech.Infrastructure.Persistence.Accounting.Repositories.VatDeclarationRepository>();
+        services.AddScoped<IChequeRepository,
+            MesTech.Infrastructure.Persistence.Repositories.Finance.ChequeRepository>();
+        services.AddScoped<IPromissoryNoteRepository,
+            MesTech.Infrastructure.Persistence.Repositories.Finance.PromissoryNoteRepository>();
+        services.AddScoped<IProductMediaRepository,
+            MesTech.Infrastructure.Persistence.Repositories.ProductMediaRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Reporting.IKpiSnapshotRepository,
+            MesTech.Infrastructure.Persistence.Repositories.KpiSnapshotRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Accounting.ITaxCalendarItemRepository,
+            MesTech.Infrastructure.Persistence.Accounting.Repositories.TaxCalendarItemRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.Reporting.IReportDefinitionRepository,
+            MesTech.Infrastructure.Persistence.Repositories.ReportDefinitionRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.IErpFieldMappingRepository,
+            MesTech.Infrastructure.Persistence.Repositories.ErpFieldMappingRepository>();
+        services.AddScoped<IProductSpecificationRepository,
+            MesTech.Infrastructure.Persistence.Repositories.ProductSpecificationRepository>();
+        services.AddScoped<MesTech.Application.Interfaces.IPlatformAttributeValueMappingRepository,
+            MesTech.Infrastructure.Persistence.Repositories.PlatformAttributeValueMappingRepository>();
         services.AddScoped<MesTech.Application.Interfaces.Accounting.IReconciliationMatchRepository,
             MesTech.Infrastructure.Persistence.Accounting.Repositories.ReconciliationMatchRepository>();
         services.AddScoped<MesTech.Application.Interfaces.Accounting.IAccountingDocumentRepository,
@@ -592,6 +640,10 @@ public static class InfrastructureServiceRegistration
         // ── Bank Statement Import Service ──
         services.AddScoped<BankStatementImportService>();
 
+        // ── S2-DEV3: KPI + ABC Rapor Servisleri ──
+        services.AddScoped<Services.Reporting.IKpiAggregationService, Services.Reporting.KpiAggregationService>();
+        services.AddScoped<Services.Reporting.IAbcAnalysisService, Services.Reporting.AbcAnalysisService>();
+
         // ── Field Encryption Service ──
         services.AddSingleton<IFieldEncryptionService, FieldEncryptionService>();
 
@@ -609,6 +661,7 @@ public static class InfrastructureServiceRegistration
 
         // ── MUH-02 Accounting Workers ──
         services.AddScoped<ReconciliationWorker>();
+        services.AddScoped<SettlementOrderReconciliationJob>();
         services.AddScoped<ScheduledBriefingWorker>();
 
         // ── MUH-03 Accounting Workers ──
@@ -676,8 +729,40 @@ public static class InfrastructureServiceRegistration
             Application.EventHandlers.OrderCancelledStockRestorationHandler>();
         services.AddScoped<Application.EventHandlers.IInvoiceCreatedNotificationHandler,
             Application.EventHandlers.InvoiceCreatedNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.IOrderCompletedInvoiceHandler,
+            Application.EventHandlers.OrderCompletedInvoiceHandler>();
+        services.AddScoped<Application.EventHandlers.ISettlementPaymentGLHandler,
+            Application.EventHandlers.SettlementPaymentGLHandler>();
+        services.AddScoped<Application.EventHandlers.IOrderPlacedCariHesapHandler,
+            Application.EventHandlers.OrderPlacedCariHesapHandler>();
+        services.AddScoped<Application.EventHandlers.ISettlementReconciledNotificationHandler,
+            Application.EventHandlers.SettlementReconciledNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.ISettlementDisputedNotificationHandler,
+            Application.EventHandlers.SettlementDisputedNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.IBankBalanceChangedNotificationHandler,
+            Application.EventHandlers.BankBalanceChangedNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.ICariHesapCreatedNotificationHandler,
+            Application.EventHandlers.CariHesapCreatedNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.ICariHareketRecordedNotificationHandler,
+            Application.EventHandlers.CariHareketRecordedNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.IInvoicePlatformSentNotificationHandler,
+            Application.EventHandlers.InvoicePlatformSentNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.IQuotationNotificationHandler,
+            Application.EventHandlers.QuotationNotificationHandlerImpl>();
+        services.AddScoped<Application.EventHandlers.IReturnRejectedNotificationHandler,
+            Application.EventHandlers.ReturnRejectedNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.ICampaignCreatedNotificationHandler,
+            Application.EventHandlers.CampaignCreatedNotificationHandler>();
+        services.AddScoped<Application.EventHandlers.ISettlementImportedOrderPaymentHandler,
+            Application.EventHandlers.SettlementImportedOrderPaymentHandler>();
+        services.AddScoped<Application.EventHandlers.IInvoiceApprovedCOGSHandler,
+            Application.EventHandlers.InvoiceApprovedCOGSHandler>();
+        services.AddScoped<Application.EventHandlers.IWithholdingTaxGLHandler,
+            Application.EventHandlers.WithholdingTaxGLHandler>();
         services.AddScoped<Application.EventHandlers.IStockChangedPlatformSyncHandler,
             Application.EventHandlers.StockChangedPlatformSyncHandler>();
+        services.AddScoped<Application.EventHandlers.IPriceChangedPlatformSyncHandler,
+            Application.EventHandlers.PriceChangedPlatformSyncHandler>();
         services.AddScoped<Application.EventHandlers.ILowStockNotificationHandler,
             Application.EventHandlers.LowStockNotificationHandler>();
         services.AddScoped<Application.EventHandlers.IProductCreatedNotificationHandler,
@@ -713,6 +798,18 @@ public static class InfrastructureServiceRegistration
         services.AddScoped<Application.EventHandlers.IMiscNotificationHandler,
             Application.EventHandlers.MiscNotificationHandler>();
 
+        // ERPNext handlers (DEV1 TUR1 fix: 5 missing DI registrations):
+        services.AddScoped<Application.EventHandlers.IERPNextCustomerHandler,
+            Application.EventHandlers.ERPNextCustomerHandler>();
+        services.AddScoped<Application.EventHandlers.IERPNextSalesInvoiceHandler,
+            Application.EventHandlers.ERPNextSalesInvoiceHandler>();
+        services.AddScoped<Application.EventHandlers.IERPNextStockEntryHandler,
+            Application.EventHandlers.ERPNextStockEntryHandler>();
+        services.AddScoped<Application.EventHandlers.IShipmentCostJournalHandler,
+            Application.EventHandlers.ShipmentCostJournalHandler>();
+        services.AddScoped<Application.EventHandlers.IStaleOrderNotificationHandler,
+            Application.EventHandlers.StaleOrderNotificationHandler>();
+
         // Repository implementations (DEV1 TUR 6: 7 missing repos):
         services.AddScoped<Domain.Interfaces.IBankAccountRepository,
             Persistence.Repositories.BankAccountRepository>();
@@ -740,5 +837,18 @@ public static class InfrastructureServiceRegistration
             Persistence.Repositories.AccessLogRepository>();
 
         return services;
+    }
+
+    private static bool IsValidBase64Key(string value)
+    {
+        try
+        {
+            var bytes = Convert.FromBase64String(value);
+            return bytes.Length == 32; // AES-256 = 32 bytes
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

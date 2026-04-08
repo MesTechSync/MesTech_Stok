@@ -90,7 +90,7 @@ public sealed class ParasutInvoiceSyncJob
 
                 _logger.LogInformation("Synced invoice {Number} → Paraşüt {SalesId}", invoice.InvoiceNumber, salesId);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 invoice.MarkParasutFailed(ex.Message);
                 await db.SaveChangesAsync(ct).ConfigureAwait(false);

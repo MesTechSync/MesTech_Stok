@@ -26,7 +26,7 @@ public sealed class MapProductToPlatformHandler : IRequestHandler<MapProductToPl
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var product = await _productRepo.GetByIdAsync(request.ProductId).ConfigureAwait(false);
+        var product = await _productRepo.GetByIdAsync(request.ProductId, cancellationToken).ConfigureAwait(false);
         if (product is null)
             throw new KeyNotFoundException($"Product '{request.ProductId}' bulunamadı.");
 

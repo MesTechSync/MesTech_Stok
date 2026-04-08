@@ -55,11 +55,12 @@ public class AddStockLotValidatorTests
     }
 
     [Fact]
-    public async Task Quantity_WhenZero_ShouldPass()
+    public async Task Quantity_WhenZero_ShouldFail()
     {
         var cmd = CreateValidCommand() with { Quantity = 0 };
         var result = await _sut.ValidateAsync(cmd);
-        result.IsValid.Should().BeTrue();
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Quantity");
     }
 
     [Fact]

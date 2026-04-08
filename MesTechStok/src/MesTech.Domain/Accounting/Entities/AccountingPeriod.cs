@@ -21,6 +21,7 @@ public sealed class AccountingPeriod : BaseEntity, ITenantEntity
 
     public static AccountingPeriod Create(Guid tenantId, int year, int month)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         var start = new DateTime(year, month, 1, 0, 0, 0, DateTimeKind.Utc);
         var end = start.AddMonths(1).AddTicks(-1);
 

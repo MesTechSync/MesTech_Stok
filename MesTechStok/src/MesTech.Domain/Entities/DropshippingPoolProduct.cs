@@ -34,6 +34,15 @@ public sealed class DropshippingPoolProduct : BaseEntity, ITenantEntity
     /// <summary>Güvenilirlik renk sınıflandırması.</summary>
     public int ReliabilityColor { get; private set; }
 
+    // D12-05: Ownership/tedarikci bilgisi
+    public OwnerType OwnerType { get; private set; }
+    public string? OwnerCompanyName { get; private set; }
+    public string? OwnerCountryCode { get; private set; }
+    public string? OwnerTaxNumber { get; private set; }
+    public decimal? MinOrderQuantity { get; private set; }
+    public int? LeadTimeDays { get; private set; }
+    public string? ShipsFrom { get; private set; }
+
     // Navigation
     public DropshippingPool? Pool { get; private set; }
     public Product? Product { get; private set; }
@@ -93,6 +102,38 @@ public sealed class DropshippingPoolProduct : BaseEntity, ITenantEntity
         UpdatedAt = DateTime.UtcNow;
     }
 
+    // D12-05: Ownership setter
+    public void SetOwnership(OwnerType type, string? company, string? country, string? taxNo)
+    {
+        OwnerType = type;
+        OwnerCompanyName = company;
+        OwnerCountryCode = country;
+        OwnerTaxNumber = taxNo;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void SetLogistics(decimal? minOrderQty, int? leadTimeDays, string? shipsFrom)
+    {
+        if (minOrderQty.HasValue && minOrderQty.Value < 0)
+            throw new ArgumentOutOfRangeException(nameof(minOrderQty));
+        if (leadTimeDays.HasValue && leadTimeDays.Value < 0)
+            throw new ArgumentOutOfRangeException(nameof(leadTimeDays));
+        MinOrderQuantity = minOrderQty;
+        LeadTimeDays = leadTimeDays;
+        ShipsFrom = shipsFrom;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
     public override string ToString() =>
         $"PoolProduct [Pool:{PoolId}] [Product:{ProductId}] Price:{PoolPrice:F2} Active:{IsActive}";
+}
+
+public enum OwnerType
+{
+    Unknown = 0,
+    Wholesaler = 1,
+    Manufacturer = 2,
+    Brand = 3,
+    Distributor = 4,
+    Importer = 5
 }

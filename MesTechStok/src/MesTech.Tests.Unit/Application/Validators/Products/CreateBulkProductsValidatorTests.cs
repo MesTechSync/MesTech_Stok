@@ -28,11 +28,12 @@ public class CreateBulkProductsValidatorTests
     }
 
     [Fact]
-    public async Task Count_WhenZero_ShouldPass()
+    public async Task Count_WhenZero_ShouldFail()
     {
         var cmd = new CreateBulkProductsCommand(0);
         var result = await _sut.ValidateAsync(cmd);
-        result.IsValid.Should().BeTrue();
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Count");
     }
 
     private static CreateBulkProductsCommand CreateValidCommand() => new(40);

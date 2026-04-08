@@ -5,8 +5,11 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
+using MesTech.Domain.Enums;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -27,13 +30,16 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// UpdatePrice  → PUT /v3/application/listings/{listingId} (price field)
 /// Categories   → GET /v3/application/seller-taxonomy/nodes
 /// </summary>
-public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter, IShipmentCapableAdapter, ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter
+public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter, IShipmentCapableAdapter,
+    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter,
+    IReviewCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<EtsyAdapter> _logger;
     private readonly EtsyOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
 
@@ -46,13 +52,18 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
     private readonly string BaseUrl;
 
     public EtsyAdapter(HttpClient httpClient, ILogger<EtsyAdapter> logger,
-        IOptions<EtsyOptions>? options = null)
+        IOptions<EtsyOptions>? options = null, IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _scopeFactory = scopeFactory;
         _options = options?.Value ?? new EtsyOptions();
         _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
         BaseUrl = _options.BaseUrl;
+
+        // SSRF guard (G10853)
+        if (Uri.TryCreate(BaseUrl, UriKind.Absolute, out var uri) && Security.SsrfGuard.IsPrivateHost(uri.Host))
+            _logger.LogWarning("[EtsyAdapter] BaseUrl points to private network: {Url}", BaseUrl);
 
         // Seed from options if provided
         if (!string.IsNullOrWhiteSpace(_options.ShopId))
@@ -137,7 +148,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
     // IIntegratorAdapter — Identity
     // ─────────────────────────────────────────────
 
-    public string PlatformCode => "Etsy";
+    public string PlatformCode => nameof(PlatformType.Etsy);
     public bool SupportsStockUpdate => true;
     public bool SupportsPriceUpdate => true;
     public bool SupportsShipment => false;
@@ -237,7 +248,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             // GET shop info
             var url = $"{BaseUrl}/application/shops/{_shopId}";
             using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
-            var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
+            using var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
 
             result.HttpStatusCode = (int)response.StatusCode;
 
@@ -261,7 +272,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             _logger.LogInformation("Etsy TestConnection succeeded: Shop={Shop}, Listings={Count}",
                 result.StoreName, result.ProductCount);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Etsy TestConnectionAsync basarisiz");
             result.ErrorMessage = ex.Message;
@@ -300,7 +311,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             {
                 var url = $"{BaseUrl}/application/shops/{_shopId}/listings/active?limit={limit}&offset={offset}";
                 using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
-                var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
+                using var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -335,7 +346,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
 
             _logger.LogInformation("Etsy PullProducts: {Count} products retrieved", products.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Etsy PullProducts failed");
         }
@@ -377,7 +388,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             using var request = CreateAuthenticatedRequest(HttpMethod.Post, url);
             request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
+            using var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -389,7 +400,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             _logger.LogError("Etsy PushProduct failed: {Status} - {Error}", response.StatusCode, error);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Etsy PushProduct failed: SKU={SKU}", product.SKU);
             return false;
@@ -407,10 +418,17 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         _logger.LogInformation("EtsyAdapter.PushStockUpdateAsync: ProductId={ProductId}, Qty={Qty}",
             productId, newStock);
 
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Etsy, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} StockUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         try
         {
             // Step 1: Find listing by searching shop listings for the product
-            var listingId = await FindListingIdByProductAsync(productId, ct).ConfigureAwait(false);
+            var listingId = await FindListingIdByProductAsync(externalId, ct).ConfigureAwait(false);
 
             if (string.IsNullOrEmpty(listingId))
             {
@@ -453,7 +471,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
                 putResponse.StatusCode, putError);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Etsy PushStockUpdate failed: ProductId={ProductId}", productId);
             return false;
@@ -469,9 +487,16 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         _logger.LogInformation("EtsyAdapter.PushPriceUpdateAsync: ProductId={ProductId}, Price={Price}",
             productId, newPrice);
 
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Etsy, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} PriceUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         try
         {
-            var listingId = await FindListingIdByProductAsync(productId, ct).ConfigureAwait(false);
+            var listingId = await FindListingIdByProductAsync(externalId, ct).ConfigureAwait(false);
 
             if (string.IsNullOrEmpty(listingId))
             {
@@ -486,7 +511,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             using var request = CreateAuthenticatedRequest(HttpMethod.Put, url);
             request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
+            using var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -499,7 +524,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             _logger.LogError("Etsy PushPriceUpdate failed: {Status} - {Error}", response.StatusCode, error);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Etsy PushPriceUpdate failed: ProductId={ProductId}", productId);
             return false;
@@ -573,7 +598,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
 
             _logger.LogInformation("Etsy GetCategories: {Count} top-level categories retrieved", categories.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Etsy GetCategories failed");
         }
@@ -614,7 +639,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
                 }
 
                 using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
-                var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
+                using var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -648,7 +673,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
 
             _logger.LogInformation("Etsy PullOrders: {Count} orders retrieved", orders.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Etsy PullOrders failed");
         }
@@ -682,7 +707,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             using var request = CreateAuthenticatedRequest(HttpMethod.Post, url);
             request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
+            using var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -695,7 +720,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
                 response.StatusCode, error);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Etsy UpdateOrderStatus failed: ReceiptId={ReceiptId}", packageId);
             return false;
@@ -716,9 +741,9 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             Description = listing.TryGetProperty("description", out var descEl)
                 ? descEl.GetString()
                 : null,
-            Stock = listing.TryGetProperty("quantity", out var qtyEl) ? qtyEl.GetInt32() : 0,
             IsActive = true
         };
+        product.SyncStock(listing.TryGetProperty("quantity", out var qtyEl) ? qtyEl.GetInt32() : 0, "etsy-sync");
 
         // Price — Etsy returns price as { amount, divisor, currency_code }
         if (listing.TryGetProperty("price", out var priceObj))
@@ -885,11 +910,9 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
     /// In production, this would use ProductPlatformMapping table for O(1) lookup.
     /// For now, we search by offset pagination.
     /// </summary>
-    private async Task<string?> FindListingIdByProductAsync(Guid productId, CancellationToken ct)
+    private async Task<string?> FindListingIdByProductAsync(string targetSku, CancellationToken ct)
     {
-        // In a full implementation, this would look up ProductPlatformMapping table.
-        // Fallback: search first 200 listings for a matching SKU (productId.ToString()).
-        var targetSku = productId.ToString();
+        // Search first 200 listings for a matching SKU (resolved via BarcodeResolverHelper).
         var offset = 0;
         const int limit = 100;
 
@@ -897,7 +920,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         {
             var url = $"{BaseUrl}/application/shops/{_shopId}/listings/active?limit={limit}&offset={offset}&includes=images";
             using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
-            var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
+            using var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1006,6 +1029,73 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         return JsonSerializer.Serialize(payload, _jsonOptions);
     }
 
+    // ═══════════════════════════════════════════
+    // IReviewCapableAdapter — Product Reviews
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Gets product reviews from Etsy Open API v3.
+    /// Uses GET /v3/application/shops/{shopId}/reviews with pagination.
+    /// </summary>
+    public async Task<IReadOnlyList<TrendyolProductReviewDto>> GetProductReviewsAsync(
+        int page = 0, int size = 20, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("EtsyAdapter.GetProductReviewsAsync page={Page} size={Size}", page, size);
+
+        try
+        {
+            var offset = page * size;
+            var url = $"{BaseUrl}/application/shops/{_shopId}/reviews?limit={size}&offset={offset}";
+            using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
+            using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Etsy GetProductReviews failed: {Status} - {Error}", response.StatusCode, error);
+                return Array.Empty<TrendyolProductReviewDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var reviews = new List<TrendyolProductReviewDto>();
+            var items = doc.RootElement.TryGetProperty("results", out var resArr) ? resArr
+                : doc.RootElement.TryGetProperty("reviews", out var revArr) ? revArr
+                : doc.RootElement;
+
+            if (items.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in items.EnumerateArray())
+                {
+                    reviews.Add(new TrendyolProductReviewDto(
+                        Id: item.TryGetProperty("review_id", out var id) ? (id.ValueKind == JsonValueKind.Number ? id.GetInt64() : 0) : 0,
+                        ProductId: item.TryGetProperty("listing_id", out var lid) ? (lid.ValueKind == JsonValueKind.Number ? (int)lid.GetInt64() : 0) : 0,
+                        Comment: item.TryGetProperty("review", out var body) ? body.GetString() ?? ""
+                            : item.TryGetProperty("message", out var msg) ? msg.GetString() ?? "" : "",
+                        Rate: item.TryGetProperty("rating", out var rate) ? (int)rate.GetDouble() : 0,
+                        UserFullName: item.TryGetProperty("buyer_user_id", out var buyer) ? buyer.ToString() ?? ""
+                            : item.TryGetProperty("reviewer", out var reviewer) ? reviewer.GetString() ?? "" : "",
+                        CreatedAt: item.TryGetProperty("created_timestamp", out var ts) && ts.ValueKind == JsonValueKind.Number
+                            ? DateTimeOffset.FromUnixTimeSeconds(ts.GetInt64()).UtcDateTime
+                            : item.TryGetProperty("create_timestamp", out var ts2) && ts2.ValueKind == JsonValueKind.Number
+                                ? DateTimeOffset.FromUnixTimeSeconds(ts2.GetInt64()).UtcDateTime
+                                : DateTime.MinValue,
+                        IsReplied: item.TryGetProperty("is_replied", out var replied) && replied.GetBoolean()));
+                }
+            }
+
+            _logger.LogInformation("Etsy GetProductReviews: {Count} reviews fetched", reviews.Count);
+            return reviews;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Etsy GetProductReviews exception");
+            return Array.Empty<TrendyolProductReviewDto>();
+        }
+    }
+
     // ── IPingableAdapter ──
     public async Task<bool> PingAsync(CancellationToken ct = default)
     {
@@ -1014,10 +1104,10 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(TimeSpan.FromSeconds(5));
             using var request = CreateAuthenticatedRequest(HttpMethod.Get, $"{BaseUrl}/application/openapi-ping");
-            var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Etsy ping failed");
             return false;
@@ -1039,10 +1129,10 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             };
             request.Headers.Add("x-api-key", _accessToken);
 
-            var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
+            using var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[EtsyAdapter] SendShipment error");
             return false;
@@ -1050,10 +1140,133 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
     }
 
     // ── ISettlementCapableAdapter ──
-    public Task<SettlementDto?> GetSettlementAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
+    // Etsy Payment Account Ledger API: GET /v3/application/shops/{shopId}/payment-account/ledger-entries
+    // Requires transactions_r scope. Returns payment entries with amounts + fees.
+    public async Task<SettlementDto?> GetSettlementAsync(DateTime startDate, DateTime endDate, CancellationToken ct = default)
     {
-        _logger.LogWarning("[EtsyAdapter] GetSettlement — Etsy Ledger API requires elevated scope");
-        return Task.FromResult<SettlementDto?>(null);
+        EnsureConfigured();
+        _logger.LogInformation("EtsyAdapter.GetSettlementAsync: {StartDate} — {EndDate}", startDate, endDate);
+
+        try
+        {
+            var minCreated = new DateTimeOffset(startDate.ToUniversalTime()).ToUnixTimeSeconds();
+            var maxCreated = new DateTimeOffset(endDate.ToUniversalTime()).ToUnixTimeSeconds();
+
+            var url = $"{BaseUrl}/application/shops/{_shopId}/payment-account/ledger-entries" +
+                      $"?min_created={minCreated}&max_created={maxCreated}&limit=100";
+
+            var settlement = new SettlementDto
+            {
+                PlatformCode = "Etsy",
+                StartDate = startDate,
+                EndDate = endDate,
+                Currency = "USD"
+            };
+
+            var hasMore = true;
+            var offset = 0;
+
+            while (hasMore)
+            {
+                var pagedUrl = offset > 0 ? $"{url}&offset={offset}" : url;
+                using var request = CreateAuthenticatedRequest(HttpMethod.Get, pagedUrl);
+                using var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                    _logger.LogWarning("Etsy GetSettlement failed {Status}: {Error}", response.StatusCode, error);
+
+                    // 403 = scope insufficient — degrade gracefully (backward compat)
+                    if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                    {
+                        _logger.LogWarning("[EtsyAdapter] GetSettlement — transactions_r scope not granted; returning null");
+                        return null;
+                    }
+
+                    return null;
+                }
+
+                var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                using var doc = JsonDocument.Parse(content);
+
+                if (doc.RootElement.TryGetProperty("results", out var results) &&
+                    results.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var entry in results.EnumerateArray())
+                    {
+                        var amount = entry.TryGetProperty("amount", out var amtEl) &&
+                                     amtEl.TryGetProperty("amount", out var amtVal) &&
+                                     int.TryParse(amtVal.GetRawText(), out var cents)
+                            ? cents / 100m
+                            : 0m;
+
+                        var feeAmount = entry.TryGetProperty("fee", out var feeEl) &&
+                                        feeEl.TryGetProperty("amount", out var feeVal) &&
+                                        int.TryParse(feeVal.GetRawText(), out var feeCents)
+                            ? Math.Abs(feeCents / 100m)
+                            : 0m;
+
+                        var entryType = entry.TryGetProperty("entry_type", out var etEl)
+                            ? etEl.GetString() ?? "sale"
+                            : "sale";
+
+                        var ledgerDate = entry.TryGetProperty("create_date", out var cdEl) &&
+                                         cdEl.TryGetInt64(out var unixTs)
+                            ? DateTimeOffset.FromUnixTimeSeconds(unixTs).UtcDateTime
+                            : startDate;
+
+                        var sequenceNumber = entry.TryGetProperty("sequence_number", out var snEl)
+                            ? snEl.GetInt64().ToString()
+                            : null;
+
+                        settlement.Lines.Add(new SettlementLineDto
+                        {
+                            OrderNumber = sequenceNumber,
+                            TransactionType = entryType,
+                            Amount = amount,
+                            CommissionAmount = feeAmount,
+                            TransactionDate = ledgerDate
+                        });
+
+                        if (entryType is "sale" or "transaction")
+                        {
+                            settlement.TotalSales += amount;
+                            settlement.TotalCommission += feeAmount;
+                        }
+                        else if (entryType is "refund")
+                        {
+                            settlement.TotalReturnDeduction += Math.Abs(amount);
+                        }
+                        else if (entryType is "shipping" or "shipping_transaction")
+                        {
+                            settlement.TotalShippingCost += Math.Abs(amount);
+                        }
+                    }
+
+                    var count = results.GetArrayLength();
+                    offset += count;
+                    hasMore = count >= 100; // Etsy page size
+                }
+                else
+                {
+                    hasMore = false;
+                }
+            }
+
+            settlement.NetAmount = settlement.TotalSales - settlement.TotalCommission
+                                   - settlement.TotalShippingCost - settlement.TotalReturnDeduction;
+
+            _logger.LogInformation("Etsy GetSettlement: {LineCount} entries, Net={Net} {Currency}",
+                settlement.Lines.Count, settlement.NetAmount, settlement.Currency);
+
+            return settlement;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Etsy GetSettlement exception: {StartDate}—{EndDate}", startDate, endDate);
+            return null;
+        }
     }
 
     public Task<IReadOnlyList<CargoInvoiceDto>> GetCargoInvoicesAsync(DateTime startDate, CancellationToken ct = default)
@@ -1069,7 +1282,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             var request = new HttpRequestMessage(HttpMethod.Get, $"{BaseUrl}/application/shops/{_shopId}/receipts?was_canceled=true&limit=25");
             request.Headers.Add("x-api-key", _accessToken);
 
-            var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
+            using var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode) return Array.Empty<ExternalClaimDto>();
 
             var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
@@ -1087,7 +1300,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
 
             return claims;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[EtsyAdapter] PullClaims error");
             return Array.Empty<ExternalClaimDto>();
@@ -1119,7 +1332,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
                     Encoding.UTF8, "application/json")
             };
             request.Headers.Add("x-api-key", _accessToken);
-            var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
+            using var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1129,7 +1342,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Etsy RegisterWebhook exception");
             return false;
@@ -1145,7 +1358,7 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         {
             var request = new HttpRequestMessage(HttpMethod.Delete, $"{BaseUrl}/application/shops/{_shopId}/webhooks");
             request.Headers.Add("x-api-key", _accessToken);
-            var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
+            using var response = await SendWithResilienceAsync(request, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1155,26 +1368,27 @@ public sealed class EtsyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Etsy UnregisterWebhook exception");
             return false;
         }
     }
 
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
+        string? eventType = null;
         try
         {
             using var doc = JsonDocument.Parse(payload);
-            var eventType = doc.RootElement.TryGetProperty("type", out var et) ? et.GetString() : "unknown";
+            eventType = doc.RootElement.TryGetProperty("type", out var et) ? et.GetString() : "unknown";
             _logger.LogInformation("EtsyAdapter webhook processed: EventType={EventType} PayloadLength={Length}", eventType, payload.Length);
         }
         catch (JsonException ex)
         {
             _logger.LogWarning(ex, "[Etsy] Malformed webhook payload ({Length}b)", payload?.Length ?? 0);
         }
-        return Task.CompletedTask;
+        await WebhookDispatchHelper.DispatchAsync(_scopeFactory, PlatformCode, eventType, null, payload!, _logger, ct).ConfigureAwait(false);
     }
 }
 

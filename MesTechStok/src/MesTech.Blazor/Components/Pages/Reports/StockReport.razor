@@ -1,0 +1,201 @@
+@page "/reports/stock"
+@attribute [Authorize(Roles = "Admin,Accountant,StockManager")]
+@using Microsoft.AspNetCore.Authorization
+@inject MesTechApiClient ApiClient
+@inject ILogger<StockReport> Logger
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<PageTitle>Stok Raporu</PageTitle>
+
+<div class="container-fluid">
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width:48px;height:48px;background:linear-gradient(135deg,#3b82f6,#2563eb)">
+      <i class="fas fa-boxes text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0">Stok Raporu</h3>
+      <small class="text-muted">ABC analizi, dead stock, stok deger raporu</small>
+    </div>
+    <div class="ms-auto">
+      <div class="btn-group btn-group-sm">
+        <button class="btn btn-outline-success" @onclick="ExportExcel">
+          <i class="fas fa-file-excel me-1"></i>Excel
+        </button>
+        <button class="btn btn-outline-danger" @onclick="ExportPdf">
+          <i class="fas fa-file-pdf me-1"></i>PDF
+        </button>
+      </div>
+    </div>
+  </div>
+
+  @if (isLoading)
+  {
+    <LoadingSpinner />
+  }
+  else
+  {
+    <!-- Ozet kartlar -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <small class="text-muted">Toplam SKU</small>
+            <h4 class="text-primary mb-0">@totalSku.ToString("N0")</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <small class="text-muted">Toplam Stok Degeri</small>
+            <h4 class="text-success mb-0">@totalValue.ToString("N0") TL</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <small class="text-muted">Kritik Stok (&lt;5)</small>
+            <h4 class="text-danger mb-0">@criticalCount</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <small class="text-muted">Dead Stock (90+ gun)</small>
+            <h4 class="text-warning mb-0">@deadStockCount</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab navigation -->
+    <ul class="nav nav-tabs mb-3">
+      <li class="nav-item">
+        <a class="nav-link @(activeTab == "abc" ? "active" : "")" href="#" @onclick="SetTabAbc" @onclick:preventDefault>ABC Analizi</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link @(activeTab == "dead" ? "active" : "")" href="#" @onclick="SetTabDead" @onclick:preventDefault>Dead Stock</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link @(activeTab == "value" ? "active" : "")" href="#" @onclick="SetTabValue" @onclick:preventDefault>Deger Raporu</a>
+      </li>
+    </ul>
+
+    @if (activeTab == "abc")
+    {
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr><th>Sinif</th><th>SKU Sayisi</th><th>SKU %</th><th class="text-end">Satis Degeri</th><th>Satis %</th></tr>
+            </thead>
+            <tbody>
+              @foreach (var abc in abcRows)
+              {
+                <tr>
+                  <td><span class="badge bg-@(abc.Class == "A" ? "success" : abc.Class == "B" ? "warning" : "secondary") fs-6">@abc.Class</span></td>
+                  <td>@abc.SkuCount</td>
+                  <td>%@abc.SkuPercent</td>
+                  <td class="text-end">@abc.SalesValue.ToString("N0") TL</td>
+                  <td>%@abc.SalesPercent</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+    else if (activeTab == "dead")
+    {
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr><th>SKU</th><th>Urun Adi</th><th class="text-end">Stok</th><th>Son Satis</th><th class="text-end">Deger</th></tr>
+            </thead>
+            <tbody>
+              @foreach (var ds in deadStockRows)
+              {
+                <tr>
+                  <td><code>@ds.Sku</code></td>
+                  <td>@ds.Name</td>
+                  <td class="text-end">@ds.Quantity</td>
+                  <td>@ds.LastSaleDate.ToString("dd.MM.yyyy")</td>
+                  <td class="text-end">@ds.Value.ToString("N2") TL</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    }
+    else
+    {
+      <div class="alert alert-info">Deger raporu hesaplaniyor...</div>
+    }
+  }
+</div>
+
+@code {
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private string activeTab = "abc";
+    private int totalSku, criticalCount, deadStockCount;
+    private decimal totalValue;
+    private List<AbcRow> abcRows = new();
+    private List<DeadStockRow> deadStockRows = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var result = await ApiClient.SafeGetAsync<StockReportDto>("reports/stock/summary");
+            if (result.IsSuccess && result.Data is not null)
+            {
+                totalSku = result.Data.TotalSku;
+                totalValue = result.Data.TotalValue;
+                criticalCount = result.Data.CriticalCount;
+                deadStockCount = result.Data.DeadStockCount;
+                abcRows = result.Data.AbcAnalysis;
+                deadStockRows = result.Data.DeadStock;
+            }
+            else { _isDemoMode = true; LoadDemoData(); }
+        }
+        catch (Exception ex) { Logger.LogWarning(ex, "Stock report API unavailable"); _isDemoMode = true; LoadDemoData(); }
+        finally { isLoading = false; }
+    }
+
+    private void LoadDemoData()
+    {
+        totalSku = 6084; totalValue = 1_250_000m; criticalCount = 42; deadStockCount = 128;
+        abcRows = new() { new("A", 1217, 20, 1_000_000m, 80), new("B", 912, 15, 187_500m, 15), new("C", 3955, 65, 62_500m, 5) };
+        deadStockRows = new()
+        {
+            new("SKU-001", "Mavi Gömlek XL", 45, DateTime.Today.AddDays(-120), 2250m),
+            new("SKU-002", "Kırmızı Elbise S", 12, DateTime.Today.AddDays(-95), 1440m),
+            new("SKU-003", "Siyah Pantolon M", 8, DateTime.Today.AddDays(-110), 960m),
+        };
+    }
+
+    private void SetTabAbc() => activeTab = "abc";
+    private void SetTabDead() => activeTab = "dead";
+    private void SetTabValue() => activeTab = "value";
+
+    private Task ExportExcel() => ExportReport("excel");
+    private Task ExportPdf() => ExportReport("pdf");
+
+    private async Task ExportReport(string format)
+    {
+        Logger.LogInformation("Stock report export: {Format}", format);
+        try { await ApiClient.SafeGetAsync<object>($"reports/stock/export?format={format}"); }
+        catch (Exception ex) { Logger.LogWarning(ex, "Export failed"); }
+    }
+
+    private sealed record AbcRow(string Class, int SkuCount, int SkuPercent, decimal SalesValue, int SalesPercent);
+    private sealed record DeadStockRow(string Sku, string Name, int Quantity, DateTime LastSaleDate, decimal Value);
+    private sealed record StockReportDto(int TotalSku, decimal TotalValue, int CriticalCount, int DeadStockCount, List<AbcRow> AbcAnalysis, List<DeadStockRow> DeadStock);
+}

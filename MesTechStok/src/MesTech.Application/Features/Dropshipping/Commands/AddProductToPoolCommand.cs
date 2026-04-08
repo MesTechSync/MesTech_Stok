@@ -36,7 +36,7 @@ public sealed class AddProductToPoolCommandHandler(
         var pool = await poolRepo.GetByIdAsync(req.PoolId, cancellationToken)
             ?? throw new KeyNotFoundException($"DropshippingPool '{req.PoolId}' bulunamadı.");
 
-        var product = await productRepo.GetByIdAsync(req.ProductId)
+        var product = await productRepo.GetByIdAsync(req.ProductId, cancellationToken)
             ?? throw new KeyNotFoundException($"Product '{req.ProductId}' bulunamadı.");
 
         var poolProduct = new DropshippingPoolProduct(

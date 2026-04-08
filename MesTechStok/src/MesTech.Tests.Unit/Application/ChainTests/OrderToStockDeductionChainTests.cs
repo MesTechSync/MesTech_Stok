@@ -40,11 +40,11 @@ public class OrderToStockDeductionChainTests
         {
             SKU = "TST-001",
             Name = "Test Urun",
-            Stock = 100,
             MinimumStock = 5,
             CategoryId = Guid.NewGuid(),
             TenantId = Guid.NewGuid()
         };
+        product.SyncStock(100, "test-seed");
 
         var orderItem = new OrderItem
         {
@@ -113,8 +113,10 @@ public class OrderToStockDeductionChainTests
         var orderId = Guid.NewGuid();
         var tenantId = Guid.NewGuid();
 
-        var product1 = new Product { SKU = "P1", Name = "Urun 1", Stock = 50, MinimumStock = 5, CategoryId = Guid.NewGuid(), TenantId = tenantId };
-        var product2 = new Product { SKU = "P2", Name = "Urun 2", Stock = 30, MinimumStock = 5, CategoryId = Guid.NewGuid(), TenantId = tenantId };
+        var product1 = new Product { SKU = "P1", Name = "Urun 1", MinimumStock = 5, CategoryId = Guid.NewGuid(), TenantId = tenantId };
+        product1.SyncStock(50, "test-seed");
+        var product2 = new Product { SKU = "P2", Name = "Urun 2", MinimumStock = 5, CategoryId = Guid.NewGuid(), TenantId = tenantId };
+        product2.SyncStock(30, "test-seed");
 
         var order = new Order { OrderNumber = "ORD-002", TenantId = tenantId, CustomerId = Guid.NewGuid() };
         order.AddItem(new OrderItem { ProductId = product1.Id, ProductSKU = "P1", ProductName = "Urun 1", Quantity = 5, UnitPrice = 10, TotalPrice = 50, TenantId = tenantId });

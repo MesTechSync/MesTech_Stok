@@ -1,0 +1,64 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ═══ SPOTLIGHT WELCOME SCREEN — DESIGN TOKENS ═══ -->
+    <!-- DK-15: Layer yapisi (0-5) DEGISMEZ. Sadece renk token'lari. -->
+
+    <!-- ═══ SPOTLIGHT TYPOGRAPHY ═══ -->
+    <x:Double x:Key="FontSizeSpotlightClock">72</x:Double>
+
+    <!-- ═══ LAYER BACKGROUNDS ═══ -->
+    <Color x:Key="MesSpotDarkBase">#0D1117</Color>
+    <Color x:Key="MesSpotGradientDeep">#0F2847</Color>
+    <!-- MesGradientDark (#0D1B2A) ve MesGradientMid (#1B2838) zaten DesignTokens'ta -->
+    <!-- MesPrimaryBlue (#0078D4) zaten DesignTokens'ta -->
+
+    <!-- ═══ OVERLAY GRADIENT STOPS (Alpha Black) ═══ -->
+    <Color x:Key="MesSpotOverlayHeavy">#88000000</Color>
+    <Color x:Key="MesSpotOverlayMedium">#33000000</Color>
+    <Color x:Key="MesSpotOverlayLight">#22000000</Color>
+    <Color x:Key="MesSpotOverlayNone">#00000000</Color>
+    <Color x:Key="MesSpotOverlayDense">#CC000000</Color>
+    <Color x:Key="MesSpotOverlayMax">#E5000000</Color>
+
+    <!-- ═══ THUMBNAIL CARD ═══ -->
+    <Color x:Key="MesSpotThumbBg">#44000000</Color>
+    <Color x:Key="MesSpotThumbBorder">#22FFFFFF</Color>
+
+    <!-- ═══ TEXT ON DARK (White opacity variants) ═══ -->
+    <Color x:Key="MesSpotTextPrimary">#FFFFFF</Color>
+    <Color x:Key="MesSpotTextHigh">#F2FFFFFF</Color>
+    <Color x:Key="MesSpotTextDate">#DDFFFFFF</Color>
+    <Color x:Key="MesSpotTextSubtitle">#BBFFFFFF</Color>
+    <Color x:Key="MesSpotTextDemoBtnLabel">#CCFFFFFF</Color>
+    <Color x:Key="MesSpotTextRememberMe">#AAFFFFFF</Color>
+    <Color x:Key="MesSpotTextLabel">#99FFFFFF</Color>
+    <Color x:Key="MesSpotTextImageName">#77FFFFFF</Color>
+    <Color x:Key="MesSpotTextMuted">#66FFFFFF</Color>
+    <Color x:Key="MesSpotTextHint">#44FFFFFF</Color>
+    <Color x:Key="MesSpotTextSeparator">#33FFFFFF</Color>
+
+    <!-- ═══ ACCENT HIGHLIGHTS ON DARK ═══ -->
+    <Color x:Key="MesSpotAccentBlue">#90CAF9</Color>
+    <Color x:Key="MesSpotAccentGreen">#A5D6A7</Color>
+
+    <!-- ═══ BUTTON / INTERACTION ═══ -->
+    <Color x:Key="MesSpotBtnBg">#33FFFFFF</Color>
+    <Color x:Key="MesSpotBtnBorder">#22FFFFFF</Color>
+    <Color x:Key="MesSpotBtnDemoBorder">#33FFFFFF</Color>
+
+    <!-- ═══ LOGIN CARD ═══ -->
+    <Color x:Key="MesSpotCardBg">#CC0D1B2A</Color>
+    <Color x:Key="MesSpotGlassBorder">#18FFFFFF</Color>
+    <Color x:Key="MesSpotGlassBg">#14FFFFFF</Color>
+    <Color x:Key="MesSpotInputBg">#18FFFFFF</Color>
+    <Color x:Key="MesSpotInputBorder">#22FFFFFF</Color>
+    <Color x:Key="MesSpotLoginBtnBg">#2563EB</Color>
+
+    <!-- ═══ ERROR / LOCKOUT ═══ -->
+    <Color x:Key="MesSpotErrorBg">#22FF3B30</Color>
+    <Color x:Key="MesSpotErrorText">#FF7B7B</Color>
+    <Color x:Key="MesSpotLockoutBg">#22F59E0B</Color>
+    <Color x:Key="MesSpotLockoutText">#FFCC5D</Color>
+
+</ResourceDictionary>

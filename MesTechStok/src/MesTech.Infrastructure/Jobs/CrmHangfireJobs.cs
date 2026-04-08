@@ -8,7 +8,7 @@ namespace MesTech.Infrastructure.Jobs;
 
 /// <summary>
 /// CRM periyodik job'ları — Hangfire tarafından çalıştırılır.
-/// DEV6-TUR7: stub → gerçek iş mantığı.
+/// Hangfire periyodik görevler: overdue lead, overdue task, sipariş→lead oluşturma.
 /// </summary>
 [AutomaticRetry(Attempts = 3)]
 public sealed class CrmHangfireJobs

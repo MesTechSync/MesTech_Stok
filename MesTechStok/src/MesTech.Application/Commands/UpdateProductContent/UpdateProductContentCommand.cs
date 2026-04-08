@@ -29,8 +29,8 @@ public sealed class UpdateProductContentHandler : IRequestHandler<UpdateProductC
     public async Task Handle(UpdateProductContentCommand request, CancellationToken cancellationToken)
     {
         // Try by ProductId first, fallback to SKU
-        var product = await _productRepository.GetByIdAsync(request.ProductId).ConfigureAwait(false)
-                      ?? await _productRepository.GetBySKUAsync(request.SKU).ConfigureAwait(false);
+        var product = await _productRepository.GetByIdAsync(request.ProductId, cancellationToken).ConfigureAwait(false)
+                      ?? await _productRepository.GetBySKUAsync(request.SKU, cancellationToken).ConfigureAwait(false);
         if (product is null)
         {
             _logger.LogWarning("UpdateProductContent: Product not found — ProductId={ProductId}, SKU={SKU}", request.ProductId, request.SKU);
@@ -40,7 +40,7 @@ public sealed class UpdateProductContentHandler : IRequestHandler<UpdateProductC
         product.Description = request.GeneratedContent;
         product.UpdatedAt = DateTime.UtcNow;
         product.UpdatedBy = "mesa-ai";
-        await _productRepository.UpdateAsync(product).ConfigureAwait(false);
+        await _productRepository.UpdateAsync(product, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation("UpdateProductContent: Product {SKU} content updated by {AiProvider}", request.SKU, request.AiProvider);

@@ -24,6 +24,7 @@ public sealed class CargoExpense : BaseEntity, ITenantEntity
         string? orderId = null,
         string? trackingNumber = null)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(carrierName);
         if (cost < 0)
             throw new ArgumentOutOfRangeException(nameof(cost), "Cost must be non-negative.");

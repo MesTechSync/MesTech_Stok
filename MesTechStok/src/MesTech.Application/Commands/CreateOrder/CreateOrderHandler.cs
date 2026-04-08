@@ -35,7 +35,7 @@ public sealed class CreateOrderHandler : IRequestHandler<CreateOrderCommand, Cre
             request.Notes,
             request.RequiredDate);
 
-        await _orderRepository.AddAsync(order).ConfigureAwait(false);
+        await _orderRepository.AddAsync(order, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new CreateOrderResult

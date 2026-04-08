@@ -133,3 +133,41 @@ public record PlatformDeactivatedIntegrationEvent(
     Guid TenantId,
     DateTime OccurredAt
 );
+
+/// <summary>Yeni ürün değerlendirmesi alındı — cevapsız review bildirimi.</summary>
+public record ProductReviewReceivedIntegrationEvent(
+    long ReviewId,
+    long ProductId,
+    int Rating,
+    string Comment,
+    bool IsReplied,
+    string PlatformCode,
+    DateTime OccurredAt
+);
+
+/// <summary>Reklam kampanya bütçe uyarısı — harcama bütçenin %80'ini aştı.</summary>
+public record AdBudgetAlertIntegrationEvent(
+    long CampaignId,
+    string CampaignName,
+    decimal DailyBudget,
+    decimal TotalSpent,
+    decimal SpentPercentage,
+    string PlatformCode,
+    DateTime OccurredAt
+);
+
+// ════════════════════════════════════════
+// Webhook Dispatch — adapter → MediatR pipeline
+// ════════════════════════════════════════
+
+/// <summary>
+/// Platform webhook'u alındığında adapter'dan MediatR pipeline'a dispatch edilir.
+/// Handler'lar eventType'a göre sipariş sync, stok update vb. tetikler.
+/// </summary>
+public record WebhookReceivedEvent(
+    string PlatformCode,
+    string EventType,
+    string? OrderId,
+    string RawPayload,
+    DateTime ReceivedAt
+) : MediatR.INotification;

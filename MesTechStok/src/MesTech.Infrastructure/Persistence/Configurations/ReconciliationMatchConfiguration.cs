@@ -15,5 +15,14 @@ public sealed class ReconciliationMatchConfiguration : IEntityTypeConfiguration<
         builder.HasIndex(x => x.SettlementBatchId);
         builder.HasIndex(x => x.BankTransactionId);
         builder.HasIndex(x => x.Status);
+
+        // G132: Idempotency — aynı settlement+bankTx çifti ile çift match önleme
+        // Nullable FK'lar PostgreSQL'de partial unique index gerektirir (NULL'lar unique sayılmaz)
+        builder.HasIndex(x => new { x.TenantId, x.SettlementBatchId, x.BankTransactionId })
+            .IsUnique()
+            .HasFilter("\"SettlementBatchId\" IS NOT NULL AND \"BankTransactionId\" IS NOT NULL")
+            .HasDatabaseName("IX_ReconciliationMatches_Idempotency");
+
+        builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
     }
 }

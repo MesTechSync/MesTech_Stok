@@ -31,6 +31,8 @@ public sealed class FinanceExpense : BaseEntity, ITenantEntity
         DateTime expenseDate, Guid? submittedByUserId = null,
         string? notes = null, Guid? storeId = null)
     {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
         if (amount <= 0) throw new ArgumentOutOfRangeException(nameof(amount), "Amount must be positive.");
 
@@ -56,6 +58,7 @@ public sealed class FinanceExpense : BaseEntity, ITenantEntity
             throw new InvalidOperationException($"Cannot submit an expense in {Status} status.");
         Status = ExpenseStatus.Submitted;
         UpdatedAt = DateTime.UtcNow;
+        RaiseDomainEvent(new ExpenseSubmittedEvent(Id, TenantId, DateTime.UtcNow));
     }
 
     public void Approve(Guid approverUserId)
@@ -76,6 +79,7 @@ public sealed class FinanceExpense : BaseEntity, ITenantEntity
         Status = ExpenseStatus.Rejected;
         Notes = string.IsNullOrWhiteSpace(reason) ? Notes : $"Red: {reason}";
         UpdatedAt = DateTime.UtcNow;
+        RaiseDomainEvent(new ExpenseRejectedEvent(Id, TenantId, reason, DateTime.UtcNow));
     }
 
     public void MarkAsPaid(Guid bankAccountId)

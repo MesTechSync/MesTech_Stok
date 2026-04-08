@@ -37,11 +37,11 @@ public sealed class SaveProductVariantsHandler
 #pragma warning disable CA1031 // Catch general exception — return structured error
         try
         {
-            var product = await _productRepo.GetByIdAsync(request.ProductId).ConfigureAwait(false);
+            var product = await _productRepo.GetByIdAsync(request.ProductId, cancellationToken).ConfigureAwait(false);
             if (product is null)
                 return SaveProductVariantsResult.Failure($"Urun bulunamadi: {request.ProductId}");
 
-            var existingVariants = await _variantRepo.GetByProductIdAsync(request.ProductId).ConfigureAwait(false);
+            var existingVariants = await _variantRepo.GetByProductIdAsync(request.ProductId, cancellationToken).ConfigureAwait(false);
             var existingBySku = existingVariants.ToDictionary(v => v.SKU, StringComparer.OrdinalIgnoreCase);
 
             var savedCount = 0;
@@ -57,7 +57,7 @@ public sealed class SaveProductVariantsHandler
                     existing.Stock = input.Stock;
                     existing.VariantBarcode = input.Barcode;
                     existing.IsActive = input.IsActive;
-                    await _variantRepo.UpdateAsync(existing).ConfigureAwait(false);
+                    await _variantRepo.UpdateAsync(existing, cancellationToken).ConfigureAwait(false);
                 }
                 else
                 {
@@ -68,7 +68,7 @@ public sealed class SaveProductVariantsHandler
                     variant.Size = input.Size;
                     variant.VariantBarcode = input.Barcode;
                     variant.IsActive = input.IsActive;
-                    await _variantRepo.AddAsync(variant).ConfigureAwait(false);
+                    await _variantRepo.AddAsync(variant, cancellationToken).ConfigureAwait(false);
                 }
 
                 savedCount++;

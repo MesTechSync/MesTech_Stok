@@ -133,15 +133,17 @@ public sealed class ProcessPaymentWebhookHandler
     {
         var secret = _secretProvider.GetSecret(provider);
 
-        if (string.IsNullOrWhiteSpace(signature))
+        // GÜVENLİK: Secret yoksa REJECT — sandbox bile olsa imza doğrulaması ZORUNLU
+        if (string.IsNullOrWhiteSpace(secret))
         {
-            if (string.IsNullOrWhiteSpace(secret))
-            {
-                _logger.LogDebug("Webhook signature skipped — no secret configured (sandbox)");
-                return true;
-            }
+            _logger.LogError(
+                "Webhook REJECTED — no secret configured for provider {Provider}. " +
+                "Configure webhook secret via user-secrets or environment variable.", provider);
             return false;
         }
+
+        if (string.IsNullOrWhiteSpace(signature))
+            return false;
 
         if (provider.Equals("stripe", StringComparison.OrdinalIgnoreCase))
             return VerifyStripeSignature(body, signature, secret);
@@ -156,10 +158,10 @@ public sealed class ProcessPaymentWebhookHandler
         return false;
     }
 
-    private bool VerifyStripeSignature(string body, string signature, string? secret)
+    private static bool VerifyStripeSignature(string body, string signature, string? secret)
     {
         if (string.IsNullOrWhiteSpace(secret))
-            return true;
+            return false;
 
         // Stripe signature format: t=timestamp,v1=hash
         string? timestamp = null;
@@ -192,8 +194,8 @@ public sealed class ProcessPaymentWebhookHandler
     {
         if (string.IsNullOrWhiteSpace(secret))
         {
-            _logger.LogDebug("Iyzico webhook secret not configured — sandbox mode");
-            return true;
+            _logger.LogError("Iyzico webhook REJECTED — no secret configured");
+            return false;
         }
 
         using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret));

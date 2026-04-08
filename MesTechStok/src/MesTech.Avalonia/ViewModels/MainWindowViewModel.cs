@@ -74,7 +74,7 @@ public partial class MainWindowViewModel : ViewModelBase, INavigationService
     }
 
     [RelayCommand]
-    private async Task NavigateTo(string viewName)
+    private Task NavigateTo(string viewName)
     {
         var resolved = _viewModelFactory.Create(viewName);
         if (resolved is not null)
@@ -82,12 +82,8 @@ public partial class MainWindowViewModel : ViewModelBase, INavigationService
             (CurrentView as IDisposable)?.Dispose();
             CurrentView = resolved;
             SelectedMenuItem = viewName;
-            // G040 FIX: Trigger data loading for the new view
-            if (resolved is ViewModelBase vmBase)
-            {
-                try { await vmBase.LoadAsync(); }
-                catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[WARNING] {viewName}.LoadAsync failed: {ex.Message}"); }
-            }
+            // BaseView.OnAttachedToVisualTree → InitializeAsync → LoadAsync otomatik çağrılır.
+            // Burada tekrar çağırmak çift yükleme (2x DB sorgusu) yapıyordu — kaldırıldı.
         }
 
         CurrentViewTitle = viewName switch
@@ -198,7 +194,7 @@ public partial class MainWindowViewModel : ViewModelBase, INavigationService
             "NotificationSettings" => "Bildirim Ayarlari",
             "ReportDashboard" => "Rapor Merkezi",
             "AuditLog" => "Denetim Kayitlari",
-            "ProductDescriptionAI" => "AI Urun Aciklama",
+            "ProductDescriptionAI" => "AI Ürün Açıklama",
             "Backup" => "Yedekleme",
             "Buybox" => "Buybox Analizi",
             "ImportProducts" => "Urun Iceaktar",
@@ -245,6 +241,13 @@ public partial class MainWindowViewModel : ViewModelBase, INavigationService
             "DropshipDashboard" => "Dropshipping Paneli",
             "DropshipOrders" => "Dropship Siparisler",
             "DropshipProfit" => "Dropship Karlilik",
+            "DropshippingPool" => "Dropship Havuz",
+            "Cheque" => "Cek/Senet Takip",
+            "CommissionCompare" => "Komisyon Karsilastirma",
+            "Customer360" => "360° Musteri",
+            "CashRegister" => "Kasa Yonetimi",
+            "NewOrder" => "Yeni Siparis",
+            "PerformanceDashboard" => "Performans Paneli",
             "ErpAccountMapping" => "ERP Hesap Esleme",
             "ErpDashboard" => "ERP Paneli",
             "FeedCreate" => "Feed Olustur",
@@ -271,6 +274,10 @@ public partial class MainWindowViewModel : ViewModelBase, INavigationService
             "StoreSettings" => "Magaza Ayarlari",
             "StoreWizard" => "Magaza Sihirbazi",
             "SupplierFeeds" => "Tedarikci Feed'leri",
+            // D7-035: Missing sidebar nav titles
+            "Bitrix24" => "Bitrix24 CRM",
+            "CategoryMapping" => "Kategori Eslestirme",
+            "ImportSettings" => "Iceri Aktarma Ayarlari",
             _ => CurrentViewTitle
         };
 
@@ -279,28 +286,30 @@ public partial class MainWindowViewModel : ViewModelBase, INavigationService
         {
             "AppHub" or "Dashboard" or "Welcome" or "Onboarding" => "Ana Sayfa",
             "Products" or "ImportProducts" or "BulkProduct" or "ProductVariantMatrix" or "ProductFetch" or "ProductDescriptionAI" or "Barcode" or "BarcodeScanner" or "BarcodeReader" or "Buybox" => "Urunler",
-            "Orders" or "OrderList" or "OrderDetail" or "OrderKanban" or "StaleOrders" => "Siparisler",
+            "Orders" or "OrderList" or "OrderDetail" or "OrderKanban" or "StaleOrders" or "NewOrder" => "Siparisler",
             "Stock" or "Inventory" or "StockMovement" or "StockPlacement" or "StockLot" or "StockTransfer" or "StockAlert" or "StockUpdate" or "StockTimeline" or "StockValueReport" or "Warehouse" or "WarehouseSummary" or "TransferWizard" => "Stok",
             "Category" or "CategoryMapping" => "Kategoriler",
             "CargoTracking" or "CargoProviders" or "BulkShipment" or "LabelPreview" or "Shipment" or "Cargo" => "Kargo",
             "ReturnList" or "ReturnDetail" => "Iadeler",
             "InvoiceManagement" or "InvoiceList" or "InvoiceCreate" or "BulkInvoice" or "InvoiceProviders" or "InvoiceReport" or "InvoicePdf" or "EInvoice" => "E-Fatura",
-            "ProfitLoss" or "Expenses" or "BankAccounts" or "CariHesaplar" or "Cari" or "NakitAkis" or "CashFlowReport" or "Quotation" or "Billing" or "Budget" or "Settlement" or "SalesAnalytics" or "ProfitabilityReport" => "Finans",
+            "ProfitLoss" or "Expenses" or "BankAccounts" or "CariHesaplar" or "Cari" or "NakitAkis" or "CashFlowReport" or "Quotation" or "Billing" or "Budget" or "Settlement" or "SalesAnalytics" or "ProfitabilityReport" or "Cheque" or "CommissionCompare" or "CashRegister" => "Finans",
             "JournalEntries" or "TrialBalance" or "CommissionRates" or "AccountingDashboard" or "GLTransaction" or "KarZarar" or "GelirGider" or "KarlilikAnalizi" or "KdvRapor" or "Mutabakat" or "Komisyon" or "VergiTakvimi" or "SabitGiderler" or "Bordro" or "FixedAsset" or "FixedExpense" or "Penalty" or "TaxRecord" or "IncomeExpenseDashboard" or "IncomeExpenseList" => "Muhasebe",
             "Trendyol" or "Hepsiburada" or "N11" or "Ciceksepeti" or "Amazon" or "AmazonEu" or "Ebay" or "Ozon" or "Etsy" or "Shopify" or "WooCommerce" or "Zalando" or "PttAvm" or "Pazarama" or "OpenCart" or "Bitrix24" or "Marketplaces" or "PlatformList" or "PlatformSync" or "PlatformSyncStatus" or "PlatformSyncHistory" or "PlatformConnectionTest" or "PlatformMessages" or "SyncStatus" => "Pazaryerleri",
             "Settings" or "CargoSettings" or "ErpSettings" or "InvoiceSettings" or "CrmSettings" or "NotificationSettings" or "StoreSettings" or "StoreDetail" or "StoreWizard" or "StoreManagement" or "ImportSettings" or "FulfillmentSettings" or "MfaSetup" or "MultiTenant" or "Tenant" or "UserManagement" or "Backup" => "Ayarlar",
-            "Contacts" or "Contact" or "Customers" or "Leads" or "Kanban" or "KanbanBoard" or "Deals" or "Pipeline" or "CrmDashboard" or "Campaign" => "CRM",
+            "Contacts" or "Contact" or "Customers" or "Customer360" or "Leads" or "Kanban" or "KanbanBoard" or "Deals" or "Pipeline" or "CrmDashboard" or "Campaign" => "CRM",
             "Employees" or "LeaveRequests" or "Department" or "TimeEntry" or "WorkSchedule" or "WorkTask" or "Projects" => "Insan Kaynaklari",
             "Documents" or "DocumentFolder" or "DocumentManager" or "Export" => "Belgeler",
             "FulfillmentDashboard" or "FulfillmentInbound" or "FulfillmentInventory" => "Fulfillment",
             "ErpDashboard" or "ErpAccountMapping" => "ERP",
-            "DropshipDashboard" or "DropshipOrders" or "DropshipProfit" or "FeedPreview" or "FeedCreate" or "SupplierFeeds" or "Supplier" => "Dropshipping",
+            "DropshipDashboard" or "DropshipOrders" or "DropshipProfit" or "DropshippingPool" or "FeedPreview" or "FeedCreate" or "SupplierFeeds" or "Supplier" => "Dropshipping",
             "Reports" or "Report" or "ReportDashboard" => "Raporlar",
-            "Health" or "LogViewer" or "AuditLog" or "Mesa" or "Notification" => "Sistem",
+            "Health" or "LogViewer" or "AuditLog" or "Mesa" or "Notification" or "PerformanceDashboard" => "Sistem",
             "About" or "Login" or "Activity" or "Calendar" => "Genel",
             _ => "Diger"
         };
         Breadcrumb = category == "Ana Sayfa" ? "Ana Sayfa" : $"Ana Sayfa > {category} > {CurrentViewTitle}";
+
+        return Task.CompletedTask;
     }
 
     // INavigationService implementation — delegates to existing NavigateTo

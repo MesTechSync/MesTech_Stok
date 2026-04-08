@@ -2,6 +2,8 @@
 using MesTech.Application.Interfaces.Accounting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Polly;
+using Polly.CircuitBreaker;
 
 namespace MesTech.Infrastructure.AI.Accounting;
 
@@ -14,9 +16,9 @@ namespace MesTech.Infrastructure.AI.Accounting;
 public sealed class RealMesaAccountingClient : IMesaAccountingService
 {
     private readonly HttpClient _httpClient;
-    private readonly IConfiguration _configuration;
     private readonly MockMesaAccountingService _mockFallback;
     private readonly ILogger<RealMesaAccountingClient> _logger;
+    private readonly AsyncCircuitBreakerPolicy _circuitBreaker;
 
     public RealMesaAccountingClient(
         HttpClient httpClient,
@@ -25,13 +27,27 @@ public sealed class RealMesaAccountingClient : IMesaAccountingService
         ILogger<RealMesaAccountingClient> logger)
     {
         _httpClient = httpClient;
-        _configuration = configuration;
         _mockFallback = mockFallback;
         _logger = logger;
 
-        var baseUrl = _configuration["Mesa:Accounting:BaseUrl"] ?? "http://localhost:3101";
+        var baseUrl = configuration["Mesa:Accounting:BaseUrl"] ?? "http://localhost:3101";
         _httpClient.BaseAddress = new Uri(baseUrl);
-        _httpClient.Timeout = TimeSpan.FromSeconds(_configuration.GetValue<int>("Mesa:Accounting:TimeoutSeconds", 30));
+        _httpClient.Timeout = TimeSpan.FromSeconds(configuration.GetValue<int>("Mesa:Accounting:TimeoutSeconds", 30));
+
+        _circuitBreaker = Policy
+            .Handle<HttpRequestException>()
+            .Or<TaskCanceledException>()
+            .Or<OperationCanceledException>()
+            .CircuitBreakerAsync(
+                exceptionsAllowedBeforeBreaking: 3,
+                durationOfBreak: TimeSpan.FromSeconds(45),
+                onBreak: (ex, ts) => { MesaMetrics.RecordCircuitState("mesa_accounting", 2); _logger.LogWarning(
+                    "[MESA Accounting] Circuit OPEN — {Duration}s. Error: {Error}",
+                    ts.TotalSeconds, ex.Message); },
+                onReset: () => { MesaMetrics.RecordCircuitState("mesa_accounting", 0); _logger.LogInformation(
+                    "[MESA Accounting] Circuit CLOSED — baglanti yeniden aktif"); },
+                onHalfOpen: () => { MesaMetrics.RecordCircuitState("mesa_accounting", 1); _logger.LogInformation(
+                    "[MESA Accounting] Circuit HALF-OPEN — test cagrisi yapiliyor"); });
     }
 
     public async Task<DocumentClassification> ClassifyDocumentAsync(
@@ -39,37 +55,49 @@ public sealed class RealMesaAccountingClient : IMesaAccountingService
     {
         try
         {
-            using var content = new MultipartFormDataContent();
-            content.Add(new ByteArrayContent(fileData), "file", "document");
-            content.Add(new StringContent(mimeType), "mimeType");
-
-            var response = await _httpClient.PostAsync("/api/v1/accounting/classify", content, ct);
-            if (!response.IsSuccessStatusCode)
+            return await _circuitBreaker.ExecuteAsync(async () =>
             {
-                _logger.LogWarning(
-                    "[MESA Real] Classify failed: {StatusCode}", response.StatusCode);
-                return await _mockFallback.ClassifyDocumentAsync(fileData, mimeType, ct);
-            }
+                using var content = new MultipartFormDataContent();
+                content.Add(new ByteArrayContent(fileData), "file", "document");
+                content.Add(new StringContent(mimeType), "mimeType");
 
-            var result = await response.Content.ReadFromJsonAsync<MesaClassifyResponse>(
-                cancellationToken: ct);
+                using var response = await _httpClient.PostAsync("/api/v1/accounting/classify", content, ct).ConfigureAwait(false);
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning(
+                        "[MESA Real] Classify failed: {StatusCode}", response.StatusCode);
+                    return await _mockFallback.ClassifyDocumentAsync(fileData, mimeType, ct).ConfigureAwait(false);
+                }
 
-            if (result is null)
-            {
-                _logger.LogWarning("[MESA Real] Classify response deserialization failed");
-                return await _mockFallback.ClassifyDocumentAsync(fileData, mimeType, ct);
-            }
+                var result = await response.Content.ReadFromJsonAsync<MesaClassifyResponse>(
+                    cancellationToken: ct).ConfigureAwait(false);
 
-            _logger.LogInformation(
-                "[MESA Real] Classify basarili: tip={DocumentType}, guven={Confidence:P0}",
-                result.Type, result.Confidence);
+                if (result is null)
+                {
+                    _logger.LogWarning("[MESA Real] Classify response deserialization failed");
+                    return await _mockFallback.ClassifyDocumentAsync(fileData, mimeType, ct).ConfigureAwait(false);
+                }
 
-            return new DocumentClassification(result.Type, result.Confidence, result.RawText ?? "");
+                var confidence = Math.Clamp(result.Confidence, 0m, 1m);
+                if (confidence != result.Confidence)
+                {
+                    _logger.LogWarning(
+                        "[MESA Real] Classify confidence out of range: {Raw} → clamped to {Clamped}",
+                        result.Confidence, confidence);
+                }
+
+                _logger.LogInformation(
+                    "[MESA Real] Classify basarili: tip={DocumentType}, guven={Confidence:P0}",
+                    result.Type, confidence);
+
+                return new DocumentClassification(result.Type, confidence, result.RawText ?? "");
+            }).ConfigureAwait(false);
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
+                                       or OperationCanceledException or BrokenCircuitException)
         {
             _logger.LogError(ex, "[MESA Real] MESA OS unreachable, falling back to mock (classify)");
-            return await _mockFallback.ClassifyDocumentAsync(fileData, mimeType, ct);
+            return await _mockFallback.ClassifyDocumentAsync(fileData, mimeType, ct).ConfigureAwait(false);
         }
     }
 
@@ -78,45 +106,49 @@ public sealed class RealMesaAccountingClient : IMesaAccountingService
     {
         try
         {
-            using var content = new MultipartFormDataContent();
-            content.Add(new ByteArrayContent(fileData), "file", "document");
-            content.Add(new StringContent(classification.DocumentType), "documentType");
-            content.Add(new StringContent(classification.Confidence.ToString("F2",
-                System.Globalization.CultureInfo.InvariantCulture)), "confidence");
-
-            var response = await _httpClient.PostAsync("/api/v1/accounting/extract", content, ct);
-            if (!response.IsSuccessStatusCode)
+            return await _circuitBreaker.ExecuteAsync(async () =>
             {
-                _logger.LogWarning(
-                    "[MESA Real] Extract failed: {StatusCode}", response.StatusCode);
-                return await _mockFallback.ExtractDataAsync(fileData, classification, ct);
-            }
+                using var content = new MultipartFormDataContent();
+                content.Add(new ByteArrayContent(fileData), "file", "document");
+                content.Add(new StringContent(classification.DocumentType), "documentType");
+                content.Add(new StringContent(classification.Confidence.ToString("F2",
+                    System.Globalization.CultureInfo.InvariantCulture)), "confidence");
 
-            var result = await response.Content.ReadFromJsonAsync<MesaExtractResponse>(
-                cancellationToken: ct);
+                using var response = await _httpClient.PostAsync("/api/v1/accounting/extract", content, ct).ConfigureAwait(false);
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning(
+                        "[MESA Real] Extract failed: {StatusCode}", response.StatusCode);
+                    return await _mockFallback.ExtractDataAsync(fileData, classification, ct).ConfigureAwait(false);
+                }
 
-            if (result is null)
-            {
-                _logger.LogWarning("[MESA Real] Extract response deserialization failed");
-                return await _mockFallback.ExtractDataAsync(fileData, classification, ct);
-            }
+                var result = await response.Content.ReadFromJsonAsync<MesaExtractResponse>(
+                    cancellationToken: ct).ConfigureAwait(false);
 
-            _logger.LogInformation(
-                "[MESA Real] Extract basarili: tutar={Amount}, firma={Counterparty}",
-                result.Amount, result.CounterpartyName ?? "-");
+                if (result is null)
+                {
+                    _logger.LogWarning("[MESA Real] Extract response deserialization failed");
+                    return await _mockFallback.ExtractDataAsync(fileData, classification, ct).ConfigureAwait(false);
+                }
 
-            return new DocumentExtraction(
-                result.Amount,
-                result.TaxAmount,
-                result.CounterpartyName,
-                result.VKN,
-                result.Date,
-                result.ExtraFields ?? new Dictionary<string, string>());
+                _logger.LogInformation(
+                    "[MESA Real] Extract basarili: tutar={Amount}, firma={Counterparty}",
+                    result.Amount, result.CounterpartyName ?? "-");
+
+                return new DocumentExtraction(
+                    result.Amount,
+                    result.TaxAmount,
+                    result.CounterpartyName,
+                    result.VKN,
+                    result.Date,
+                    result.ExtraFields ?? new Dictionary<string, string>());
+            }).ConfigureAwait(false);
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
+                                       or OperationCanceledException or BrokenCircuitException)
         {
             _logger.LogError(ex, "[MESA Real] MESA OS unreachable, falling back to mock (extract)");
-            return await _mockFallback.ExtractDataAsync(fileData, classification, ct);
+            return await _mockFallback.ExtractDataAsync(fileData, classification, ct).ConfigureAwait(false);
         }
     }
 
@@ -126,48 +158,60 @@ public sealed class RealMesaAccountingClient : IMesaAccountingService
     {
         try
         {
-            var payload = new
+            return await _circuitBreaker.ExecuteAsync(async () =>
             {
-                settlementBatchId,
-                candidateBankTransactionIds
-            };
+                var payload = new
+                {
+                    settlementBatchId,
+                    candidateBankTransactionIds
+                };
 
-            var response = await _httpClient.PostAsJsonAsync(
-                "/api/v1/accounting/reconcile/suggest", payload, ct);
+                using var response = await _httpClient.PostAsJsonAsync(
+                    "/api/v1/accounting/reconcile/suggest", payload, ct).ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode)
-            {
-                _logger.LogWarning(
-                    "[MESA Real] Reconciliation suggest failed: {StatusCode}", response.StatusCode);
-                return await _mockFallback.SuggestReconciliationAsync(
-                    settlementBatchId, candidateBankTransactionIds, ct);
-            }
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning(
+                        "[MESA Real] Reconciliation suggest failed: {StatusCode}", response.StatusCode);
+                    return await _mockFallback.SuggestReconciliationAsync(
+                        settlementBatchId, candidateBankTransactionIds, ct).ConfigureAwait(false);
+                }
 
-            var result = await response.Content.ReadFromJsonAsync<MesaReconciliationResponse>(
-                cancellationToken: ct);
+                var result = await response.Content.ReadFromJsonAsync<MesaReconciliationResponse>(
+                    cancellationToken: ct).ConfigureAwait(false);
 
-            if (result is null)
-            {
-                _logger.LogWarning("[MESA Real] Reconciliation response deserialization failed");
-                return await _mockFallback.SuggestReconciliationAsync(
-                    settlementBatchId, candidateBankTransactionIds, ct);
-            }
+                if (result is null)
+                {
+                    _logger.LogWarning("[MESA Real] Reconciliation response deserialization failed");
+                    return await _mockFallback.SuggestReconciliationAsync(
+                        settlementBatchId, candidateBankTransactionIds, ct).ConfigureAwait(false);
+                }
 
-            _logger.LogInformation(
-                "[MESA Real] Reconciliation basarili: batch={BatchId}, tx={TxId}, guven={Confidence:P0}",
-                result.SettlementBatchId, result.BankTransactionId, result.Confidence);
+                var confidence = Math.Clamp(result.Confidence, 0m, 1m);
+                if (confidence != result.Confidence)
+                {
+                    _logger.LogWarning(
+                        "[MESA Real] Reconciliation confidence out of range: {Raw} → clamped to {Clamped}",
+                        result.Confidence, confidence);
+                }
 
-            return new ReconciliationSuggestion(
-                result.SettlementBatchId,
-                result.BankTransactionId,
-                result.Confidence,
-                result.Reason ?? "MESA AI match");
+                _logger.LogInformation(
+                    "[MESA Real] Reconciliation basarili: batch={BatchId}, tx={TxId}, guven={Confidence:P0}",
+                    result.SettlementBatchId, result.BankTransactionId, confidence);
+
+                return new ReconciliationSuggestion(
+                    result.SettlementBatchId,
+                    result.BankTransactionId,
+                    confidence,
+                    result.Reason ?? "MESA AI match");
+            }).ConfigureAwait(false);
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException
+                                       or OperationCanceledException or BrokenCircuitException)
         {
             _logger.LogError(ex, "[MESA Real] MESA OS unreachable, falling back to mock (reconcile)");
             return await _mockFallback.SuggestReconciliationAsync(
-                settlementBatchId, candidateBankTransactionIds, ct);
+                settlementBatchId, candidateBankTransactionIds, ct).ConfigureAwait(false);
         }
     }
 }

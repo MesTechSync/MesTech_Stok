@@ -38,6 +38,7 @@ public class AutoCompetePriceHandlerBatchTests
             _buyboxMock.Object,
             _adapterFactoryMock.Object,
             _productRepoMock.Object,
+            Mock.Of<IUnitOfWork>(),
             Mock.Of<ILogger<AutoCompetePriceHandler>>());
     }
 
@@ -45,7 +46,7 @@ public class AutoCompetePriceHandlerBatchTests
     public async Task Handle_ProductNotFound_ReturnsFailure()
     {
         var productId = Guid.NewGuid();
-        _productRepoMock.Setup(r => r.GetByIdAsync(productId))
+        _productRepoMock.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Product?)null);
 
         var cmd = new AutoCompetePriceCommand(Guid.NewGuid(), productId, "trendyol", 10m);
@@ -54,7 +55,7 @@ public class AutoCompetePriceHandlerBatchTests
 
         result.IsSuccess.Should().BeFalse();
         result.ErrorMessage.Should().Contain("bulunamad");
-        _productRepoMock.Verify(r => r.GetByIdAsync(productId), Times.Once);
+        _productRepoMock.Verify(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>()), Times.Once);
     }
 }
 
@@ -120,7 +121,7 @@ public class SaveProductVariantsHandlerBatchTests
     public async Task Handle_ProductNotFound_ReturnsFailure()
     {
         var productId = Guid.NewGuid();
-        _productRepoMock.Setup(r => r.GetByIdAsync(productId))
+        _productRepoMock.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Product?)null);
 
         var cmd = new SaveProductVariantsCommand(Guid.NewGuid(), productId, new List<ProductVariantInput>());
@@ -129,7 +130,7 @@ public class SaveProductVariantsHandlerBatchTests
 
         result.IsSuccess.Should().BeFalse();
         result.ErrorMessage.Should().Contain("bulunamadi");
-        _productRepoMock.Verify(r => r.GetByIdAsync(productId), Times.Once);
+        _productRepoMock.Verify(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>()), Times.Once);
     }
 }
 
@@ -216,7 +217,7 @@ public class GetBuyboxStatusHandlerBatchTests
     public async Task Handle_ProductNotFound_ReturnsRecommendation()
     {
         var productId = Guid.NewGuid();
-        _productRepoMock.Setup(r => r.GetByIdAsync(productId))
+        _productRepoMock.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Product?)null);
 
         var query = new GetBuyboxStatusQuery(Guid.NewGuid(), productId);
@@ -225,7 +226,7 @@ public class GetBuyboxStatusHandlerBatchTests
 
         result.ProductId.Should().Be(productId);
         result.Recommendation.Should().Contain("bulunamadi");
-        _productRepoMock.Verify(r => r.GetByIdAsync(productId), Times.Once);
+        _productRepoMock.Verify(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>()), Times.Once);
     }
 }
 
@@ -282,7 +283,7 @@ public class GetProductsHandlerBatchTests
     [Fact]
     public async Task Handle_NoProducts_ReturnsEmptyPage()
     {
-        _productRepoMock.Setup(r => r.GetAllAsync(default))
+        _productRepoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Product>().AsReadOnly());
 
         var query = new GetProductsQuery(Guid.NewGuid());
@@ -291,7 +292,7 @@ public class GetProductsHandlerBatchTests
 
         result.Items.Should().BeEmpty();
         result.TotalCount.Should().Be(0);
-        _productRepoMock.Verify(r => r.GetAllAsync(default), Times.Once);
+        _productRepoMock.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }
 

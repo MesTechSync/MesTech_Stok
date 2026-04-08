@@ -1,5 +1,6 @@
 using MesTech.Domain.Common;
 using MesTech.Domain.Enums;
+using MesTech.Domain.Events;
 
 namespace MesTech.Domain.Entities;
 
@@ -20,10 +21,35 @@ public sealed class CariHesap : BaseEntity, ITenantEntity
     private readonly List<CariHareket> _hareketler = new();
     public IReadOnlyCollection<CariHareket> Hareketler => _hareketler.AsReadOnly();
 
+    public static CariHesap Create(Guid tenantId, string name, CariHesapType type, string? taxNumber = null)
+    {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("TenantId cannot be empty.", nameof(tenantId));
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+
+        var entity = new CariHesap
+        {
+            Id = Guid.NewGuid(),
+            TenantId = tenantId,
+            Name = name,
+            Type = type,
+            TaxNumber = taxNumber,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        entity.RaiseDomainEvent(new CariHesapCreatedEvent(
+            entity.Id, tenantId, name, type, DateTime.UtcNow));
+
+        return entity;
+    }
+
     public void AddHareket(CariHareket hareket)
     {
         ArgumentNullException.ThrowIfNull(hareket);
         _hareketler.Add(hareket);
+
+        RaiseDomainEvent(new CariHareketRecordedEvent(
+            hareket.Id, Id, TenantId, hareket.Amount, hareket.Direction, DateTime.UtcNow));
     }
 
     /// <summary>

@@ -17,7 +17,7 @@ public sealed class UpdateCariHesapHandler : IRequestHandler<UpdateCariHesapComm
     public async Task<bool> Handle(UpdateCariHesapCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var cariHesap = await _cariHesapRepository.GetByIdAsync(request.Id).ConfigureAwait(false);
+        var cariHesap = await _cariHesapRepository.GetByIdAsync(request.Id, cancellationToken).ConfigureAwait(false);
         if (cariHesap is null)
             return false;
 
@@ -28,7 +28,7 @@ public sealed class UpdateCariHesapHandler : IRequestHandler<UpdateCariHesapComm
         cariHesap.Email = request.Email;
         cariHesap.Address = request.Address;
 
-        await _cariHesapRepository.UpdateAsync(cariHesap).ConfigureAwait(false);
+        await _cariHesapRepository.UpdateAsync(cariHesap, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return true;

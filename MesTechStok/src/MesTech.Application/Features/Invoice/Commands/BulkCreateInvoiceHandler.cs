@@ -57,7 +57,7 @@ public sealed class BulkCreateInvoiceHandler : IRequestHandler<BulkCreateInvoice
                 var invoice = Domain.Entities.Invoice.CreateForOrder(order, InvoiceType.EArsiv, invoiceNumber);
                 invoice.Provider = request.Provider;
 
-                await _invoiceRepository.AddAsync(invoice).ConfigureAwait(false);
+                await _invoiceRepository.AddAsync(invoice, cancellationToken).ConfigureAwait(false);
 
                 results.Add(new BulkInvoiceItemResultDto(
                     OrderId: orderId,

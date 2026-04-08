@@ -42,7 +42,7 @@ public class CariCommandHandlerTests
         _cariHesapRepo.Verify(r => r.AddAsync(It.Is<CariHesap>(h =>
             h.TenantId == tenantId &&
             h.Name == "Acme Ltd" &&
-            h.Type == CariHesapType.Musteri)), Times.Once);
+            h.Type == CariHesapType.Musteri), It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -55,8 +55,8 @@ public class CariCommandHandlerTests
 
         CariHesap? captured = null;
         _cariHesapRepo
-            .Setup(r => r.AddAsync(It.IsAny<CariHesap>()))
-            .Callback<CariHesap>(h => captured = h);
+            .Setup(r => r.AddAsync(It.IsAny<CariHesap>(), It.IsAny<CancellationToken>()))
+            .Callback<CariHesap, CancellationToken>((h, _) => captured = h);
 
         await HesapCreateHandler().Handle(command, CancellationToken.None);
 
@@ -75,7 +75,7 @@ public class CariCommandHandlerTests
             Name = "Eski Ad",
             Type = CariHesapType.Musteri
         };
-        _cariHesapRepo.Setup(r => r.GetByIdAsync(existing.Id)).ReturnsAsync(existing);
+        _cariHesapRepo.Setup(r => r.GetByIdAsync(existing.Id, It.IsAny<CancellationToken>())).ReturnsAsync(existing);
 
         var command = new UpdateCariHesapCommand(
             existing.Id, "Yeni Ad", "9876543210",
@@ -87,14 +87,14 @@ public class CariCommandHandlerTests
         existing.Name.Should().Be("Yeni Ad");
         existing.Type.Should().Be(CariHesapType.Tedarikci);
         existing.TaxNumber.Should().Be("9876543210");
-        _cariHesapRepo.Verify(r => r.UpdateAsync(existing), Times.Once);
+        _cariHesapRepo.Verify(r => r.UpdateAsync(existing, It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
     public async Task UpdateCariHesap_NotFound_ReturnsFalseAndSkipsSave()
     {
-        _cariHesapRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+        _cariHesapRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((CariHesap?)null);
 
         var command = new UpdateCariHesapCommand(
@@ -104,7 +104,7 @@ public class CariCommandHandlerTests
         var result = await HesapUpdateHandler().Handle(command, CancellationToken.None);
 
         result.Should().BeFalse();
-        _cariHesapRepo.Verify(r => r.UpdateAsync(It.IsAny<CariHesap>()), Times.Never);
+        _cariHesapRepo.Verify(r => r.UpdateAsync(It.IsAny<CariHesap>(), It.IsAny<CancellationToken>()), Times.Never);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -132,7 +132,7 @@ public class CariCommandHandlerTests
             h.TenantId == tenantId &&
             h.CariHesapId == hesapId &&
             h.Amount == 750m &&
-            h.Direction == CariDirection.Borc)), Times.Once);
+            h.Direction == CariDirection.Borc), It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -147,8 +147,8 @@ public class CariCommandHandlerTests
 
         CariHareket? captured = null;
         _cariHareketRepo
-            .Setup(r => r.AddAsync(It.IsAny<CariHareket>()))
-            .Callback<CariHareket>(h => captured = h);
+            .Setup(r => r.AddAsync(It.IsAny<CariHareket>(), It.IsAny<CancellationToken>()))
+            .Callback<CariHareket, CancellationToken>((h, _) => captured = h);
 
         await HareketHandler().Handle(command, CancellationToken.None);
 

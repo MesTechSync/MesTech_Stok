@@ -13,7 +13,7 @@ public sealed class UpdateIncomeHandler : IRequestHandler<UpdateIncomeCommand>
 
     public async Task Handle(UpdateIncomeCommand request, CancellationToken cancellationToken)
     {
-        var income = await _repository.GetByIdAsync(request.Id)
+        var income = await _repository.GetByIdAsync(request.Id, cancellationToken)
             ?? throw new KeyNotFoundException($"Income {request.Id} not found.");
 
         if (request.Description is not null) income.Description = request.Description;
@@ -21,7 +21,7 @@ public sealed class UpdateIncomeHandler : IRequestHandler<UpdateIncomeCommand>
         if (request.IncomeType.HasValue) income.IncomeType = request.IncomeType.Value;
         if (request.Note is not null) income.Note = request.Note;
 
-        await _repository.UpdateAsync(income).ConfigureAwait(false);
+        await _repository.UpdateAsync(income, cancellationToken).ConfigureAwait(false);
         await _uow.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 }

@@ -10,6 +10,8 @@ using MesTech.Domain.Exceptions;
 using MesTech.Domain.Interfaces;
 using MesTech.Domain.Services;
 using MesTech.Tests.Unit._Shared;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace MesTech.Tests.Unit.Application;
@@ -28,9 +30,10 @@ public class PlaceOrderEdgeCaseTests
     private readonly Mock<IProductRepository> _productRepo = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly StockCalculationService _stockCalc = new();
+    private readonly Mock<ITenantProvider> _tenantProvider = new();
 
     private PlaceOrderHandler CreateHandler() =>
-        new(_orderRepo.Object, _productRepo.Object, _unitOfWork.Object, _stockCalc);
+        new(_orderRepo.Object, _productRepo.Object, _unitOfWork.Object, _stockCalc, _tenantProvider.Object);
 
     [Fact]
     public async Task Handle_NullRequest_ThrowsArgumentNullException()
@@ -57,7 +60,7 @@ public class PlaceOrderEdgeCaseTests
 
         result.IsSuccess.Should().BeTrue();
         result.OrderNumber.Should().StartWith("ORD-");
-        _orderRepo.Verify(r => r.AddAsync(It.IsAny<Order>()), Times.Once);
+        _orderRepo.Verify(r => r.AddAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -83,7 +86,7 @@ public class PlaceOrderEdgeCaseTests
 
         result.IsSuccess.Should().BeFalse();
         result.ErrorMessage.Should().Contain(product2Id.ToString());
-        _orderRepo.Verify(r => r.AddAsync(It.IsAny<Order>()), Times.Never);
+        _orderRepo.Verify(r => r.AddAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -115,8 +118,8 @@ public class PlaceOrderEdgeCaseTests
         _unitOfWork.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
         Order? capturedOrder = null;
-        _orderRepo.Setup(r => r.AddAsync(It.IsAny<Order>()))
-            .Callback<Order>(o => capturedOrder = o);
+        _orderRepo.Setup(r => r.AddAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()))
+            .Callback<Order, CancellationToken>((o, _) => capturedOrder = o);
 
         var command = new PlaceOrderCommand(
             customerId, "Ahmet Kaya", "ahmet@test.com", "Acil siparis",
@@ -148,7 +151,7 @@ public class PlaceOrderEdgeCaseTests
         var result = await handler.Handle(command, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
-        product.Stock.Should().Be(40); // 50 - 10
+        product.Stock.Should().Be(50, "Stock deduction is now handled by OrderPlacedStockDeductionHandler (Z1 chain), not PlaceOrderHandler");
     }
 
     [Fact]
@@ -160,8 +163,8 @@ public class PlaceOrderEdgeCaseTests
         _unitOfWork.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
         Order? capturedOrder = null;
-        _orderRepo.Setup(r => r.AddAsync(It.IsAny<Order>()))
-            .Callback<Order>(o => capturedOrder = o);
+        _orderRepo.Setup(r => r.AddAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()))
+            .Callback<Order, CancellationToken>((o, _) => capturedOrder = o);
 
         var command = new PlaceOrderCommand(
             Guid.NewGuid(), "Test", null, null,
@@ -179,7 +182,7 @@ public class PlaceOrderEdgeCaseTests
     public void PlaceOrderHandler_NullStockCalc_ThrowsArgumentNullException()
     {
         var act = () => new PlaceOrderHandler(
-            _orderRepo.Object, _productRepo.Object, _unitOfWork.Object, null!);
+            _orderRepo.Object, _productRepo.Object, _unitOfWork.Object, null!, _tenantProvider.Object);
         act.Should().Throw<ArgumentNullException>().WithParameterName("stockCalculation");
     }
 }
@@ -192,9 +195,18 @@ public class RemoveStockEdgeCaseTests
     private readonly Mock<IStockMovementRepository> _movementRepo = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly StockCalculationService _stockCalc = new();
+    private readonly Mock<ITenantProvider> _tenantProvider = new();
+    private readonly Mock<IDistributedLockService> _lockService = new();
+
+    public RemoveStockEdgeCaseTests()
+    {
+        _lockService.Setup(l => l.AcquireLockAsync(
+                It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<IAsyncDisposable>());
+    }
 
     private RemoveStockHandler CreateHandler() =>
-        new(_productRepo.Object, _movementRepo.Object, _unitOfWork.Object, _stockCalc);
+        new(_productRepo.Object, _movementRepo.Object, _unitOfWork.Object, _lockService.Object, _stockCalc, _tenantProvider.Object, NullLogger<RemoveStockHandler>.Instance);
 
     [Fact]
     public async Task Handle_NullRequest_ThrowsArgumentNullException()
@@ -208,7 +220,7 @@ public class RemoveStockEdgeCaseTests
     public async Task Handle_ValidRemoval_RaisesDomainEvent()
     {
         var product = FakeData.CreateProduct(sku: "EVT-RM", stock: 20, salePrice: 100m);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
         _unitOfWork.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
         var handler = CreateHandler();
@@ -223,12 +235,12 @@ public class RemoveStockEdgeCaseTests
     public async Task Handle_MovementCreated_HasCorrectFields()
     {
         var product = FakeData.CreateProduct(sku: "MVT-CHK", stock: 30, salePrice: 50m);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
         _unitOfWork.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
         StockMovement? captured = null;
-        _movementRepo.Setup(r => r.AddAsync(It.IsAny<StockMovement>()))
-            .Callback<StockMovement>(m => captured = m);
+        _movementRepo.Setup(r => r.AddAsync(It.IsAny<StockMovement>(), It.IsAny<CancellationToken>()))
+            .Callback<StockMovement, CancellationToken>((m, _) => captured = m);
 
         var handler = CreateHandler();
         var command = new RemoveStockCommand(product.Id, 10, "Defective batch", "DOC-001");
@@ -247,7 +259,7 @@ public class RemoveStockEdgeCaseTests
     public async Task Handle_ExactStockRemoval_ResultsInZeroStock()
     {
         var product = FakeData.CreateProduct(sku: "EXACT-RM", stock: 15, salePrice: 100m);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
         _unitOfWork.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
         var handler = CreateHandler();
@@ -263,7 +275,7 @@ public class RemoveStockEdgeCaseTests
     public async Task Handle_InsufficientStock_ReturnsError_DoesNotSave()
     {
         var product = FakeData.CreateProduct(sku: "INS-RM", stock: 5, salePrice: 100m);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var handler = CreateHandler();
         var result = await handler.Handle(
@@ -272,14 +284,14 @@ public class RemoveStockEdgeCaseTests
         result.IsSuccess.Should().BeFalse();
         result.ErrorMessage.Should().NotBeNullOrEmpty();
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
-        _movementRepo.Verify(r => r.AddAsync(It.IsAny<StockMovement>()), Times.Never);
+        _movementRepo.Verify(r => r.AddAsync(It.IsAny<StockMovement>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
     public void RemoveStockHandler_NullProductRepo_ThrowsArgumentNullException()
     {
         var act = () => new RemoveStockHandler(
-            null!, _movementRepo.Object, _unitOfWork.Object, _stockCalc);
+            null!, _movementRepo.Object, _unitOfWork.Object, _lockService.Object, _stockCalc, _tenantProvider.Object, NullLogger<RemoveStockHandler>.Instance);
         act.Should().Throw<ArgumentNullException>().WithParameterName("productRepository");
     }
 
@@ -287,7 +299,7 @@ public class RemoveStockEdgeCaseTests
     public void RemoveStockHandler_NullStockCalc_ThrowsArgumentNullException()
     {
         var act = () => new RemoveStockHandler(
-            _productRepo.Object, _movementRepo.Object, _unitOfWork.Object, null!);
+            _productRepo.Object, _movementRepo.Object, _unitOfWork.Object, _lockService.Object, null!, _tenantProvider.Object, NullLogger<RemoveStockHandler>.Instance);
         act.Should().Throw<ArgumentNullException>().WithParameterName("stockCalc");
     }
 }

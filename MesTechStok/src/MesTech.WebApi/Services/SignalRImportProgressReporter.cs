@@ -22,11 +22,17 @@ public sealed class SignalRImportProgressReporter : IImportProgressReporter
         int processedRows,
         int totalRows,
         int errorCount,
+        Guid? tenantId = null,
         CancellationToken ct = default)
     {
         var percentage = totalRows > 0 ? (int)(processedRows * 100.0 / totalRows) : 0;
+        // G133 FIX: tenant-scoped group prevents cross-tenant progress snooping.
+        // Clients MUST join via JoinImportGroup (which validates tenant claim).
+        var groupName = tenantId.HasValue
+            ? $"import-{tenantId.Value}-{importId}"
+            : $"import-{importId}";
 
-        await _hubContext.Clients.Group($"import-{importId}")
+        await _hubContext.Clients.Group(groupName)
             .SendAsync("ImportProgress", new
             {
                 ImportId = importId,
@@ -34,7 +40,7 @@ public sealed class SignalRImportProgressReporter : IImportProgressReporter
                 TotalRows = totalRows,
                 Percentage = percentage,
                 Errors = errorCount
-            }, ct);
+            }, ct).ConfigureAwait(false);
     }
 
     public async Task ReportCompletedAsync(
@@ -43,9 +49,14 @@ public sealed class SignalRImportProgressReporter : IImportProgressReporter
         int importedCount,
         int errorCount,
         TimeSpan duration,
+        Guid? tenantId = null,
         CancellationToken ct = default)
     {
-        await _hubContext.Clients.Group($"import-{importId}")
+        var groupName = tenantId.HasValue
+            ? $"import-{tenantId.Value}-{importId}"
+            : $"import-{importId}";
+
+        await _hubContext.Clients.Group(groupName)
             .SendAsync("ImportCompleted", new
             {
                 ImportId = importId,
@@ -53,6 +64,6 @@ public sealed class SignalRImportProgressReporter : IImportProgressReporter
                 ImportedCount = importedCount,
                 Errors = errorCount,
                 DurationMs = (int)duration.TotalMilliseconds
-            }, ct);
+            }, ct).ConfigureAwait(false);
     }
 }

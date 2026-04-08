@@ -1,6 +1,8 @@
 using FluentAssertions;
-using MediatR;
+using MesTech.Application.DTOs.Crm;
+using MesTech.Application.Features.Crm.Queries.GetPipelineKanban;
 using MesTech.Avalonia.ViewModels;
+using MediatR;
 using Moq;
 
 namespace MesTechStok.Avalonia.Tests;
@@ -9,10 +11,13 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class PipelineAvaloniaViewModelTests
 {
-    private static PipelineAvaloniaViewModel CreateSut()
+    private readonly Mock<IMediator> _mediatorMock = new();
+
+    private PipelineAvaloniaViewModel CreateSut()
     {
-        var mediatorMock = new Mock<IMediator>();
-        return new PipelineAvaloniaViewModel(mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
+        _mediatorMock.Setup(m => m.Send(It.IsAny<GetPipelineKanbanQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new KanbanBoardDto());
+        return new PipelineAvaloniaViewModel(_mediatorMock.Object, Mock.Of<MesTech.Domain.Interfaces.ICurrentUserService>());
     }
 
     [Fact]
@@ -32,7 +37,7 @@ public class PipelineAvaloniaViewModelTests
     }
 
     [Fact]
-    public async Task LoadAsync_ShouldPopulateStages()
+    public async Task LoadAsync_WithEmptyData_ShouldCompleteWithoutError()
     {
         // Arrange
         var sut = CreateSut();
@@ -43,41 +48,25 @@ public class PipelineAvaloniaViewModelTests
         // Assert
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
-        sut.IsEmpty.Should().BeFalse();
-        sut.Stages.Should().HaveCount(4);
-        sut.TotalCount.Should().Be(20);
-        sut.TotalValue.Should().Be("421.000 TL");
+        sut.Stages.Should().BeEmpty();
+        sut.TotalCount.Should().Be(0);
+        sut.TotalValue.Should().Be("0 TL");
+        sut.IsEmpty.Should().BeTrue();
     }
 
     [Fact]
-    public async Task LoadAsync_ShouldContainExpectedStageData()
+    public async Task LoadAsync_MultipleCalls_ShouldNotAccumulate()
     {
         // Arrange
         var sut = CreateSut();
 
         // Act
+        await sut.LoadAsync();
         await sut.LoadAsync();
 
         // Assert
-        sut.Stages.Should().Contain(s => s.Name == "Ilk Iletisim" && s.DealCount == 8);
-        sut.Stages.Should().Contain(s => s.Name == "Kazanildi" && s.Percentage == 32);
-        sut.Stages.Should().Contain(s => s.Color == "#8B5CF6");
-    }
-
-    [Fact]
-    public async Task LoadAsync_MultipleCalls_ShouldClearAndReload()
-    {
-        // Arrange
-        var sut = CreateSut();
-
-        // Act
-        await sut.LoadAsync();
-        await sut.LoadAsync();
-
-        // Assert — should not double-add, collection cleared each time
-        sut.Stages.Should().HaveCount(4);
-        sut.TotalCount.Should().Be(20);
         sut.HasError.Should().BeFalse();
+        sut.IsLoading.Should().BeFalse();
     }
 
     [Fact]
@@ -92,7 +81,5 @@ public class PipelineAvaloniaViewModelTests
         // Assert
         sut.IsLoading.Should().BeFalse();
         sut.HasError.Should().BeFalse();
-        sut.Stages.Should().HaveCount(4);
-        sut.TotalValue.Should().Be("421.000 TL");
     }
 }

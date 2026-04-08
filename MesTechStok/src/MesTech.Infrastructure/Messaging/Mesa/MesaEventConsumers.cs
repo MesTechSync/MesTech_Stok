@@ -51,6 +51,12 @@ public sealed class MesaAiContentConsumer : IConsumer<MesaAiContentGeneratedEven
             _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
         }
 
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError("[MESA Consumer] TenantId still Guid.Empty after fallback — rejecting. MessageId={MessageId}", context.MessageId);
+            throw new InvalidOperationException("TenantId is Guid.Empty — message rejected to prevent cross-tenant data leak");
+        }
+
         _logger.LogInformation(
             "Processing {Event} — {Id}",
             nameof(MesaAiContentGeneratedEvent), context.MessageId);
@@ -66,7 +72,7 @@ public sealed class MesaAiContentConsumer : IConsumer<MesaAiContentGeneratedEven
                 TenantId = tenantId
             }, ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(MesaAiContentGeneratedEvent));
             throw; // Let MassTransit retry policy handle
@@ -117,6 +123,12 @@ public sealed class MesaAiPriceConsumer : IConsumer<MesaAiPriceRecommendedEvent>
             _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
         }
 
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError("[MESA Consumer] TenantId still Guid.Empty after fallback — rejecting. MessageId={MessageId}", context.MessageId);
+            throw new InvalidOperationException("TenantId is Guid.Empty — message rejected to prevent cross-tenant data leak");
+        }
+
         _logger.LogInformation(
             "Processing {Event} — {Id}",
             nameof(MesaAiPriceRecommendedEvent), context.MessageId);
@@ -134,7 +146,7 @@ public sealed class MesaAiPriceConsumer : IConsumer<MesaAiPriceRecommendedEvent>
                 TenantId = tenantId
             }, ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(MesaAiPriceRecommendedEvent));
             throw; // Let MassTransit retry policy handle
@@ -184,6 +196,12 @@ public sealed class MesaBotStatusConsumer : IConsumer<MesaBotNotificationSentEve
             _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
         }
 
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError("[MESA Consumer] TenantId still Guid.Empty after fallback — rejecting. MessageId={MessageId}", context.MessageId);
+            throw new InvalidOperationException("TenantId is Guid.Empty — message rejected to prevent cross-tenant data leak");
+        }
+
         _logger.LogInformation(
             "Processing {Event} — {Id}",
             nameof(MesaBotNotificationSentEvent), context.MessageId);
@@ -199,7 +217,7 @@ public sealed class MesaBotStatusConsumer : IConsumer<MesaBotNotificationSentEve
                 TenantId = tenantId
             }, ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(MesaBotNotificationSentEvent));
             throw; // Let MassTransit retry policy handle
@@ -248,8 +266,15 @@ public sealed class MesaAiPriceOptimizedConsumer : IConsumer<MesaAiPriceOptimize
         var tenantId = msg.TenantId;
         if (tenantId == Guid.Empty)
         {
+
             tenantId = _tenantProvider.GetCurrentTenantId();
             _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError("[MESA Consumer] TenantId still Guid.Empty after fallback — rejecting. MessageId={MessageId}", context.MessageId);
+            throw new InvalidOperationException("TenantId is Guid.Empty — message rejected to prevent cross-tenant data leak");
         }
 
         _logger.LogInformation(
@@ -271,7 +296,7 @@ public sealed class MesaAiPriceOptimizedConsumer : IConsumer<MesaAiPriceOptimize
                 TenantId = tenantId
             }, ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(MesaAiPriceOptimizedEvent));
             throw; // Let MassTransit retry policy handle
@@ -315,6 +340,12 @@ public sealed class MesaAiStockPredictedConsumer : IConsumer<MesaAiStockPredicte
             _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
         }
 
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError("[MESA Consumer] TenantId still Guid.Empty after fallback — rejecting. MessageId={MessageId}", context.MessageId);
+            throw new InvalidOperationException("TenantId is Guid.Empty — message rejected to prevent cross-tenant data leak");
+        }
+
         _logger.LogInformation(
             "Processing {Event} — {Id}",
             nameof(MesaAiStockPredictedEvent), context.MessageId);
@@ -335,7 +366,7 @@ public sealed class MesaAiStockPredictedConsumer : IConsumer<MesaAiStockPredicte
                 TenantId = tenantId
             }, ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(MesaAiStockPredictedEvent));
             throw; // Let MassTransit retry policy handle
@@ -386,6 +417,12 @@ public sealed class MesaBotInvoiceRequestConsumer : IConsumer<MesaBotInvoiceRequ
             _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
         }
 
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError("[MESA Consumer] TenantId still Guid.Empty after fallback — rejecting. MessageId={MessageId}", context.MessageId);
+            throw new InvalidOperationException("TenantId is Guid.Empty — message rejected to prevent cross-tenant data leak");
+        }
+
         _logger.LogInformation(
             "Processing {Event} — {Id}",
             nameof(MesaBotInvoiceRequestedEvent), context.MessageId);
@@ -400,7 +437,7 @@ public sealed class MesaBotInvoiceRequestConsumer : IConsumer<MesaBotInvoiceRequ
                 TenantId = tenantId
             }, ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(MesaBotInvoiceRequestedEvent));
             throw; // Let MassTransit retry policy handle
@@ -437,11 +474,17 @@ public sealed class MesaBotReturnRequestConsumer : IConsumer<MesaBotReturnReques
     {
         var msg = context.Message;
         var ct = context.CancellationToken;
+
         var tenantId = msg.TenantId;
         if (tenantId == Guid.Empty)
         {
             tenantId = _tenantProvider.GetCurrentTenantId();
             _logger.LogWarning("[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
+        }
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError("[MESA Consumer] TenantId still Guid.Empty after fallback — rejecting. MessageId={MessageId}", context.MessageId);
+            throw new InvalidOperationException("TenantId is Guid.Empty — message rejected to prevent cross-tenant data leak");
         }
 
         _logger.LogInformation(
@@ -459,7 +502,7 @@ public sealed class MesaBotReturnRequestConsumer : IConsumer<MesaBotReturnReques
                 TenantId = tenantId
             }, ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(MesaBotReturnRequestedEvent));
             throw; // Let MassTransit retry policy handle

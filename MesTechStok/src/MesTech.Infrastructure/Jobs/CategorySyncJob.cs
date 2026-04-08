@@ -45,7 +45,7 @@ public sealed class CategorySyncJob : ISyncJob
                 "[{JobId}] Kategori sync tamamlandi: {Count} kategori cache'e yazildi (TTL: 24h)",
                 JobId, categories.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[{JobId}] Kategori sync HATA", JobId);
             throw;

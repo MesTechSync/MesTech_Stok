@@ -35,7 +35,7 @@ public sealed class ZeroStockDetectedEventHandler : IZeroStockEventHandler
             "ZeroStockDetected → ürün pasife alınıyor. ProductId={ProductId}, SKU={SKU}, TenantId={TenantId}",
             productId, sku, tenantId);
 
-        var product = await _productRepo.GetByIdAsync(productId).ConfigureAwait(false);
+        var product = await _productRepo.GetByIdAsync(productId, ct).ConfigureAwait(false);
         if (product is null)
         {
             _logger.LogError(

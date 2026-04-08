@@ -1,4 +1,5 @@
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Settings;
 using MediatR;
 using MesTech.Application.Commands.SaveCompanySettings;
 using MesTech.Application.Features.Settings.Commands.SaveApiSettings;
@@ -23,7 +24,8 @@ public static class SettingsEndpoints
     {
         var group = app.MapGroup("/api/v1/settings")
             .WithTags("Settings")
-            .RequireRateLimiting("PerApiKey");
+            .RequireRateLimiting("PerApiKey")
+            .AddEndpointFilter(new Filters.RequirePermissionFilter("ManageSettings"));
 
         // GET /api/v1/settings/profile
         group.MapGet("/profile", async (
@@ -33,11 +35,11 @@ public static class SettingsEndpoints
             var result = await sender.Send(new GetProfileSettingsQuery(tenantId), ct);
             return result is not null
                 ? Results.Ok(result)
-                : Results.NotFound(new { error = "Profile settings not found" });
+                : Results.Problem(detail: "Profile settings not found", statusCode: 404);
         })
         .CacheOutput("Lookup60s")
         .WithName("GetSettingsProfile")
-        .WithSummary("Kullanici profil ayarlari").Produces(200).Produces(400);
+        .WithSummary("Kullanici profil ayarlari").Produces<ProfileSettingsDto>(200).Produces(400);
 
         // PUT /api/v1/settings/profile
         group.MapPut("/profile", async (
@@ -47,7 +49,7 @@ public static class SettingsEndpoints
             var success = await sender.Send(command, ct);
             return success
                 ? Results.NoContent()
-                : Results.NotFound(new { error = "Tenant not found" });
+                : Results.Problem(detail: "Tenant not found", statusCode: 404);
         })
         .WithName("UpdateSettingsProfile")
         .WithSummary("Kullanici profil ayarlarini guncelle").Produces(200).Produces(400)
@@ -63,7 +65,7 @@ public static class SettingsEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetSettingsCredentials")
-        .WithSummary("API kimlik bilgileri listesi").Produces(200).Produces(400);
+        .WithSummary("API kimlik bilgileri listesi").Produces<CredentialsSettingsDto>(200).Produces(400);
 
         // GET /api/v1/settings/notifications
         group.MapGet("/notifications", async (
@@ -73,11 +75,11 @@ public static class SettingsEndpoints
             var result = await sender.Send(new GetGeneralSettingsQuery(tenantId), ct);
             return result is not null
                 ? Results.Ok(result)
-                : Results.NotFound(new { error = "General settings not found" });
+                : Results.Problem(detail: "General settings not found", statusCode: 404);
         })
         .CacheOutput("Lookup60s")
         .WithName("GetSettingsNotifications")
-        .WithSummary("Bildirim tercihleri (general settings)").Produces(200).Produces(400);
+        .WithSummary("Bildirim tercihleri (general settings)").Produces<GeneralSettingsDto>(200).Produces(400);
 
         // GET /api/v1/settings/store — mağaza ayarları
         group.MapGet("/store", async (
@@ -89,7 +91,7 @@ public static class SettingsEndpoints
         })
         .WithName("GetStoreSettings")
         .WithSummary("Mağaza ayarları — şirket bilgileri, varsayılanlar")
-        .Produces(200)
+        .Produces<StoreSettingsDto>(200)
         .CacheOutput("Lookup60s");
 
         // PUT /api/v1/settings/store — mağaza ayarlarını güncelle
@@ -132,7 +134,7 @@ public static class SettingsEndpoints
         })
         .WithName("GetErpSettings")
         .WithSummary("ERP entegrasyon ayarları — Parasüt/Logo bağlantı bilgileri")
-        .Produces(200)
+        .Produces<ErpSettingsDto>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/settings/fulfillment — fulfillment/depo ayarları (G207-DEV6)
@@ -145,7 +147,7 @@ public static class SettingsEndpoints
         })
         .WithName("GetFulfillmentSettings")
         .WithSummary("Fulfillment ayarları — FBA/Hepsilojistik depo konfigürasyonu")
-        .Produces(200)
+        .Produces<FulfillmentSettingsDto>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/settings/import — import/feed ayarları (G207-DEV6)
@@ -158,7 +160,7 @@ public static class SettingsEndpoints
         })
         .WithName("GetImportSettings")
         .WithSummary("Import ayarları — feed kaynakları, şablon tercihleri")
-        .Produces(200)
+        .Produces<ImportSettingsDto>(200)
         .CacheOutput("Lookup60s");
 
         // === /api/v1/users/me/settings alias — Blazor MesTechApiClient uyumu ===
@@ -174,11 +176,11 @@ public static class SettingsEndpoints
             var result = await sender.Send(new GetProfileSettingsQuery(tenantId), ct);
             return result is not null
                 ? Results.Ok(result)
-                : Results.NotFound(new { error = "User settings not found" });
+                : Results.Problem(detail: "User settings not found", statusCode: 404);
         })
         .WithName("GetUserSettings")
         .WithSummary("Kullanıcı ayarları (profil alias)")
-        .Produces(200).Produces(404)
+        .Produces<ProfileSettingsDto>(200).Produces(404)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/users/me/settings — profil ayarları güncelle alias

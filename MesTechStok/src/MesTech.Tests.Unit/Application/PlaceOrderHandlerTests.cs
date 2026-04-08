@@ -17,9 +17,10 @@ public class PlaceOrderHandlerTests
     private readonly Mock<IProductRepository> _productRepo = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly StockCalculationService _stockCalc = new();
+    private readonly Mock<ITenantProvider> _tenantProvider = new();
 
     private PlaceOrderHandler CreateHandler() =>
-        new(_orderRepo.Object, _productRepo.Object, _unitOfWork.Object, _stockCalc);
+        new(_orderRepo.Object, _productRepo.Object, _unitOfWork.Object, _stockCalc, _tenantProvider.Object);
 
     [Fact]
     public async Task Handle_ValidSingleItem_ShouldCreateOrder()
@@ -39,8 +40,8 @@ public class PlaceOrderHandlerTests
         result.IsSuccess.Should().BeTrue();
         result.OrderNumber.Should().StartWith("ORD-");
         result.OrderId.Should().NotBeEmpty();
-        product.Stock.Should().Be(95);
-        _orderRepo.Verify(r => r.AddAsync(It.IsAny<Order>()), Times.Once);
+        product.Stock.Should().Be(100, "Stock deduction is now handled by OrderPlacedStockDeductionHandler (Z1 chain), not PlaceOrderHandler");
+        _orderRepo.Verify(r => r.AddAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -65,8 +66,8 @@ public class PlaceOrderHandlerTests
         var result = await handler.Handle(command, CancellationToken.None);
 
         result.IsSuccess.Should().BeTrue();
-        p1.Stock.Should().Be(40);
-        p2.Stock.Should().Be(60);
+        p1.Stock.Should().Be(50, "Stock deduction is now handled by OrderPlacedStockDeductionHandler (Z1 chain)");
+        p2.Stock.Should().Be(80, "Stock deduction is now handled by OrderPlacedStockDeductionHandler (Z1 chain)");
     }
 
     [Fact]
@@ -86,7 +87,7 @@ public class PlaceOrderHandlerTests
 
         result.IsSuccess.Should().BeFalse();
         result.ErrorMessage.Should().Contain(missingId.ToString());
-        _orderRepo.Verify(r => r.AddAsync(It.IsAny<Order>()), Times.Never);
+        _orderRepo.Verify(r => r.AddAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -116,8 +117,8 @@ public class PlaceOrderHandlerTests
             .ReturnsAsync(new List<Product> { product });
 
         Order? capturedOrder = null;
-        _orderRepo.Setup(r => r.AddAsync(It.IsAny<Order>()))
-            .Callback<Order>(o => capturedOrder = o);
+        _orderRepo.Setup(r => r.AddAsync(It.IsAny<Order>(), It.IsAny<CancellationToken>()))
+            .Callback<Order, CancellationToken>((o, _) => capturedOrder = o);
 
         var handler = CreateHandler();
         var command = new PlaceOrderCommand(

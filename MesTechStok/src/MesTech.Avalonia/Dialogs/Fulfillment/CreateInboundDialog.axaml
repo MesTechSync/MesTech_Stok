@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="MesTech.Avalonia.Dialogs.Fulfillment.CreateInboundDialog"
+             x:CompileBindings="False"
         Title="Yeni Inbound Gonderi Olustur"
         Width="600" Height="550"
         CanResize="False"

@@ -23,7 +23,7 @@ public class GetCariHesaplarHandlerTests
     [Fact]
     public async Task Handle_WithType_CallsGetByType()
     {
-        _repo.Setup(r => r.GetByTypeAsync(CariHesapType.Musteri, _tenantId))
+        _repo.Setup(r => r.GetByTypeAsync(CariHesapType.Musteri, _tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<CariHesap>().AsReadOnly());
 
         var query = new GetCariHesaplarQuery(CariHesapType.Musteri, _tenantId);
@@ -31,20 +31,20 @@ public class GetCariHesaplarHandlerTests
         var result = await _sut.Handle(query, CancellationToken.None);
 
         result.Should().NotBeNull();
-        _repo.Verify(r => r.GetByTypeAsync(CariHesapType.Musteri, _tenantId), Times.Once());
+        _repo.Verify(r => r.GetByTypeAsync(CariHesapType.Musteri, _tenantId, It.IsAny<CancellationToken>()), Times.Once());
     }
 
     [Fact]
     public async Task Handle_WithoutType_CallsGetAll()
     {
-        _repo.Setup(r => r.GetAllAsync(_tenantId))
+        _repo.Setup(r => r.GetAllAsync(_tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<CariHesap>().AsReadOnly());
 
         var query = new GetCariHesaplarQuery(null, _tenantId);
 
         await _sut.Handle(query, CancellationToken.None);
 
-        _repo.Verify(r => r.GetAllAsync(_tenantId), Times.Once());
+        _repo.Verify(r => r.GetAllAsync(_tenantId, It.IsAny<CancellationToken>()), Times.Once());
     }
 
     [Fact]

@@ -5,6 +5,7 @@ using MesTech.Application.Commands.SyncHepsiburadaProducts;
 using MesTech.Application.Commands.SyncN11Products;
 using MesTech.Application.Commands.SyncPlatform;
 using MesTech.Application.Commands.SyncTrendyolProducts;
+using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Features.Platform.Commands.TriggerSync;
 using MesTech.Application.Features.Platform.Queries.GetPlatformSyncStatus;
 using MesTech.Application.Features.Platform.Queries.GetSyncHistory;
@@ -30,7 +31,7 @@ public static class PlatformSyncEndpoint
             return Results.Ok(result);
         })
         .WithName("GetPlatformSyncStatus")
-        .WithSummary("Platform senkronizasyon durum listesi").Produces(200).Produces(400)
+        .WithSummary("Platform senkronizasyon durum listesi").Produces<List<PlatformSyncStatusDto>>(200).Produces(400)
         .CacheOutput("Dashboard30s");
 
         // POST /api/v1/platforms/{platformCode}/sync — platform senkronizasyonu başlat
@@ -76,7 +77,7 @@ public static class PlatformSyncEndpoint
         })
         .WithName("GetSyncHistory")
         .WithSummary("Senkronizasyon geçmişi — platform filtreli")
-        .Produces(200)
+        .Produces<IReadOnlyList<SyncHistoryItemDto>>(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/platforms/sync/trendyol — sync Trendyol products

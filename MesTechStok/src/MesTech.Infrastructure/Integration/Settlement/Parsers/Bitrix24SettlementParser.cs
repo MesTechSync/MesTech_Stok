@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Settlement.Mapping;
 using Microsoft.Extensions.Logging;
 
@@ -21,7 +22,7 @@ public sealed class Bitrix24SettlementParser : ISettlementParser
     private List<Bitrix24SettlementItem>? _cachedItems;
     private string? _rawFileHash;
 
-    public string Platform => "Bitrix24";
+    public string Platform => nameof(PlatformType.Bitrix24);
 
     public Bitrix24SettlementParser(ILogger<Bitrix24SettlementParser> logger)
     {

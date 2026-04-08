@@ -1,5 +1,6 @@
 ﻿using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Enums;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Integration.Accounting;
@@ -8,20 +9,24 @@ namespace MesTech.Infrastructure.Integration.Accounting;
 /// Settlement verilerinden dinamik komisyon orani tureten provider.
 /// Her platformun en son settlement batch'inden gercek oran hesaplar.
 /// Settlement yoksa null doner — CommissionCalculationService fallback kullanir.
+/// IMemoryCache ile 6 saat cache — settlement data sik degismez.
 /// </summary>
 public sealed class PlatformCommissionRateProvider : ICommissionRateProvider
 {
     private readonly ISettlementBatchRepository _settlementRepo;
+    private readonly IMemoryCache _cache;
     private readonly ILogger<PlatformCommissionRateProvider> _logger;
 
-    // Platform bazli cache — settlement data sik degismez
     private static readonly TimeSpan CacheDuration = TimeSpan.FromHours(6);
+    private const string CacheKeyPrefix = "commission-rate:";
 
     public PlatformCommissionRateProvider(
         ISettlementBatchRepository settlementRepo,
+        IMemoryCache cache,
         ILogger<PlatformCommissionRateProvider> logger)
     {
         _settlementRepo = settlementRepo ?? throw new ArgumentNullException(nameof(settlementRepo));
+        _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -44,6 +49,10 @@ public sealed class PlatformCommissionRateProvider : ICommissionRateProvider
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(platform);
+
+        var cacheKey = $"{CacheKeyPrefix}{tenantId}-{platform.ToLowerInvariant()}";
+        if (_cache.TryGetValue(cacheKey, out CommissionRateInfo? cached) && cached is not null)
+            return cached;
 
         try
         {
@@ -89,11 +98,14 @@ public sealed class PlatformCommissionRateProvider : ICommissionRateProvider
                 "Dinamik komisyon orani — platform: {Platform}, rate: {Rate:P2}, kaynak: settlement batch {BatchId} ({PeriodEnd:yyyy-MM-dd})",
                 platform, rate, latestBatch.Id, latestBatch.PeriodEnd);
 
-            return new CommissionRateInfo(
+            var result = new CommissionRateInfo(
                 Rate: rate,
                 Type: CommissionType.Percentage,
                 Source: $"{platform}Settlement",
                 CachedUntil: DateTime.UtcNow.Add(CacheDuration));
+
+            _cache.Set(cacheKey, result, CacheDuration);
+            return result;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

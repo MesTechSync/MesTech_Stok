@@ -16,6 +16,7 @@ public sealed class FinancialGoalRepository : IFinancialGoalRepository
         => await _context.FinancialGoals
             .Where(g => g.TenantId == tenantId && !g.IsAchieved && g.EndDate >= DateTime.UtcNow)
             .OrderBy(g => g.EndDate)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct);
 
     public async Task AddAsync(FinancialGoal goal, CancellationToken ct = default)

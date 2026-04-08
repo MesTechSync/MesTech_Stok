@@ -32,7 +32,7 @@ public sealed class CreateCategoryHandler : IRequestHandler<CreateCategoryComman
             request.Code,
             request.IsActive);
 
-        await _categoryRepository.AddAsync(category).ConfigureAwait(false);
+        await _categoryRepository.AddAsync(category, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new CategoryCommandResult

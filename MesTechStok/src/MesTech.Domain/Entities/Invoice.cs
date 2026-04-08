@@ -150,8 +150,11 @@ public sealed class Invoice : BaseEntity, ITenantEntity
 
     public void Cancel(string? reason = null)
     {
+        if (Status == InvoiceStatus.Cancelled) return; // idempotent — çift event önleme
+
         if (Status == InvoiceStatus.Accepted)
-            throw new BusinessRuleException("InvoiceRule","Kabul edilmis fatura iptal edilemez.");
+            throw new BusinessRuleException("InvoiceRule", "Kabul edilmis fatura iptal edilemez.");
+
         Status = InvoiceStatus.Cancelled;
         CancellationReason = reason;
         CancelledAt = DateTime.UtcNow;
@@ -161,8 +164,14 @@ public sealed class Invoice : BaseEntity, ITenantEntity
     public void MarkAsPlatformSent(string platformInvoiceUrl)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(platformInvoiceUrl);
+
+        if (Status is InvoiceStatus.Cancelled or InvoiceStatus.Rejected)
+            throw new BusinessRuleException("InvoiceRule",
+                $"Cannot send to platform in {Status} status.");
+
         PlatformInvoiceUrl = platformInvoiceUrl;
         Status = InvoiceStatus.PlatformSent;
+        RaiseDomainEvent(new InvoicePlatformSentEvent(Id, TenantId, OrderId, platformInvoiceUrl, DateTime.UtcNow));
     }
 
     public static Invoice CreateForOrder(Order order, InvoiceType type, string invoiceNumber)
@@ -183,6 +192,24 @@ public sealed class Invoice : BaseEntity, ITenantEntity
             GrandTotal = order.TotalAmount,
             IsEInvoiceTaxpayer = type == InvoiceType.EFatura
         };
+
+        // OrderItems → InvoiceLines donusumu (fatura kalem detayi)
+        foreach (var item in order.OrderItems)
+        {
+            var line = new InvoiceLine
+            {
+                Id = Guid.NewGuid(),
+                TenantId = order.TenantId,
+                InvoiceId = invoice.Id,
+                ProductId = item.ProductId == Guid.Empty ? null : item.ProductId,
+                ProductName = item.ProductName,
+                SKU = item.ProductSKU,
+                TaxRate = item.TaxRate
+            };
+            line.SetQuantityAndPrice(item.Quantity, item.UnitPrice);
+            invoice.AddLine(line);
+        }
+
         invoice.RaiseDomainEvent(new InvoiceCreatedEvent(
             invoice.Id, order.Id, order.TenantId, type, order.TotalAmount, DateTime.UtcNow));
         return invoice;
@@ -204,10 +231,10 @@ public sealed class Invoice : BaseEntity, ITenantEntity
             Scenario = InvoiceScenario.Commercial;
             IsEInvoiceTaxpayer = true;
         }
-        else if (PlatformCode == PlatformType.AmazonEu.ToString()
-              || PlatformCode == PlatformType.eBay.ToString()
-              || PlatformCode == PlatformType.Etsy.ToString()
-              || PlatformCode == PlatformType.Ozon.ToString())
+        else if (string.Equals(PlatformCode, PlatformType.AmazonEu.ToString(), StringComparison.Ordinal)
+              || string.Equals(PlatformCode, PlatformType.eBay.ToString(), StringComparison.Ordinal)
+              || string.Equals(PlatformCode, PlatformType.Etsy.ToString(), StringComparison.Ordinal)
+              || string.Equals(PlatformCode, PlatformType.Ozon.ToString(), StringComparison.Ordinal))
         {
             // Yurt disi platform → e-Ihracat
             Type = InvoiceType.EIhracat;

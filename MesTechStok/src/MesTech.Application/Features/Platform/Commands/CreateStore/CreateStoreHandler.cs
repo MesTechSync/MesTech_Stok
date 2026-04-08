@@ -40,6 +40,21 @@ public sealed class CreateStoreHandler : IRequestHandler<CreateStoreCommand, Cre
         if (string.IsNullOrWhiteSpace(request.StoreName))
             return new CreateStoreResult { IsSuccess = false, ErrorMessage = "Store name is required." };
 
+        // Duplicate guard — aynı tenant + platform + store name ile çift kayıt önleme
+        if (await _storeRepository.ExistsByTenantAndPlatformAsync(
+                request.TenantId, request.PlatformType, request.StoreName.Trim(), cancellationToken)
+                .ConfigureAwait(false))
+        {
+            _logger.LogWarning(
+                "Duplicate store rejected: {StoreName} ({Platform}) already exists for tenant {TenantId}",
+                request.StoreName, request.PlatformType, request.TenantId);
+            return new CreateStoreResult
+            {
+                IsSuccess = false,
+                ErrorMessage = $"Bu platform ({request.PlatformType}) için '{request.StoreName}' adlı mağaza zaten kayıtlı."
+            };
+        }
+
         // 1. Create Store entity
         var store = new Store
         {

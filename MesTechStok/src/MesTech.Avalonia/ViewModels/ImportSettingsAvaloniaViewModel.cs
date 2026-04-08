@@ -36,13 +36,9 @@ public partial class ImportSettingsAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetImportSettingsQuery(_currentUser.TenantId));
+            var result = await _mediator.Send(new GetImportSettingsQuery(_currentUser.TenantId), ct);
 
             Templates.Clear();
             foreach (var t in result.Templates)
@@ -58,16 +54,7 @@ public partial class ImportSettingsAvaloniaViewModel : ViewModelBase
 
             TotalCount = Templates.Count;
             IsEmpty = TotalCount == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Sablonlar yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Import sablonlari yuklenirken hata");
     }
 
     [RelayCommand]

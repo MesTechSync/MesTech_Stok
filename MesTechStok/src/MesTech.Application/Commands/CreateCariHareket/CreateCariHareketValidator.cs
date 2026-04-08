@@ -8,7 +8,7 @@ public sealed class CreateCariHareketValidator : AbstractValidator<CreateCariHar
     {
         RuleFor(x => x.TenantId).NotEmpty();
         RuleFor(x => x.CariHesapId).NotEmpty();
-        RuleFor(x => x.Amount).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.Amount).GreaterThan(0).WithMessage("Tutar sıfırdan büyük olmalıdır.");
         RuleFor(x => x.Description).NotEmpty().MaximumLength(500);
     }
 }

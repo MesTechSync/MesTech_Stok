@@ -1,0 +1,175 @@
+@page "/erp/field-mapping"
+@attribute [Authorize(Roles = "Admin")]
+@using Microsoft.AspNetCore.Authorization
+@inject MesTechApiClient ApiClient
+@inject NavigationManager Navigation
+@inject ILogger<ErpFieldMapping> Logger
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<PageTitle>ERP Alan Eslestirme</PageTitle>
+
+<div class="container-fluid">
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width:48px;height:48px;background:linear-gradient(135deg,#14b8a6,#0d9488)">
+      <i class="fas fa-columns text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0">ERP Alan Eslestirme</h3>
+      <small class="text-muted">MesTech alanlari ile ERP sistemi arasindaki eslestirme tablosu</small>
+    </div>
+  </div>
+
+  <!-- ERP secimi -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <label class="form-label">ERP Sistemi</label>
+      <select class="form-select" @bind="selectedErp">
+        <option value="parasut">Parasut</option>
+        <option value="logo">Logo Tiger</option>
+        <option value="bizimhesap">BizimHesap</option>
+        <option value="netsis">Netsis</option>
+        <option value="nebim">Nebim</option>
+        <option value="erpnext">ERPNext</option>
+      </select>
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+      <button class="btn btn-primary" @onclick="LoadMappings"><i class="fas fa-sync me-1"></i>Yukle</button>
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+      <button class="btn btn-success" @onclick="SaveMappings" disabled="@(!hasChanges)">
+        <i class="fas fa-save me-1"></i>Kaydet
+      </button>
+    </div>
+  </div>
+
+  @if (isLoading)
+  {
+    <LoadingSpinner />
+  }
+  else
+  {
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white d-flex justify-content-between">
+        <strong>@selectedErp.ToUpperInvariant() Alan Eslestirmesi</strong>
+        <span class="badge bg-info">@mappings.Count alan</span>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>MesTech Alani</th>
+              <th>Tip</th>
+              <th>ERP Alani</th>
+              <th>Donusum</th>
+              <th>Zorunlu</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach (var m in mappings)
+            {
+              <tr>
+                <td><code>@m.MesTechField</code></td>
+                <td><span class="badge bg-light text-dark">@m.DataType</span></td>
+                <td>
+                  <input type="text" class="form-control form-control-sm" @bind="m.ErpField"
+                         @oninput="() => hasChanges = true" placeholder="ERP alan adi..." />
+                </td>
+                <td>
+                  <select class="form-select form-select-sm" @bind="m.Transform" @bind:after="() => hasChanges = true">
+                    <option value="">Yok</option>
+                    <option value="uppercase">BUYUK HARF</option>
+                    <option value="lowercase">kucuk harf</option>
+                    <option value="trim">Bosluk temizle</option>
+                    <option value="date_iso">Tarih ISO</option>
+                    <option value="decimal_tr">Ondalik TR (virgul)</option>
+                  </select>
+                </td>
+                <td class="text-center">
+                  <input type="checkbox" class="form-check-input" @bind="m.IsRequired"
+                         @bind:after="() => hasChanges = true" />
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>
+
+@code {
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private bool hasChanges;
+    private string selectedErp = "parasut";
+    private List<FieldMapping> mappings = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        if (Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query).TryGetValue("type", out var typeVal))
+            selectedErp = typeVal.ToString();
+        await LoadMappings();
+        isLoading = false;
+    }
+
+    private async Task LoadMappings()
+    {
+        try
+        {
+            var result = await ApiClient.SafeGetAsync<List<FieldMapping>>($"erp/{selectedErp}/field-mapping");
+            if (result.IsSuccess && result.Data is not null)
+                mappings = result.Data;
+            else { _isDemoMode = true; LoadDemoData(); }
+        }
+        catch { _isDemoMode = true; LoadDemoData(); }
+        hasChanges = false;
+    }
+
+    private void LoadDemoData()
+    {
+        mappings = new()
+        {
+            new("Product.Name", "string", "urun_adi", "", true),
+            new("Product.SKU", "string", "stok_kodu", "uppercase", true),
+            new("Product.Price", "decimal", "birim_fiyat", "decimal_tr", true),
+            new("Product.Barcode", "string", "barkod", "trim", false),
+            new("Product.Category", "string", "kategori", "", false),
+            new("Order.OrderNumber", "string", "siparis_no", "", true),
+            new("Order.CustomerName", "string", "musteri_adi", "", true),
+            new("Order.TotalAmount", "decimal", "toplam_tutar", "decimal_tr", true),
+            new("Order.OrderDate", "datetime", "siparis_tarihi", "date_iso", true),
+            new("Invoice.InvoiceNumber", "string", "fatura_no", "", true),
+            new("Invoice.GrandTotal", "decimal", "genel_toplam", "decimal_tr", true),
+            new("Invoice.TaxTotal", "decimal", "kdv_toplam", "decimal_tr", true),
+        };
+    }
+
+    private async Task SaveMappings()
+    {
+        try
+        {
+            await ApiClient.SafePutAsync<object>($"erp/{selectedErp}/field-mapping", mappings);
+            hasChanges = false;
+            Logger.LogInformation("Field mappings saved for {Erp}: {Count} fields", selectedErp, mappings.Count);
+        }
+        catch (Exception ex) { Logger.LogWarning(ex, "Failed to save field mappings"); }
+    }
+
+    private sealed class FieldMapping
+    {
+        public string MesTechField { get; set; } = "";
+        public string DataType { get; set; } = "";
+        public string ErpField { get; set; } = "";
+        public string Transform { get; set; } = "";
+        public bool IsRequired { get; set; }
+
+        public FieldMapping() { }
+        public FieldMapping(string mestech, string type, string erp, string transform, bool required)
+        {
+            MesTechField = mestech; DataType = type; ErpField = erp; Transform = transform; IsRequired = required;
+        }
+    }
+}

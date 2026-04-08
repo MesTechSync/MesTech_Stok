@@ -49,13 +49,9 @@ public partial class ActivityAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetCrmActivitiesQuery(_currentUser.TenantId)) ?? new();
+            var result = await _mediator.Send(new GetCrmActivitiesQuery(_currentUser.TenantId), ct) ?? new();
             _allActivities.Clear();
             foreach (var a in result.Activities)
             {
@@ -71,16 +67,7 @@ public partial class ActivityAvaloniaViewModel : ViewModelBase
                 });
             }
             ApplyFilter();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Aktiviteler yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Aktiviteler yuklenirken hata");
     }
 
     [RelayCommand]

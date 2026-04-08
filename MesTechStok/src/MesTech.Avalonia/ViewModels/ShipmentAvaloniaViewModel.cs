@@ -35,13 +35,9 @@ public partial class ShipmentAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetShipmentCostsQuery(_currentUser.TenantId));
+            var result = await _mediator.Send(new GetShipmentCostsQuery(_currentUser.TenantId), ct);
 
             _allShipments.Clear();
             foreach (var s in result)
@@ -58,16 +54,7 @@ public partial class ShipmentAvaloniaViewModel : ViewModelBase
             }
 
             ApplyFilter();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Gonderi bilgileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Kargo gonderimleri yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
@@ -108,4 +95,13 @@ public class ShipmentItemDto
     public string RecipientName { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
     public string ShipDate { get; set; } = string.Empty;
+
+    public string StatusColor => Status switch
+    {
+        "Teslim Edildi" => "#10B981",
+        "Yolda" or "Dagitimda" => "#3B82F6",
+        "Hazirlaniyor" => "#F59E0B",
+        "Iptal" => "#EF4444",
+        _ => "#64748B"
+    };
 }

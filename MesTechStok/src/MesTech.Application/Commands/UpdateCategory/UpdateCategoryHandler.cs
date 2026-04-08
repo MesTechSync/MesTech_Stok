@@ -19,7 +19,7 @@ public sealed class UpdateCategoryHandler : IRequestHandler<UpdateCategoryComman
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var category = await _categoryRepository.GetByIdAsync(request.Id).ConfigureAwait(false);
+        var category = await _categoryRepository.GetByIdAsync(request.Id, cancellationToken).ConfigureAwait(false);
         if (category == null)
             return new CategoryCommandResult { IsSuccess = false, ErrorMessage = $"Category {request.Id} not found." };
 
@@ -27,7 +27,7 @@ public sealed class UpdateCategoryHandler : IRequestHandler<UpdateCategoryComman
         category.Code = request.Code;
         category.IsActive = request.IsActive;
 
-        await _categoryRepository.UpdateAsync(category).ConfigureAwait(false);
+        await _categoryRepository.UpdateAsync(category, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new CategoryCommandResult

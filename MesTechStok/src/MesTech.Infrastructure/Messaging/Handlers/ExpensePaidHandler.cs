@@ -40,7 +40,7 @@ public sealed class ExpensePaidHandler : INotificationHandler<DomainEventNotific
     {
         var e = notification.DomainEvent;
 
-        var expense = await _expenseRepo.GetByIdAsync(e.ExpenseId).ConfigureAwait(false);
+        var expense = await _expenseRepo.GetByIdAsync(e.ExpenseId, cancellationToken).ConfigureAwait(false);
         if (expense is null)
         {
             _logger.LogWarning("ExpensePaid: Expense {ExpenseId} not found in DB", e.ExpenseId);
@@ -51,21 +51,31 @@ public sealed class ExpensePaidHandler : INotificationHandler<DomainEventNotific
             ? _tenantProvider.GetCurrentTenantId()
             : expense.TenantId;
 
-        var glEntry = GLTransaction.Create(
-            tenantId: tenantId,
-            type: GLTransactionType.Expense,
-            amount: expense.Amount,
-            description: $"Gider ödeme: {expense.Description}",
-            createdByUserId: tenantId, // system
-            bankAccountId: e.BankAccountId,
-            expenseId: e.ExpenseId);
+        try
+        {
+            var glEntry = GLTransaction.Create(
+                tenantId: tenantId,
+                type: GLTransactionType.Expense,
+                amount: expense.Amount,
+                description: $"Gider ödeme: {expense.Description}",
+                createdByUserId: tenantId, // system
+                bankAccountId: e.BankAccountId,
+                expenseId: e.ExpenseId);
 
-        await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken).ConfigureAwait(false);
-        await context.Set<GLTransaction>().AddAsync(glEntry, cancellationToken).ConfigureAwait(false);
-        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken).ConfigureAwait(false);
+            await context.Set<GLTransaction>().AddAsync(glEntry, cancellationToken).ConfigureAwait(false);
+            await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
-        _logger.LogInformation(
-            "ExpensePaid GL kaydı oluşturuldu: ExpenseId={ExpenseId} Amount={Amount} TenantId={TenantId}",
-            e.ExpenseId, expense.Amount, tenantId);
+            _logger.LogInformation(
+                "ExpensePaid GL kaydı oluşturuldu: ExpenseId={ExpenseId} Amount={Amount} TenantId={TenantId}",
+                e.ExpenseId, expense.Amount, tenantId);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex,
+                "ExpensePaid GL kaydı BAŞARISIZ: ExpenseId={ExpenseId}. " +
+                "GL transaction manuel oluşturulmalı. Ödeme işlemi devam ediyor.",
+                e.ExpenseId);
+        }
     }
 }

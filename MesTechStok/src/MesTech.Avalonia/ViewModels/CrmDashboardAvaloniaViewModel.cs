@@ -35,13 +35,9 @@ public partial class CrmDashboardAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var dto = await _mediator.Send(new GetCrmDashboardQuery(_currentUser.TenantId));
+            var dto = await _mediator.Send(new GetCrmDashboardQuery(_currentUser.TenantId), ct);
 
             TotalCustomers = dto.TotalCustomers;
             NewThisMonth = dto.ActiveCustomers;
@@ -77,16 +73,7 @@ public partial class CrmDashboardAvaloniaViewModel : ViewModelBase
             }
 
             IsEmpty = dto.TotalCustomers == 0 && dto.OpenDeals == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"CRM Dashboard yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "CRM verileri yuklenirken hata");
     }
 
     [RelayCommand]

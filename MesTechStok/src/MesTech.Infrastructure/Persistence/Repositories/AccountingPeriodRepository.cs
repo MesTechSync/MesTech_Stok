@@ -18,6 +18,7 @@ public sealed class AccountingPeriodRepository : IAccountingPeriodRepository
         if (year.HasValue)
             query = query.Where(p => p.Year == year.Value);
         return await query.OrderByDescending(p => p.Year).ThenByDescending(p => p.Month)
+            .Take(1000) // G485: pagination guard
             .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
     }
 

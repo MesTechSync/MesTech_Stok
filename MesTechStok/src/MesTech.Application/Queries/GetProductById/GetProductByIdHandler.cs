@@ -18,7 +18,7 @@ public sealed class GetProductByIdHandler : IRequestHandler<GetProductByIdQuery,
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var product = await _productRepository.GetByIdAsync(request.ProductId).ConfigureAwait(false);
+        var product = await _productRepository.GetByIdAsync(request.ProductId, cancellationToken).ConfigureAwait(false);
         if (product == null) return null;
 
         var dto = product.Adapt<ProductDto>();

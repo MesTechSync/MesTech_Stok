@@ -54,7 +54,7 @@ public sealed class CommissionCalculatorWorker : IAccountingJob
             // Son 24 saatin siparislerini al
             var from = DateTime.UtcNow.AddDays(-1);
             var to = DateTime.UtcNow;
-            var recentOrders = await _orderRepository.GetByDateRangeAsync(from, to).ConfigureAwait(false);
+            var recentOrders = await _orderRepository.GetByDateRangeAsync(from, to, ct).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[{JobId}] {Count} siparis bulundu ({From:g} - {To:g})",
@@ -99,7 +99,7 @@ public sealed class CommissionCalculatorWorker : IAccountingJob
                     await _commissionRepository.AddAsync(record, ct).ConfigureAwait(false);
                     processedCount++;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not OperationCanceledException)
                 {
                     _logger.LogWarning(ex,
                         "[{JobId}] Siparis {OrderId} komisyon hesaplama hatasi, atlaniyor",
@@ -116,7 +116,7 @@ public sealed class CommissionCalculatorWorker : IAccountingJob
                 "[{JobId}] Komisyon hesaplama tamamlandi — {ProcessedCount} siparis islendi",
                 JobId, processedCount);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[{JobId}] Komisyon hesaplama HATA", JobId);
             throw;

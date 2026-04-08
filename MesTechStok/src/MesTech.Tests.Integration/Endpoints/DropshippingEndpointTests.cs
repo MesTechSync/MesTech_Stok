@@ -29,28 +29,28 @@ public sealed class DropshippingEndpointTests : IClassFixture<EndpointTestWebApp
     [Fact]
     public async Task GetDropshipSuppliers_NoApiKey_Returns401()
     {
-        var response = await _noAuthClient.GetAsync($"/api/v1/dropshipping/suppliers?tenantId={Guid.NewGuid()}");
+        var response = await _noAuthClient.GetAsync($"/api/v1/dropshipping/suppliers?tenantId={EndpointTestWebAppFactory.TestTenantId}");
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Fact]
     public async Task GetDropshipSuppliers_ValidRequest_ReturnsExpected()
     {
-        var response = await _authClient.GetAsync($"/api/v1/dropshipping/suppliers?tenantId={Guid.NewGuid()}");
+        var response = await _authClient.GetAsync($"/api/v1/dropshipping/suppliers?tenantId={EndpointTestWebAppFactory.TestTenantId}");
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.InternalServerError);
     }
 
     [Fact]
     public async Task GetDropshipProducts_ValidRequest_ReturnsExpected()
     {
-        var response = await _authClient.GetAsync($"/api/v1/dropshipping/products?tenantId={Guid.NewGuid()}");
+        var response = await _authClient.GetAsync($"/api/v1/dropshipping/products?tenantId={EndpointTestWebAppFactory.TestTenantId}");
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.InternalServerError);
     }
 
     [Fact]
     public async Task GetDropshipOrders_NoApiKey_Returns401()
     {
-        var response = await _noAuthClient.GetAsync($"/api/v1/dropshipping/orders?tenantId={Guid.NewGuid()}");
+        var response = await _noAuthClient.GetAsync($"/api/v1/dropshipping/orders?tenantId={EndpointTestWebAppFactory.TestTenantId}");
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
@@ -66,7 +66,7 @@ public sealed class DropshippingEndpointTests : IClassFixture<EndpointTestWebApp
     [Fact]
     public async Task GetSupplierPerformance_ValidRequest_ReturnsExpected()
     {
-        var response = await _authClient.GetAsync($"/api/v1/dropshipping/supplier-performance?tenantId={Guid.NewGuid()}");
+        var response = await _authClient.GetAsync($"/api/v1/dropshipping/supplier-performance?tenantId={EndpointTestWebAppFactory.TestTenantId}");
         response.StatusCode.Should().BeOneOf(HttpStatusCode.OK, HttpStatusCode.InternalServerError);
     }
 }

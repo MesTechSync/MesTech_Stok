@@ -31,12 +31,9 @@ public partial class WarehouseSummaryAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetWarehouseSummaryQuery(_currentUser.TenantId));
+            var result = await _mediator.Send(new GetWarehouseSummaryQuery(_currentUser.TenantId), ct);
 
             WarehouseCards.Clear();
             foreach (var w in result)
@@ -54,17 +51,8 @@ public partial class WarehouseSummaryAvaloniaViewModel : ViewModelBase
             }
 
             TotalWarehouses = WarehouseCards.Count;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Depo verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
             IsEmpty = WarehouseCards.Count == 0;
-        }
+        }, "Depo ozeti yuklenirken hata");
     }
 
     [RelayCommand]

@@ -1,8 +1,9 @@
 using Avalonia.Controls;
+using MesTech.Avalonia.Views.Base;
 
 namespace MesTech.Avalonia.Views;
 
-public partial class QuotationAvaloniaView : UserControl
+public partial class QuotationAvaloniaView : BaseView
 {
     public QuotationAvaloniaView() => InitializeComponent();
 }

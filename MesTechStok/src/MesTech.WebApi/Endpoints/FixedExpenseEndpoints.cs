@@ -1,4 +1,5 @@
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Accounting;
 using MediatR;
 using MesTech.Application.Features.Accounting.Commands.CreateFixedExpense;
 using MesTech.Application.Features.Accounting.Commands.DeleteFixedExpense;
@@ -28,7 +29,7 @@ public static class FixedExpenseEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetFixedExpenses")
-        .WithSummary("Sabit gider listesi (aktif/pasif filtresi)").Produces(200).Produces(400);
+        .WithSummary("Sabit gider listesi (aktif/pasif filtresi)").Produces<IReadOnlyList<FixedExpenseDto>>(200).Produces(400);
 
         // GET /api/v1/accounting/fixed-expenses/{id} — tek sabit gider
         group.MapGet("/{id:guid}", async (
@@ -39,7 +40,7 @@ public static class FixedExpenseEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetFixedExpenseById")
-        .WithSummary("Tek sabit gider detayi").Produces(200).Produces(400);
+        .WithSummary("Tek sabit gider detayi").Produces<FixedExpenseDto>(200).Produces(400);
 
         // POST /api/v1/accounting/fixed-expenses — yeni sabit gider olustur
         group.MapPost("/", async (

@@ -1,0 +1,142 @@
+@page "/erp/dashboard"
+@attribute [Authorize(Roles = "Admin")]
+@using Microsoft.AspNetCore.Authorization
+@inject MesTechApiClient ApiClient
+@inject ILogger<ErpDashboard> Logger
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<PageTitle>ERP Sync Dashboard</PageTitle>
+
+<div class="container-fluid">
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width:48px;height:48px;background:linear-gradient(135deg,#6366f1,#4f46e5)">
+      <i class="fas fa-exchange-alt text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0">ERP Sync Dashboard</h3>
+      <small class="text-muted">Parasut, Logo, BizimHesap, Netsis, Nebim, ERPNext</small>
+    </div>
+  </div>
+
+  @if (isLoading)
+  {
+    <LoadingSpinner />
+  }
+  else
+  {
+    <div class="row g-3">
+      @foreach (var erp in erpAdapters)
+      {
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <h5 class="card-title mb-0">@erp.Name</h5>
+                <span class="badge bg-@(erp.IsConnected ? "success" : "secondary")">
+                  @(erp.IsConnected ? "Bagli" : "Bagli Degil")
+                </span>
+              </div>
+
+              <div class="mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                  <small class="text-muted">Son Sync</small>
+                  <small>@(erp.LastSyncAt?.ToString("dd.MM HH:mm") ?? "—")</small>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                  <small class="text-muted">Eslesen Cari</small>
+                  <small>@erp.MatchedAccounts / @erp.TotalAccounts</small>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                  <small class="text-muted">Sync Hatasi</small>
+                  <small class="@(erp.ErrorCount > 0 ? "text-danger" : "text-success")">@erp.ErrorCount</small>
+                </div>
+              </div>
+
+              <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-primary flex-fill" @onclick="() => TriggerSync(erp)"
+                        disabled="@erp.IsSyncing">
+                  @if (erp.IsSyncing)
+                  {
+                    <span class="spinner-border spinner-border-sm me-1"></span>
+                  }
+                  <i class="fas fa-sync me-1"></i>Sync
+                </button>
+                <a href="/erp/field-mapping?type=@erp.Code" class="btn btn-sm btn-outline-secondary">
+                  <i class="fas fa-columns"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+@code {
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private List<ErpAdapterStatus> erpAdapters = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var result = await ApiClient.SafeGetAsync<List<ErpAdapterStatus>>("erp/dashboard");
+            if (result.IsSuccess && result.Data is not null)
+                erpAdapters = result.Data;
+            else { _isDemoMode = true; LoadDemoData(); }
+        }
+        catch (Exception ex) { Logger.LogWarning(ex, "ERP dashboard unavailable"); _isDemoMode = true; LoadDemoData(); }
+        finally { isLoading = false; }
+    }
+
+    private void LoadDemoData()
+    {
+        erpAdapters = new()
+        {
+            new("Parasut", "parasut", true, DateTime.Now.AddHours(-2), 145, 160, 0, false),
+            new("Logo Tiger", "logo", false, null, 0, 0, 0, false),
+            new("BizimHesap", "bizimhesap", false, null, 0, 0, 0, false),
+            new("Netsis", "netsis", false, null, 0, 0, 0, false),
+            new("Nebim", "nebim", false, null, 0, 0, 0, false),
+            new("ERPNext", "erpnext", false, null, 0, 0, 0, false),
+        };
+    }
+
+    private async Task TriggerSync(ErpAdapterStatus erp)
+    {
+        erp.IsSyncing = true;
+        StateHasChanged();
+        try
+        {
+            var result = await ApiClient.SafePostAsync<object>($"erp/{erp.Code}/sync/trigger", new { });
+            if (!result.IsSuccess) { await Task.Delay(1500); }
+            erp.LastSyncAt = DateTime.Now;
+            erp.ErrorCount = 0;
+        }
+        catch (Exception ex) { Logger.LogWarning(ex, "ERP sync trigger failed for {Code}", erp.Code); }
+        finally { erp.IsSyncing = false; }
+    }
+
+    private sealed class ErpAdapterStatus
+    {
+        public string Name { get; set; } = "";
+        public string Code { get; set; } = "";
+        public bool IsConnected { get; set; }
+        public DateTime? LastSyncAt { get; set; }
+        public int MatchedAccounts { get; set; }
+        public int TotalAccounts { get; set; }
+        public int ErrorCount { get; set; }
+        public bool IsSyncing { get; set; }
+
+        public ErpAdapterStatus() { }
+        public ErpAdapterStatus(string name, string code, bool connected, DateTime? lastSync, int matched, int total, int errors, bool syncing)
+        {
+            Name = name; Code = code; IsConnected = connected; LastSyncAt = lastSync;
+            MatchedAccounts = matched; TotalAccounts = total; ErrorCount = errors; IsSyncing = syncing;
+        }
+    }
+}

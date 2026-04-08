@@ -26,7 +26,7 @@ public static class CategoryEndpoints
         })
         .WithName("GetCategories")
         .WithSummary("Kategori listesi (aktif/tümü filtresi)")
-        .Produces(200)
+        .Produces<IReadOnlyList<CategoryListDto>>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/categories/paged — paginated category list with search
@@ -44,7 +44,7 @@ public static class CategoryEndpoints
         })
         .WithName("GetCategoriesPaged")
         .WithSummary("Sayfalanmış kategori listesi (arama destekli)")
-        .Produces(200)
+        .Produces<PagedCategoryResult>(200)
         .CacheOutput("Lookup60s");
 
         // POST /api/v1/categories — create a new category

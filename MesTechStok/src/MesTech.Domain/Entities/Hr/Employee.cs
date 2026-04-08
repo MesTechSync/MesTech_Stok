@@ -24,6 +24,7 @@ public sealed class Employee : BaseEntity, ITenantEntity
         DateTime hireDate, Guid? departmentId = null,
         string? jobTitle = null, decimal? monthlySalary = null)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(employeeCode);
         if (hireDate > DateTime.UtcNow.AddDays(1))
             throw new ArgumentException("Hire date cannot be in the future.", nameof(hireDate));

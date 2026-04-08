@@ -1,9 +1,12 @@
 using FluentAssertions;
 using MesTech.Application.Commands.RemoveStock;
+using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Interfaces;
 using MesTech.Domain.Services;
 using MesTech.Tests.Unit._Shared;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace MesTech.Tests.Unit.EdgeCases;
@@ -20,9 +23,18 @@ public class RemoveStockHandlerEdgeCaseTests
     private readonly Mock<IStockMovementRepository> _movementRepo = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly StockCalculationService _stockCalc = new();
+    private readonly Mock<ITenantProvider> _tenantProvider = new();
+    private readonly Mock<IDistributedLockService> _lockService = new();
+
+    public RemoveStockHandlerEdgeCaseTests()
+    {
+        _lockService.Setup(l => l.AcquireLockAsync(
+                It.IsAny<string>(), It.IsAny<TimeSpan>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<IAsyncDisposable>());
+    }
 
     private RemoveStockHandler CreateHandler() =>
-        new(_productRepo.Object, _movementRepo.Object, _unitOfWork.Object, _stockCalc);
+        new(_productRepo.Object, _movementRepo.Object, _unitOfWork.Object, _lockService.Object, _stockCalc, _tenantProvider.Object, NullLogger<RemoveStockHandler>.Instance);
 
     // ── Constructor Null Guards ──
 
@@ -30,7 +42,7 @@ public class RemoveStockHandlerEdgeCaseTests
     public void Constructor_NullProductRepo_ShouldThrow()
     {
         var act = () => new RemoveStockHandler(
-            null!, _movementRepo.Object, _unitOfWork.Object, _stockCalc);
+            null!, _movementRepo.Object, _unitOfWork.Object, _lockService.Object, _stockCalc, _tenantProvider.Object, NullLogger<RemoveStockHandler>.Instance);
 
         act.Should().Throw<ArgumentNullException>()
             .WithParameterName("productRepository");
@@ -40,7 +52,7 @@ public class RemoveStockHandlerEdgeCaseTests
     public void Constructor_NullMovementRepo_ShouldThrow()
     {
         var act = () => new RemoveStockHandler(
-            _productRepo.Object, null!, _unitOfWork.Object, _stockCalc);
+            _productRepo.Object, null!, _unitOfWork.Object, _lockService.Object, _stockCalc, _tenantProvider.Object, NullLogger<RemoveStockHandler>.Instance);
 
         act.Should().Throw<ArgumentNullException>()
             .WithParameterName("movementRepository");
@@ -50,7 +62,7 @@ public class RemoveStockHandlerEdgeCaseTests
     public void Constructor_NullUnitOfWork_ShouldThrow()
     {
         var act = () => new RemoveStockHandler(
-            _productRepo.Object, _movementRepo.Object, null!, _stockCalc);
+            _productRepo.Object, _movementRepo.Object, null!, _lockService.Object, _stockCalc, _tenantProvider.Object, NullLogger<RemoveStockHandler>.Instance);
 
         act.Should().Throw<ArgumentNullException>()
             .WithParameterName("unitOfWork");
@@ -60,7 +72,7 @@ public class RemoveStockHandlerEdgeCaseTests
     public void Constructor_NullStockCalc_ShouldThrow()
     {
         var act = () => new RemoveStockHandler(
-            _productRepo.Object, _movementRepo.Object, _unitOfWork.Object, null!);
+            _productRepo.Object, _movementRepo.Object, _unitOfWork.Object, _lockService.Object, null!, _tenantProvider.Object, NullLogger<RemoveStockHandler>.Instance);
 
         act.Should().Throw<ArgumentNullException>()
             .WithParameterName("stockCalc");
@@ -84,7 +96,7 @@ public class RemoveStockHandlerEdgeCaseTests
     public async Task Handle_RemoveZeroQuantity_ShouldSucceedWithNoChange()
     {
         var product = FakeData.CreateProduct(stock: 50);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var handler = CreateHandler();
         var command = new RemoveStockCommand(product.Id, 0);
@@ -99,7 +111,7 @@ public class RemoveStockHandlerEdgeCaseTests
     public async Task Handle_ShouldNotCallSaveChanges_WhenProductNotFound()
     {
         var id = Guid.NewGuid();
-        _productRepo.Setup(r => r.GetByIdAsync(id)).ReturnsAsync((Product?)null);
+        _productRepo.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
         var handler = CreateHandler();
         var command = new RemoveStockCommand(id, 10);
@@ -107,14 +119,14 @@ public class RemoveStockHandlerEdgeCaseTests
         await handler.Handle(command, CancellationToken.None);
 
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
-        _movementRepo.Verify(r => r.AddAsync(It.IsAny<StockMovement>()), Times.Never);
+        _movementRepo.Verify(r => r.AddAsync(It.IsAny<StockMovement>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
     public async Task Handle_InsufficientStock_ShouldNotModifyProduct()
     {
         var product = FakeData.CreateProduct(sku: "GUARD-01", stock: 5);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var handler = CreateHandler();
         var command = new RemoveStockCommand(product.Id, 100);
@@ -123,18 +135,18 @@ public class RemoveStockHandlerEdgeCaseTests
 
         result.IsSuccess.Should().BeFalse();
         product.Stock.Should().Be(5); // Unchanged
-        _productRepo.Verify(r => r.UpdateAsync(It.IsAny<Product>()), Times.Never);
+        _productRepo.Verify(r => r.UpdateAsync(It.IsAny<Product>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
     public async Task Handle_WithDocumentNumber_ShouldCaptureInMovement()
     {
         var product = FakeData.CreateProduct(stock: 100);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         StockMovement? captured = null;
-        _movementRepo.Setup(r => r.AddAsync(It.IsAny<StockMovement>()))
-            .Callback<StockMovement>(m => captured = m);
+        _movementRepo.Setup(r => r.AddAsync(It.IsAny<StockMovement>(), It.IsAny<CancellationToken>()))
+            .Callback<StockMovement, CancellationToken>((m, _) => captured = m);
 
         var handler = CreateHandler();
         var command = new RemoveStockCommand(product.Id, 10,
@@ -152,7 +164,7 @@ public class RemoveStockHandlerEdgeCaseTests
     public async Task Handle_CancellationToken_ShouldBePassedToSaveChanges()
     {
         var product = FakeData.CreateProduct(stock: 50);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var cts = new CancellationTokenSource();
         var handler = CreateHandler();

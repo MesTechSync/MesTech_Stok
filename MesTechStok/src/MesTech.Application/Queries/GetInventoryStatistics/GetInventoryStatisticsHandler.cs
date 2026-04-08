@@ -21,12 +21,12 @@ public sealed class GetInventoryStatisticsHandler : IRequestHandler<GetInventory
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var allProducts = await _productRepository.GetAllAsync().ConfigureAwait(false);
-        var lowStockProducts = await _productRepository.GetLowStockAsync().ConfigureAwait(false);
+        var allProducts = await _productRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
+        var lowStockProducts = await _productRepository.GetLowStockAsync(cancellationToken).ConfigureAwait(false);
 
         var todayStart = DateTime.UtcNow.Date;
         var todayMovements = await _stockMovementRepository
-            .GetByDateRangeAsync(todayStart, DateTime.UtcNow)
+            .GetByDateRangeAsync(todayStart, DateTime.UtcNow, cancellationToken)
             .ConfigureAwait(false);
 
         var totalInventoryValue = allProducts.Sum(p => p.Stock * p.SalePrice);

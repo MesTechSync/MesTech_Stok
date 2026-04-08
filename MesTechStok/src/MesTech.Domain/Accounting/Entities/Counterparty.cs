@@ -31,6 +31,7 @@ public sealed class Counterparty : BaseEntity, ITenantEntity
         string? address = null,
         string? platform = null)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
         return new Counterparty

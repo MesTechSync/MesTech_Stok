@@ -9,6 +9,7 @@ using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -30,13 +31,15 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// VerifyWebhookSignature: HMAC-SHA256 (IRON RULE — always verify).
 /// </summary>
 public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, IWebhookCapableAdapter, IShipmentCapableAdapter,
-    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IPingableAdapter
+    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IPingableAdapter,
+    IReviewCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<ShopifyAdapter> _logger;
     private readonly ShopifyOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     // Shopify leaky bucket: 40 req/s burst, 2 req/s sustained. 4 concurrency prevents 429 storm.
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(4, 4);
@@ -51,10 +54,11 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
     private const string ApiVersion = "2024-01";
 
     public ShopifyAdapter(HttpClient httpClient, ILogger<ShopifyAdapter> logger,
-        IOptions<ShopifyOptions>? options = null)
+        IOptions<ShopifyOptions>? options = null, IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _scopeFactory = scopeFactory;
         _options = options?.Value ?? new ShopifyOptions();
         _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
 
@@ -157,7 +161,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
     // IIntegratorAdapter — Identity
     // ─────────────────────────────────────────────
 
-    public string PlatformCode => "Shopify";
+    public string PlatformCode => nameof(PlatformType.Shopify);
     public bool SupportsStockUpdate => true;
     public bool SupportsPriceUpdate => true;
     public bool SupportsShipment => true;
@@ -182,7 +186,9 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
         if (_isConfigured)
         {
-            // Credentials stored in fields — applied per-request via CreateAuthenticatedRequest
+            // SSRF guard (G10853) — validate shop domain is not private/internal
+            if (Security.SsrfGuard.IsPrivateHost(_shopDomain))
+                _logger.LogWarning("[ShopifyAdapter] ShopDomain points to private network: {Domain}", _shopDomain);
         }
     }
 
@@ -230,7 +236,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             // Verify by hitting shop.json — returns store info
             var url = $"{BaseUrl}/shop.json";
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -274,7 +280,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             result.IsSuccess = true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Shopify TestConnectionAsync basarisiz");
             result.ErrorMessage = ex.Message;
@@ -310,7 +316,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             while (!string.IsNullOrEmpty(url))
             {
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token =>
                     {
                         using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -337,16 +343,17 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                         if (shopifyProduct.Variants is { Count: > 0 })
                         {
                             var firstVariant = shopifyProduct.Variants[0];
-                            products.Add(new Product
+                            var product = new Product
                             {
                                 Name = shopifyProduct.Title ?? string.Empty,
                                 SKU = firstVariant.Sku ?? string.Empty,
-                                Stock = firstVariant.InventoryQuantity,
                                 SalePrice = decimal.TryParse(firstVariant.Price,
                                     NumberStyles.Number, CultureInfo.InvariantCulture, out var price)
                                     ? price
                                     : 0m
-                            });
+                            };
+                            product.SyncStock(firstVariant.InventoryQuantity, "shopify-sync");
+                            products.Add(product);
                         }
                     }
                 }
@@ -357,7 +364,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             _logger.LogInformation("Shopify PullProducts: {Count} products retrieved", products.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Shopify PullProducts failed");
         }
@@ -418,6 +425,13 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         _logger.LogInformation("ShopifyAdapter.PushStockUpdateAsync: ProductId={ProductId} qty={Qty}",
             productId, newStock);
 
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Shopify, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} StockUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         if (string.IsNullOrWhiteSpace(_locationId))
         {
             _logger.LogWarning("ShopifyAdapter.PushStockUpdateAsync — LocationId yapilandirilmamis. " +
@@ -427,8 +441,8 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
         try
         {
-            // Step 1: Find variant by productId (used as SKU in Shopify context)
-            var sku = productId.ToString();
+            // Step 1: Find variant by externalId (SKU in Shopify context)
+            var sku = externalId;
             var variantsUrl = $"{BaseUrl}/variants.json?fields=id,sku,inventory_item_id&limit=250";
             var variantResponse = await ThrottledExecuteAsync(
                 async token =>
@@ -503,7 +517,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             _logger.LogInformation("Shopify StockUpdate success: SKU={SKU} qty={Qty}", sku, newStock);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Shopify StockUpdate exception: {ProductId}", productId);
             return false;
@@ -520,9 +534,16 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         _logger.LogInformation("ShopifyAdapter.PushPriceUpdateAsync: ProductId={ProductId} price={Price}",
             productId, newPrice);
 
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Shopify, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} PriceUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         try
         {
-            var sku = productId.ToString();
+            var sku = externalId;
 
             // Step 1: Find variant id by SKU
             var variantsUrl = $"{BaseUrl}/variants.json?fields=id,sku&limit=250";
@@ -601,7 +622,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             _logger.LogInformation("Shopify PriceUpdate success: SKU={SKU} price={Price}", sku, newPrice);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Shopify PriceUpdate exception: {ProductId}", productId);
             return false;
@@ -620,7 +641,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         try
         {
             var url = $"{BaseUrl}/custom_collections.json?fields=id,title&limit=250";
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -660,7 +681,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             _logger.LogInformation("Shopify GetCategories: {Count} collections retrieved", categories.Count);
             return categories.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Shopify GetCategories failed");
             return Array.Empty<CategoryDto>();
@@ -694,7 +715,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             while (!string.IsNullOrEmpty(url))
             {
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token =>
                     {
                         using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -725,7 +746,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             _logger.LogInformation("Shopify PullOrders: {Count} orders retrieved", orders.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Shopify PullOrders failed");
         }
@@ -952,7 +973,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             }
 
             using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Post, url, requestContent);
@@ -971,7 +992,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                 packageId, status);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Shopify UpdateOrderStatus exception: {OrderId}", packageId);
             return false;
@@ -1016,7 +1037,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
                 using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
                 var url = $"{BaseUrl}/webhooks.json";
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token =>
                     {
                         using var request = CreateAuthenticatedRequest(HttpMethod.Post, url, requestContent);
@@ -1038,7 +1059,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             return allSuccess;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Shopify RegisterWebhook exception");
             return false;
@@ -1086,7 +1107,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                 var webhookId = idEl.GetInt64();
                 var deleteUrl = $"{BaseUrl}/webhooks/{webhookId}.json";
                 using var deleteRequest = CreateAuthenticatedRequest(HttpMethod.Delete, deleteUrl);
-                var deleteResponse = await _httpClient.SendAsync(deleteRequest, ct).ConfigureAwait(false);
+                using var deleteResponse = await _httpClient.SendAsync(deleteRequest, ct).ConfigureAwait(false);
 
                 if (!deleteResponse.IsSuccessStatusCode)
                 {
@@ -1100,7 +1121,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             _logger.LogInformation("Shopify UnregisterWebhook complete");
             return allDeleted;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Shopify UnregisterWebhook exception");
             return false;
@@ -1113,12 +1134,12 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
     /// Payload format: JSON string prefixed with "X-Shopify-Hmac-Sha256:{base64Hmac}|{payload}"
     /// Convention used here: raw JSON payload is passed directly; signature checked separately.
     /// </summary>
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(payload))
         {
             _logger.LogWarning("ShopifyAdapter.ProcessWebhookPayloadAsync — bos payload");
-            return Task.CompletedTask;
+            return;
         }
 
         _logger.LogInformation("Shopify webhook payload received ({Length} bytes)", payload.Length);
@@ -1139,13 +1160,13 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             _logger.LogInformation(
                 "Shopify webhook processed: OrderId={OrderId} FinancialStatus={Status}",
                 orderId, financialStatus);
+
+            await WebhookDispatchHelper.DispatchAsync(_scopeFactory, PlatformCode, financialStatus, orderId, payload, _logger, ct).ConfigureAwait(false);
         }
         catch (JsonException ex)
         {
             _logger.LogWarning(ex, "Shopify webhook payload JSON parse hatasi");
         }
-
-        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -1187,7 +1208,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             return isValid;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Shopify VerifyWebhookSignature exception");
             return false;
@@ -1250,7 +1271,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
 
             using var requestContent = new StringContent(payload, Encoding.UTF8, "application/json");
             var url = $"{BaseUrl}/orders/{Uri.EscapeDataString(platformOrderId)}/fulfillments.json";
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Post, url, requestContent);
@@ -1270,7 +1291,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                 platformOrderId, shipment.TrackingNumber);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Shopify SendShipment exception: OrderId={OrderId}", platformOrderId);
             return false;
@@ -1294,7 +1315,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         try
         {
             var url = $"{BaseUrl}/locations.json";
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -1354,7 +1375,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                 locations.Count);
             return locations.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Shopify GetInventoryLocations failed");
             return Array.Empty<InventoryLocationDto>();
@@ -1380,7 +1401,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         try
         {
             var url = $"{BaseUrl}/products/{Uri.EscapeDataString(productId)}/variants.json";
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -1431,7 +1452,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
                 variants.Count, productId);
             return variants.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Shopify GetProductVariants failed: ProductId={ProductId}", productId);
             return Array.Empty<ProductVariantDto>();
@@ -1647,7 +1668,7 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             var url = $"{BaseUrl}/orders.json?financial_status=refunded" +
                 $"&updated_at_min={sinceDate:yyyy-MM-ddTHH:mm:ssZ}&status=any&limit=250";
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -1864,6 +1885,73 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
         return Task.FromResult(true);
     }
 
+    // ═══════════════════════════════════════════
+    // IReviewCapableAdapter — Product Reviews
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Gets product reviews from Shopify REST Admin API.
+    /// Uses GET /admin/api/2024-01/reviews.json with pagination.
+    /// </summary>
+    public async Task<IReadOnlyList<TrendyolProductReviewDto>> GetProductReviewsAsync(
+        int page = 0, int size = 20, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("ShopifyAdapter.GetProductReviewsAsync page={Page} size={Size}", page, size);
+
+        try
+        {
+            var response = await ThrottledExecuteAsync(async token =>
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get,
+                    $"/admin/api/2024-01/reviews.json?page={page}&limit={size}");
+                return await _httpClient.SendAsync(request, token).ConfigureAwait(false);
+            }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Shopify GetProductReviews failed: {Status} - {Error}", response.StatusCode, error);
+                return Array.Empty<TrendyolProductReviewDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var reviews = new List<TrendyolProductReviewDto>();
+            var items = doc.RootElement.TryGetProperty("reviews", out var revArr) ? revArr
+                : doc.RootElement.TryGetProperty("data", out var dataArr) ? dataArr
+                : doc.RootElement;
+
+            if (items.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in items.EnumerateArray())
+                {
+                    reviews.Add(new TrendyolProductReviewDto(
+                        Id: item.TryGetProperty("id", out var id) ? (id.ValueKind == JsonValueKind.Number ? id.GetInt64() : 0) : 0,
+                        ProductId: item.TryGetProperty("product_id", out var pid) ? (pid.ValueKind == JsonValueKind.Number ? (int)pid.GetInt64() : 0) : 0,
+                        Comment: item.TryGetProperty("body", out var body) ? body.GetString() ?? ""
+                            : item.TryGetProperty("text", out var text) ? text.GetString() ?? "" : "",
+                        Rate: item.TryGetProperty("rating", out var rate) ? (int)rate.GetDouble() : 0,
+                        UserFullName: item.TryGetProperty("author", out var author) ? author.GetString() ?? ""
+                            : item.TryGetProperty("reviewer", out var reviewer) ? reviewer.GetString() ?? "" : "",
+                        CreatedAt: item.TryGetProperty("created_at", out var dt)
+                            ? (DateTime.TryParse(dt.GetString(), out var parsed) ? parsed : DateTime.MinValue)
+                            : DateTime.MinValue,
+                        IsReplied: item.TryGetProperty("isReplied", out var replied) && replied.GetBoolean()));
+                }
+            }
+
+            _logger.LogInformation("Shopify GetProductReviews: {Count} reviews fetched", reviews.Count);
+            return reviews;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Shopify GetProductReviews exception");
+            return Array.Empty<TrendyolProductReviewDto>();
+        }
+    }
+
     // ── IPingableAdapter ──
     public async Task<bool> PingAsync(CancellationToken ct = default)
     {
@@ -1872,15 +1960,16 @@ public sealed class ShopifyAdapter : IIntegratorAdapter, IOrderCapableAdapter, I
             if (_httpClient.BaseAddress is null) return false;
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(TimeSpan.FromSeconds(5));
-            var resp = await _httpClient.GetAsync(_httpClient.BaseAddress, cts.Token).ConfigureAwait(false);
+            using var resp = await _httpClient.GetAsync(_httpClient.BaseAddress, cts.Token).ConfigureAwait(false);
             return (int)resp.StatusCode < 500;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Shopify ping failed");
             return false;
         }
     }
+
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -32,6 +32,7 @@ public sealed class ErpAccountMapping : BaseEntity, ITenantEntity
         string mesTechCode, string mesTechName, string mesTechType,
         string erpCode, string erpName)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(mesTechCode);
         ArgumentException.ThrowIfNullOrWhiteSpace(erpCode);
 

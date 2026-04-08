@@ -49,6 +49,7 @@ public sealed class GetHealthStatusHandler : IRequestHandler<GetHealthStatusQuer
                 ErrorMessage = error
             };
         }
+#pragma warning disable CA1031 // Intentional: health check must not throw — report degraded status
         catch (Exception ex)
         {
             sw.Stop();
@@ -60,5 +61,6 @@ public sealed class GetHealthStatusHandler : IRequestHandler<GetHealthStatusQuer
                 ErrorMessage = ex.Message
             };
         }
+#pragma warning restore CA1031
     }
 }

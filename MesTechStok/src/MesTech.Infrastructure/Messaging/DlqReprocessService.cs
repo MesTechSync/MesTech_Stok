@@ -30,9 +30,12 @@ public sealed class DlqReprocessService
     {
         var result = new DlqReprocessResult { QueueName = queueName };
 
-        var rabbitHost = _configuration["RabbitMQ:Host"] ?? "localhost";
-        var rabbitUser = _configuration["RabbitMQ:Username"] ?? "guest";
-        var rabbitPass = _configuration["RabbitMQ:Password"] ?? "guest";
+        var rabbitHost = _configuration["RabbitMQ:Host"]
+            ?? throw new InvalidOperationException("RabbitMQ:Host is not configured. Add it to appsettings or environment variables.");
+        var rabbitUser = _configuration["RabbitMQ:Username"]
+            ?? throw new InvalidOperationException("RabbitMQ:Username is not configured. Add it to appsettings or environment variables.");
+        var rabbitPass = _configuration["RabbitMQ:Password"]
+            ?? throw new InvalidOperationException("RabbitMQ:Password is not configured. Add it to appsettings or environment variables.");
         var managementPort = _configuration["RabbitMQ:ManagementPort"] ?? "15672";
 
         var client = _httpClientFactory.CreateClient("RabbitMqManagement");
@@ -58,7 +61,7 @@ public sealed class DlqReprocessService
             });
 
             var getContent = new StringContent(getBody, System.Text.Encoding.UTF8, "application/json");
-            var response = await client.PostAsync(
+            using var response = await client.PostAsync(
                 $"{baseUrl}/api/queues/%2f/{Uri.EscapeDataString(errorQueue)}/get", getContent, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -81,9 +84,10 @@ public sealed class DlqReprocessService
                 var reprocessCount = 0;
                 if (msg.TryGetProperty("properties", out var props) &&
                     props.TryGetProperty("headers", out var headers) &&
-                    headers.TryGetProperty("x-reprocess-count", out var countProp))
+                    headers.TryGetProperty("x-reprocess-count", out var countProp) &&
+                    countProp.TryGetInt32(out var parsedCount))
                 {
-                    reprocessCount = countProp.GetInt32();
+                    reprocessCount = parsedCount;
                 }
 
                 if (reprocessCount >= 3)
@@ -113,7 +117,7 @@ public sealed class DlqReprocessService
                 });
 
                 var publishContent = new StringContent(publishBody, System.Text.Encoding.UTF8, "application/json");
-                var publishResponse = await client.PostAsync(
+                using var publishResponse = await client.PostAsync(
                     $"{baseUrl}/api/exchanges/%2f/amq.default/publish", publishContent, ct).ConfigureAwait(false);
 
                 if (publishResponse.IsSuccessStatusCode)
@@ -132,7 +136,7 @@ public sealed class DlqReprocessService
                 }
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[DLQ Reprocess] Error processing {Queue}", errorQueue);
             result.ErrorMessage = ex.Message;
@@ -145,9 +149,12 @@ public sealed class DlqReprocessService
     {
         var result = new List<DlqQueueStatus>();
 
-        var rabbitHost = _configuration["RabbitMQ:Host"] ?? "localhost";
-        var rabbitUser = _configuration["RabbitMQ:Username"] ?? "guest";
-        var rabbitPass = _configuration["RabbitMQ:Password"] ?? "guest";
+        var rabbitHost = _configuration["RabbitMQ:Host"]
+            ?? throw new InvalidOperationException("RabbitMQ:Host is not configured. Add it to appsettings or environment variables.");
+        var rabbitUser = _configuration["RabbitMQ:Username"]
+            ?? throw new InvalidOperationException("RabbitMQ:Username is not configured. Add it to appsettings or environment variables.");
+        var rabbitPass = _configuration["RabbitMQ:Password"]
+            ?? throw new InvalidOperationException("RabbitMQ:Password is not configured. Add it to appsettings or environment variables.");
         var managementPort = _configuration["RabbitMQ:ManagementPort"] ?? "15672";
 
         var client = _httpClientFactory.CreateClient("RabbitMqManagement");
@@ -161,7 +168,7 @@ public sealed class DlqReprocessService
 
         try
         {
-            var response = await client.GetAsync($"{baseUrl}/api/queues/%2f", ct).ConfigureAwait(false);
+            using var response = await client.GetAsync($"{baseUrl}/api/queues/%2f", ct).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode) return result;
 
             var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
@@ -169,7 +176,8 @@ public sealed class DlqReprocessService
 
             foreach (var queue in doc.RootElement.EnumerateArray())
             {
-                var name = queue.GetProperty("name").GetString() ?? "";
+                var name = queue.TryGetProperty("name", out var nameProp)
+                    ? nameProp.GetString() ?? "" : "";
                 if (!name.EndsWith("_error")) continue;
 
                 var messageCount = queue.TryGetProperty("messages", out var msgProp)
@@ -182,7 +190,7 @@ public sealed class DlqReprocessService
                 });
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "[DLQ Status] Failed to fetch DLQ status");
         }

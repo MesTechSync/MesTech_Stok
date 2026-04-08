@@ -41,7 +41,12 @@ public sealed class InvoiceLine : BaseEntity, ITenantEntity
         if (discount < 0)
             throw new InvalidOperationException($"İndirim tutarı negatif olamaz. Mevcut: {discount}");
 
-        var subtotal = UnitPrice * Quantity - discount;
+        var grossAmount = UnitPrice * Quantity;
+        if (discount > grossAmount)
+            throw new InvalidOperationException(
+                $"İndirim tutarı ({discount:C}) brüt tutarı ({grossAmount:C}) aşamaz.");
+
+        var subtotal = grossAmount - discount;
         TaxAmount = Math.Round(subtotal * TaxRate, 2);
         LineTotal = Math.Round(subtotal + TaxAmount, 2);
     }

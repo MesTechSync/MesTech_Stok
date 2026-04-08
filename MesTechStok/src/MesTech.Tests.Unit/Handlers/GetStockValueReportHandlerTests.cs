@@ -21,12 +21,12 @@ public class GetStockValueReportHandlerTests
     [Fact]
     public async Task Handle_WithProducts_ReturnsValuation()
     {
-        var products = new List<Product>
-        {
-            new Product { Id = Guid.NewGuid(), Name = "Ürün A", SKU = "SKU-A", Stock = 10, PurchasePrice = 50m, SalePrice = 100m },
-            new Product { Id = Guid.NewGuid(), Name = "Ürün B", SKU = "SKU-B", Stock = 5, PurchasePrice = 30m, SalePrice = 60m },
-            new Product { Id = Guid.NewGuid(), Name = "Stoksuz", SKU = "SKU-C", Stock = 0, PurchasePrice = 20m, SalePrice = 40m }
-        };
+        var pA = new Product { Id = Guid.NewGuid(), Name = "Ürün A", SKU = "SKU-A", PurchasePrice = 50m, SalePrice = 100m };
+        pA.SyncStock(10);
+        var pB = new Product { Id = Guid.NewGuid(), Name = "Ürün B", SKU = "SKU-B", PurchasePrice = 30m, SalePrice = 60m };
+        pB.SyncStock(5);
+        var pC = new Product { Id = Guid.NewGuid(), Name = "Stoksuz", SKU = "SKU-C", PurchasePrice = 20m, SalePrice = 40m };
+        var products = new List<Product> { pA, pB, pC };
         _productRepoMock.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>())).ReturnsAsync(products.AsReadOnly());
 
         var query = new GetStockValueReportQuery(_tenantId);

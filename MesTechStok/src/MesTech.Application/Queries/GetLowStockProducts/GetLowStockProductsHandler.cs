@@ -18,7 +18,7 @@ public sealed class GetLowStockProductsHandler : IRequestHandler<GetLowStockProd
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var products = await _productRepository.GetLowStockAsync().ConfigureAwait(false);
+        var products = await _productRepository.GetLowStockAsync(cancellationToken).ConfigureAwait(false);
         return products.Adapt<List<ProductDto>>().AsReadOnly();
     }
 }

@@ -23,7 +23,7 @@ public class ListQuotationsHandlerTests
     [Fact]
     public async Task NoFilter_CallsGetAllAsync_ReturnsAllDtos()
     {
-        _quotationRepo.Setup(r => r.GetAllAsync())
+        _quotationRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Quotation>
             {
                 new() { QuotationNumber = "QT-001", CustomerName = "A", Currency = "TRY" },
@@ -36,14 +36,14 @@ public class ListQuotationsHandlerTests
 
         result.Should().HaveCount(3);
         result.Select(q => q.QuotationNumber).Should().Contain("QT-001").And.Contain("QT-003");
-        _quotationRepo.Verify(r => r.GetAllAsync(), Times.Once);
-        _quotationRepo.Verify(r => r.GetByStatusAsync(It.IsAny<QuotationStatus>()), Times.Never);
+        _quotationRepo.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _quotationRepo.Verify(r => r.GetByStatusAsync(It.IsAny<QuotationStatus>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
     public async Task FilterByStatusDraft_CallsGetByStatusAsync_ReturnsOnlyMatching()
     {
-        _quotationRepo.Setup(r => r.GetByStatusAsync(QuotationStatus.Draft))
+        _quotationRepo.Setup(r => r.GetByStatusAsync(QuotationStatus.Draft, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Quotation>
             {
                 new() { QuotationNumber = "QT-DRAFT-001", CustomerName = "Draft Co", Currency = "USD" },
@@ -55,21 +55,21 @@ public class ListQuotationsHandlerTests
         result.Should().HaveCount(1);
         result[0].QuotationNumber.Should().Be("QT-DRAFT-001");
         result[0].Status.Should().Be("Draft");
-        _quotationRepo.Verify(r => r.GetByStatusAsync(QuotationStatus.Draft), Times.Once);
-        _quotationRepo.Verify(r => r.GetAllAsync(), Times.Never);
+        _quotationRepo.Verify(r => r.GetByStatusAsync(QuotationStatus.Draft, It.IsAny<CancellationToken>()), Times.Once);
+        _quotationRepo.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
     public async Task EmptyRepo_ReturnsEmptyList()
     {
-        _quotationRepo.Setup(r => r.GetAllAsync())
+        _quotationRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Quotation>());
 
         var result = await CreateHandler().Handle(
             new ListQuotationsQuery(), CancellationToken.None);
 
         result.Should().BeEmpty();
-        _quotationRepo.Verify(r => r.GetAllAsync(), Times.Once);
+        _quotationRepo.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }
 
@@ -190,7 +190,7 @@ public class QuotationNullGuardTests
     public async Task ListQuotations_FilterByAccepted_CallsGetByStatusWithCorrectEnum()
     {
         var quotationRepo = new Mock<IQuotationRepository>();
-        quotationRepo.Setup(r => r.GetByStatusAsync(QuotationStatus.Accepted))
+        quotationRepo.Setup(r => r.GetByStatusAsync(QuotationStatus.Accepted, It.IsAny<CancellationToken>()))
             .ReturnsAsync(() =>
             {
                 var q = new Quotation { QuotationNumber = "QT-ACC-001", CustomerName = "Accepted Co", Currency = "TRY" };
@@ -205,7 +205,7 @@ public class QuotationNullGuardTests
 
         result.Should().HaveCount(1);
         result[0].Status.Should().Be("Accepted");
-        quotationRepo.Verify(r => r.GetByStatusAsync(QuotationStatus.Accepted), Times.Once);
+        quotationRepo.Verify(r => r.GetByStatusAsync(QuotationStatus.Accepted, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -229,6 +229,6 @@ public class QuotationNullGuardTests
         quotationRepo.Verify(r => r.AddAsync(It.Is<Quotation>(q =>
             q.CustomerId == customerId &&
             q.CustomerName == "Customer Inc"
-        )), Times.Once);
+        ), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

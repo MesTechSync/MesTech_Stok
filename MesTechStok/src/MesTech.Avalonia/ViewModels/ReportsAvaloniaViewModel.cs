@@ -46,15 +46,11 @@ public partial class ReportsAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             // KÖK-1 FIX: Sequential query — DbContext concurrent access önleme
-            var dashboard = await _mediator.Send(new GetDashboardSummaryQuery(TenantId: _currentUser.TenantId));
-            var stock = await _mediator.Send(new GetStockSummaryQuery(TenantId: _currentUser.TenantId));
+            var dashboard = await _mediator.Send(new GetDashboardSummaryQuery(TenantId: _currentUser.TenantId), ct);
+            var stock = await _mediator.Send(new GetStockSummaryQuery(TenantId: _currentUser.TenantId), ct);
 
             // Sales Report
             TotalSales = $"{dashboard.MonthlySalesAmount:N0} TL";
@@ -71,21 +67,12 @@ public partial class ReportsAvaloniaViewModel : ViewModelBase
             // Revenue Report
             TotalRevenue = $"{dashboard.MonthlySalesAmount:N0} TL";
             var expenses = await _mediator.Send(new GetExpenseReportQuery(
-                _currentUser.TenantId, DateTime.Now.AddMonths(-1), DateTime.Now));
+                _currentUser.TenantId, DateTime.Now.AddMonths(-1), DateTime.Now), ct);
             TotalExpenses = $"{expenses.TotalExpenses:N0} TL";
             NetProfit = $"{dashboard.MonthlySalesAmount - expenses.TotalExpenses:N0} TL";
 
             Summary = "Rapor olusturmak icin tarih araligi secin ve rapor turunu belirleyin.";
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Raporlar yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Raporlar yuklenirken hata");
     }
 
     [RelayCommand]

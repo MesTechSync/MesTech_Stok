@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
 using MesTech.Application.Features.Crm.Queries.GetContactsPaged;
+using MesTech.Application.Features.Reporting.Commands.ExportReport;
 using MesTech.Avalonia.Services;
 using MesTech.Domain.Interfaces;
 
@@ -17,11 +18,17 @@ public partial class ContactsAvaloniaViewModel : ViewModelBase
     private readonly ICurrentUserService _currentUser;
     private readonly IDialogService _dialog;
 
+    private List<ContactListDto> _allContacts = [];
+
     [ObservableProperty] private ObservableCollection<ContactListDto> contacts = [];
     [ObservableProperty] private int totalCount;
     [ObservableProperty] private string summary = string.Empty;
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private int currentPage = 1;
+
+    // Sort
+    [ObservableProperty] private string sortColumn = "date";
+    [ObservableProperty] private bool sortAscending = false;
 
     public ContactsAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser, IDialogService dialog)
     {
@@ -42,16 +49,49 @@ public partial class ContactsAvaloniaViewModel : ViewModelBase
                     Search: string.IsNullOrWhiteSpace(SearchText) ? null : SearchText),
                 ct);
 
-            Contacts = new ObservableCollection<ContactListDto>(result.Contacts);
+            _allContacts = result.Contacts.ToList();
             TotalCount = result.TotalCount;
-            Summary = $"Toplam {TotalCount} kisi";
-            IsEmpty = TotalCount == 0;
+            ApplyFilters();
         }, "Kisiler yuklenirken hata");
+    }
+
+    private void ApplyFilters()
+    {
+        var filtered = _allContacts.AsEnumerable();
+
+        // Sort
+        filtered = SortColumn switch
+        {
+            "name"  => SortAscending ? filtered.OrderBy(c => c.FullName)   : filtered.OrderByDescending(c => c.FullName),
+            "email" => SortAscending ? filtered.OrderBy(c => c.Email)      : filtered.OrderByDescending(c => c.Email),
+            "date"  => SortAscending ? filtered.OrderBy(c => c.CreatedAt)  : filtered.OrderByDescending(c => c.CreatedAt),
+            _       => filtered.OrderByDescending(c => c.CreatedAt)
+        };
+
+        Contacts = new ObservableCollection<ContactListDto>(filtered);
+        Summary = $"Toplam {TotalCount} kisi";
+        IsEmpty = TotalCount == 0;
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column)
+            SortAscending = !SortAscending;
+        else
+        {
+            SortColumn = column;
+            SortAscending = true;
+        }
+        ApplyFilters();
     }
 
     [RelayCommand]
     private async Task Add()
     {
+        // G98 FIX: Wire to CreateContactCommand when DEV1 implements handler.
+        // Current: local-only insert (not persisted to DB).
+        // Target: await _mediator.Send(new CreateContactCommand(...), CancellationToken);
         var newContact = new ContactListDto
         {
             ContactId = Guid.NewGuid(),
@@ -82,5 +122,21 @@ public partial class ContactsAvaloniaViewModel : ViewModelBase
     {
         if (CurrentPage > 1) CurrentPage--;
         await LoadAsync();
+    }
+
+    // HH-FIX-014c: Excel export
+    [RelayCommand]
+    private async Task ExportExcel()
+    {
+        await SafeExecuteAsync(async ct =>
+        {
+            var result = await _mediator.Send(new ExportReportCommand(_currentUser.TenantId, "contacts", "xlsx"), ct);
+            if (result.FileData.Length > 0)
+            {
+                var dir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
+                System.IO.Directory.CreateDirectory(dir);
+                await System.IO.File.WriteAllBytesAsync(System.IO.Path.Combine(dir, result.FileName), result.FileData);
+            }
+        }, "Kisiler disa aktarilirken hata");
     }
 }

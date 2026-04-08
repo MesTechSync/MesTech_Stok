@@ -1,6 +1,8 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MesTech.Application.Features.Product.Queries.FetchProductFromPlatform;
+using MesTech.Application.Queries.GetCategories;
 using MediatR;
 
 namespace MesTech.Avalonia.ViewModels;
@@ -23,6 +25,9 @@ public partial class ProductFetchAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private decimal fetchedPrice;
     [ObservableProperty] private string fetchedDescription = string.Empty;
     [ObservableProperty] private string fetchedCategory = string.Empty;
+    [ObservableProperty] private CategoryItem? selectedCategory;
+    public ObservableCollection<CategoryItem> Categories { get; } = [];
+    private Guid SelectedCategoryId => SelectedCategory?.Id ?? Guid.Empty;
     [ObservableProperty] private string fetchedSKU = string.Empty;
     [ObservableProperty] private int fetchedStock;
     [ObservableProperty] private string fetchedImageUrl = string.Empty;
@@ -33,13 +38,19 @@ public partial class ProductFetchAvaloniaViewModel : ViewModelBase
         _mediator = mediator;
     }
 
-    public override Task LoadAsync()
+    public override async Task LoadAsync()
     {
         IsLoading = true;
         HasError = false;
         ErrorMessage = string.Empty;
         try
         {
+            // Load categories for ComboBox
+            var cats = await _mediator.Send(new GetCategoriesQuery(ActiveOnly: true));
+            Categories.Clear();
+            foreach (var c in cats)
+                Categories.Add(new CategoryItem(c.Id, c.Name));
+
             // Set initial clean state — user will enter URL and click Fetch
             ProductUrl = string.Empty;
             ProductLoaded = false;
@@ -48,6 +59,7 @@ public partial class ProductFetchAvaloniaViewModel : ViewModelBase
             FetchedPrice = 0;
             FetchedDescription = string.Empty;
             FetchedCategory = string.Empty;
+            SelectedCategory = null;
             FetchedSKU = string.Empty;
             FetchedStock = 0;
             FetchedImageUrl = string.Empty;
@@ -62,7 +74,6 @@ public partial class ProductFetchAvaloniaViewModel : ViewModelBase
         {
             IsLoading = false;
         }
-        return Task.CompletedTask;
     }
 
     [RelayCommand]
@@ -119,7 +130,7 @@ public partial class ProductFetchAvaloniaViewModel : ViewModelBase
                 Barcode: null,
                 PurchasePrice: 0,
                 SalePrice: FetchedPrice,
-                CategoryId: Guid.Empty, // NAV: category selection needed
+                CategoryId: SelectedCategoryId != Guid.Empty ? SelectedCategoryId : (Categories.Count > 0 ? Categories[0].Id : Guid.Empty),
                 Description: FetchedDescription,
                 ImageUrl: FetchedImageUrl));
 
@@ -154,4 +165,9 @@ public partial class ProductFetchAvaloniaViewModel : ViewModelBase
         FetchedImageUrl = string.Empty;
         FetchedPlatform = string.Empty;
     }
+}
+
+public record CategoryItem(Guid Id, string Name)
+{
+    public override string ToString() => Name;
 }

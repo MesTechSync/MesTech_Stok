@@ -73,7 +73,7 @@ public sealed class IyzicoPaymentGateway : IPaymentGateway
 
             var json = System.Text.Json.JsonSerializer.Serialize(payload);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-            var response = await http.PostAsync("/payment/auth", content, ct).ConfigureAwait(false);
+            using var response = await http.PostAsync("/payment/auth", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -87,7 +87,7 @@ public sealed class IyzicoPaymentGateway : IPaymentGateway
             _logger.LogError("iyzico odeme basarisiz: {Error}", error);
             return new PaymentResult(false, null, error, response.StatusCode.ToString());
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "iyzico odeme hatasi");
             return new PaymentResult(false, null, ex.Message, "EXCEPTION");
@@ -115,7 +115,7 @@ public sealed class IyzicoPaymentGateway : IPaymentGateway
 
             var json = System.Text.Json.JsonSerializer.Serialize(payload);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-            var response = await http.PostAsync("/payment/refund", content, ct).ConfigureAwait(false);
+            using var response = await http.PostAsync("/payment/refund", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
                 return new PaymentResult(true, transactionId);
@@ -123,35 +123,48 @@ public sealed class IyzicoPaymentGateway : IPaymentGateway
             var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
             return new PaymentResult(false, null, error, response.StatusCode.ToString());
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
+            _logger.LogError(ex, "iyzico refund hatasi: {TxId}", transactionId);
             return new PaymentResult(false, null, ex.Message, "EXCEPTION");
         }
     }
 
-    public async Task<string> SaveCardAsync(CardInfo cardInfo, CancellationToken ct = default)
+    public Task<string> SaveCardAsync(CardInfo cardInfo, CancellationToken ct = default)
     {
         _logger.LogInformation("iyzico SaveCard: {Holder}", cardInfo.CardHolderName);
 
         if (!_options.IsConfigured)
-            return $"sandbox-token-{Guid.NewGuid():N}"[..32];
+            return Task.FromResult($"sandbox-token-{Guid.NewGuid():N}"[..32]);
 
-        // iyzico card storage API
-        await Task.CompletedTask.ConfigureAwait(false);
-        return $"iyzico-token-{Guid.NewGuid():N}"[..32];
+        // iyzico card tokenization requires iyzipay SDK (NuGet: Iyzipay)
+        // Until SDK integrated, reject with clear message to prevent fake tokens in production
+        _logger.LogWarning("iyzico SaveCard not yet implemented — requires Iyzipay SDK integration");
+        throw new NotSupportedException(
+            "iyzico card tokenization requires Iyzipay SDK. " +
+            "Add NuGet Iyzipay package and implement CreateCardRequest flow.");
     }
 
-    public async Task<bool> DeleteCardAsync(string cardToken, CancellationToken ct = default)
+    public Task<bool> DeleteCardAsync(string cardToken, CancellationToken ct = default)
     {
         _logger.LogInformation("iyzico DeleteCard: token=***masked***");
-        await Task.CompletedTask.ConfigureAwait(false);
-        return true;
+
+        if (!_options.IsConfigured)
+            return Task.FromResult(true);
+
+        _logger.LogWarning("iyzico DeleteCard not yet implemented — requires Iyzipay SDK integration");
+        throw new NotSupportedException(
+            "iyzico card deletion requires Iyzipay SDK. " +
+            "Add NuGet Iyzipay package and implement DeleteCardRequest flow.");
     }
 
     private HttpClient CreateHttpClient()
     {
         var client = _httpClientFactory.CreateClient("Iyzico");
-        client.BaseAddress = new Uri(_options.BaseUrl);
+        var baseUri = new Uri(_options.BaseUrl);
+        if (Security.SsrfGuard.IsPrivateHost(baseUri.Host))
+            _logger.LogWarning("[IyzicoPaymentGateway] BaseUrl points to private network: {BaseUrl}", _options.BaseUrl);
+        client.BaseAddress = baseUri;
         client.Timeout = TimeSpan.FromSeconds(15);
         client.DefaultRequestHeaders.Authorization = null;
         client.DefaultRequestHeaders.Add("Authorization", $"IYZWS {_options.ApiKey}");

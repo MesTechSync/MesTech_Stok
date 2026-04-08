@@ -35,7 +35,7 @@ public class CreateOrderHandlerTests
         _orderRepoMock.Verify(r => r.AddAsync(It.Is<Order>(o =>
             o.CustomerName == "Test Müşteri" &&
             o.Type == "MANUAL" &&
-            o.TenantId == TestTenantId)), Times.Once);
+            o.TenantId == TestTenantId), It.IsAny<CancellationToken>()), Times.Once);
         _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -55,7 +55,7 @@ public class CreateOrderHandlerTests
 
         result.IsSuccess.Should().BeTrue();
         _orderRepoMock.Verify(r => r.AddAsync(It.Is<Order>(o =>
-            o.CustomerEmail == null && o.Notes == null)), Times.Once);
+            o.CustomerEmail == null && o.Notes == null), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

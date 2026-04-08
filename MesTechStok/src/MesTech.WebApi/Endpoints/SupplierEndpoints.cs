@@ -13,7 +13,8 @@ public static class SupplierEndpoints
 {
     public static void Map(WebApplication app)
     {
-        var group = app.MapGroup("/api/v1/suppliers").WithTags("Suppliers").RequireRateLimiting("PerApiKey");
+        var group = app.MapGroup("/api/v1/suppliers").WithTags("Suppliers").RequireRateLimiting("PerApiKey")
+            .AddEndpointFilter(new Filters.RequirePermissionFilter("ManageSuppliers"));
 
         // GET /api/v1/suppliers — tedarikçi listesi
         group.MapGet("/", async (

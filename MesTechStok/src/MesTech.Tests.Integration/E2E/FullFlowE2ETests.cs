@@ -40,8 +40,8 @@ public class FullFlowE2ETests
         OrderStatus status = OrderStatus.Confirmed)
     {
         var mock = new Mock<IOrderRepository>();
-        mock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
-            .ReturnsAsync((Guid id) => new Order
+        mock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid id, CancellationToken _) => new Order
             {
                 CustomerName = "E2E Full Flow Musteri",
                 SourcePlatform = platform,

@@ -198,20 +198,20 @@
   <script>
   (function() {
     'use strict';
-    var LESSON_ID = 2;
-    var STORAGE_KEY = 'mestech_academy_completed';
+    const LESSON_ID = 2;
+    const STORAGE_KEY = 'mestech_academy_completed';
     function getCompleted() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e) { return []; } }
-    function markComplete(id) { var c = getCompleted(); if (c.indexOf(id) === -1) { c.push(id); localStorage.setItem(STORAGE_KEY, JSON.stringify(c)); } updateBtn(); }
+    function markComplete(id) { const c = getCompleted(); if (c.indexOf(id) === -1) { c.push(id); localStorage.setItem(STORAGE_KEY, JSON.stringify(c)); } updateBtn(); }
     function updateBtn() {
-      var btn = document.getElementById('btn-complete'); if (!btn) return;
+      let btn = document.getElementById('btn-complete'); if (!btn) return;
       if (getCompleted().indexOf(LESSON_ID) !== -1) {
         btn.className = 'btn btn-outline-success';
         while (btn.firstChild) btn.removeChild(btn.firstChild);
-        var i = document.createElement('i'); i.className = 'fas fa-check-circle me-1'; btn.appendChild(i);
+        const i = document.createElement('i'); i.className = 'fas fa-check-circle me-1'; btn.appendChild(i);
         btn.appendChild(document.createTextNode('Tamamlandi')); btn.disabled = true;
       }
     }
-    function init() { var btn = document.getElementById('btn-complete'); if (btn) btn.addEventListener('click', function() { markComplete(LESSON_ID); }); updateBtn(); }
+    function init() { const btn = document.getElementById('btn-complete'); if (btn) btn.addEventListener('click', function() { markComplete(LESSON_ID); }); updateBtn(); }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
   })();
   </script>

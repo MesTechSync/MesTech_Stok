@@ -45,6 +45,13 @@ public sealed class OrderConfirmedRevenueHandler : IOrderConfirmedRevenueHandler
             return;
         }
 
+        // Idempotency guard — MassTransit retry'da çift gelir kaydı önle
+        if (await _incomeRepo.ExistsByOrderIdAsync(tenantId, orderId, ct).ConfigureAwait(false))
+        {
+            _logger.LogWarning("Duplicate income — OrderId {OrderId} için gelir kaydı zaten var, atlanıyor", orderId);
+            return;
+        }
+
         var income = new Income
         {
             TenantId = tenantId,
@@ -57,7 +64,7 @@ public sealed class OrderConfirmedRevenueHandler : IOrderConfirmedRevenueHandler
         };
         income.SetAmount(totalAmount);
 
-        await _incomeRepo.AddAsync(income).ConfigureAwait(false);
+        await _incomeRepo.AddAsync(income, ct).ConfigureAwait(false);
         await _uow.SaveChangesAsync(ct).ConfigureAwait(false);
 
         _logger.LogInformation(

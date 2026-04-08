@@ -7,8 +7,10 @@ using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MesTech.Infrastructure.Integration.Security;
 using MesTech.Infrastructure.Security;
 using Polly;
 using Polly.Retry;
@@ -29,15 +31,17 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     private readonly OpenCartOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     private string _apiToken = string.Empty;
     private bool _isConfigured;
 
     public OpenCartAdapter(HttpClient httpClient, ILogger<OpenCartAdapter> logger,
-        IOptions<OpenCartOptions>? options = null)
+        IOptions<OpenCartOptions>? options = null, IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _options = options?.Value ?? new OpenCartOptions();
+        _scopeFactory = scopeFactory;
         _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -104,9 +108,8 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                 (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
                 throw new ArgumentException($"Invalid OpenCart base URL scheme: {baseUrl}. Only HTTP(S) allowed.");
 
-            if (parsedUri.Host is "localhost" or "127.0.0.1" || parsedUri.Host.StartsWith("10.") ||
-                parsedUri.Host.StartsWith("172.") || parsedUri.Host.StartsWith("192.168."))
-                _logger.LogWarning("[OpenCartAdapter] BaseUrl points to internal/private network: {BaseUrl}", baseUrl);
+            if (SsrfGuard.IsPrivateHost(parsedUri.Host))
+                _logger.LogWarning("[OpenCartAdapter] BaseUrl points to private network: {BaseUrl}", baseUrl);
 
             _httpClient.BaseAddress = parsedUri;
         }
@@ -134,7 +137,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             ConfigureAuth(credentials);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Get, "/api/rest/products?limit=1");
@@ -205,7 +208,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -227,7 +230,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             _logger.LogError(jex, "OpenCart PushProduct: platform gecersiz yanit dondurdu — SKU={SKU}", product.SKU);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart PushProduct exception: {SKU}", product.SKU);
             return false;
@@ -249,7 +252,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             while (hasMore)
             {
-                var response = await _retryPipeline.ExecuteAsync(
+                using var response = await _retryPipeline.ExecuteAsync(
                     async token =>
                     {
                         using var request = CreateAuthenticatedRequest(HttpMethod.Get, $"/api/rest/products?limit={limit}&page={page}");
@@ -268,14 +271,15 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
                     foreach (var item in items)
                     {
-                        products.Add(new Product
+                        var product = new Product
                         {
                             Name = item.TryGetProperty("name", out var n) ? n.GetString() ?? "" : "",
                             SKU = item.TryGetProperty("sku", out var s) ? s.GetString() ?? "" : "",
                             SalePrice = item.TryGetProperty("price", out var p) && decimal.TryParse(p.GetString(), NumberStyles.Number, CultureInfo.InvariantCulture, out var pv) ? pv : 0,
-                            Stock = item.TryGetProperty("quantity", out var q) && int.TryParse(q.GetString(), out var qv) ? qv : 0,
                             Description = item.TryGetProperty("description", out var d) ? d.GetString() : null
-                        });
+                        };
+                        product.SyncStock(item.TryGetProperty("quantity", out var q) && int.TryParse(q.GetString(), out var qv) ? qv : 0, "opencart-sync");
+                        products.Add(product);
                     }
 
                     hasMore = items.Count == limit;
@@ -294,7 +298,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
         {
             _logger.LogError(jex, "OpenCart PullProducts: platform gecersiz yanit dondurdu");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart PullProducts failed");
         }
@@ -312,7 +316,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var payload = new { quantity = newStock };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -334,7 +338,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             _logger.LogError(jex, "OpenCart StockUpdate: platform gecersiz yanit dondurdu — ProductId={ProductId}", productId);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart StockUpdate exception: {ProductId}", productId);
             return false;
@@ -384,7 +388,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var payload = new { price = newPrice };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -401,7 +405,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart PriceUpdate exception: {ProductId}", productId);
             return false;
@@ -428,7 +432,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             {
                 var url = $"/api/rest/orders?limit={limit}&page={page}&sort=o.date_added&order=DESC";
 
-                var response = await _retryPipeline.ExecuteAsync(
+                using var response = await _retryPipeline.ExecuteAsync(
                     async token =>
                     {
                         using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -502,7 +506,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             _logger.LogInformation("OpenCart PullOrders: {Count} orders retrieved", orders.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart PullOrders failed");
         }
@@ -521,7 +525,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var payload = new { order_status_id = statusId };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -539,7 +543,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             _logger.LogInformation("OpenCart UpdateOrderStatus success: OrderId={OrderId} Status={Status}", packageId, status);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart UpdateOrderStatus exception: {OrderId}", packageId);
             return false;
@@ -568,7 +572,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                 if (since.HasValue)
                     url += $"&date_modified_from={since.Value:yyyy-MM-dd HH:mm:ss}";
 
-                var response = await _retryPipeline.ExecuteAsync(
+                using var response = await _retryPipeline.ExecuteAsync(
                     async token =>
                     {
                         using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -614,7 +618,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             _logger.LogInformation("OpenCart PullCustomers: {Count} customers retrieved", customers.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart PullCustomers failed");
         }
@@ -645,7 +649,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             var isUpdate = !string.IsNullOrWhiteSpace(customer.Id);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -664,7 +668,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart PushCustomer exception: {Email}", PiiLogMaskHelper.MaskEmail(customer.Email));
             return false;
@@ -682,7 +686,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
         try
         {
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Get, "/api/rest/categories");
@@ -735,7 +739,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             _logger.LogInformation("OpenCart PullCategoryTree: {Count} root categories, {Total} total",
                 tree.Count, flatList.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart PullCategoryTree failed");
         }
@@ -772,7 +776,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             var isUpdate = !string.IsNullOrWhiteSpace(category.Id);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -791,7 +795,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart PushCategory exception: {Name}", category.Name);
             return false;
@@ -885,7 +889,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
         try
         {
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     using var request = CreateAuthenticatedRequest(HttpMethod.Get, "/api/rest/categories");
@@ -931,7 +935,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             _logger.LogInformation("OpenCart GetCategories: {Count} top-level categories", roots.Count);
             return roots.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart GetCategories exception");
             return Array.Empty<CategoryDto>();
@@ -967,7 +971,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                 var url = $"/api/rest/orders?limit={limit}&page={page}" +
                           $"&date_added_from={startDate:yyyy-MM-dd}&date_added_to={endDate:yyyy-MM-dd}";
 
-                var response = await _retryPipeline.ExecuteAsync(
+                using var response = await _retryPipeline.ExecuteAsync(
                     async token =>
                     {
                         using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -1015,7 +1019,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                         OrderNumber = orderId,
                         TransactionType = txType,
                         Amount = total,
-                        CommissionAmount = null,
+                        CommissionAmount = 0m, // OpenCart kendi mağaza — platform komisyonu yok
                         TransactionDate = orderDate
                     });
 
@@ -1041,7 +1045,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             return settlement;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart GetSettlement exception: {StartDate}—{EndDate}", startDate, endDate);
             return null;
@@ -1095,7 +1099,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -1116,7 +1120,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                 response.StatusCode, error);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart SendShipment hatasi — OrderId={OrderId}", platformOrderId);
             return false;
@@ -1168,7 +1172,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
                 if (since.HasValue)
                     url += $"&date_modified_from={since.Value:yyyy-MM-dd HH:mm:ss}";
 
-                var response = await _retryPipeline.ExecuteAsync(
+                using var response = await _retryPipeline.ExecuteAsync(
                     async token =>
                     {
                         using var request = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -1263,7 +1267,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
 
             _logger.LogInformation("OpenCart PullClaims: {Count} claims retrieved", claims.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart PullClaims failed");
         }
@@ -1290,7 +1294,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             var payload = new { return_status_id = 2 }; // Approved
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -1308,7 +1312,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             _logger.LogWarning("OpenCart ApproveClaim basarisiz {Status}: {Error}", response.StatusCode, error);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart ApproveClaim hatasi — ClaimId={ClaimId}", claimId);
             return false;
@@ -1338,7 +1342,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(
+            using var response = await _retryPipeline.ExecuteAsync(
                 async token =>
                 {
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -1357,7 +1361,7 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             _logger.LogWarning("OpenCart RejectClaim basarisiz {Status}: {Error}", response.StatusCode, error);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "OpenCart RejectClaim hatasi — ClaimId={ClaimId}", claimId);
             return false;
@@ -1413,9 +1417,9 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
     // ── IWebhookCapableAdapter ──
     public Task<bool> RegisterWebhookAsync(string callbackUrl, CancellationToken ct = default) { _logger.LogInformation("[OpenCart] RegisterWebhook {Url}", callbackUrl); return Task.FromResult(true); }
     public Task<bool> UnregisterWebhookAsync(CancellationToken ct = default) => Task.FromResult(true);
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(payload)) return Task.CompletedTask;
+        if (string.IsNullOrWhiteSpace(payload)) return;
         try
         {
             using var doc = System.Text.Json.JsonDocument.Parse(payload);
@@ -1427,12 +1431,13 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             _logger.LogInformation(
                 "OpenCart webhook processed: EventType={EventType} OrderId={OrderId} PayloadLength={Len}",
                 eventType, orderId, payload.Length);
+
+            await WebhookDispatchHelper.DispatchAsync(_scopeFactory, PlatformCode, eventType, orderId, payload, _logger, ct).ConfigureAwait(false);
         }
         catch (System.Text.Json.JsonException ex)
         {
             _logger.LogWarning(ex, "[OpenCart] Webhook payload parse failed ({Len}b)", payload.Length);
         }
-        return Task.CompletedTask;
     }
 
     // ── IPingableAdapter ──
@@ -1444,10 +1449,10 @@ public sealed class OpenCartAdapter : IIntegratorAdapter, IOrderCapableAdapter,
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
             cts.CancelAfter(TimeSpan.FromSeconds(5));
             using var request = CreateAuthenticatedRequest(HttpMethod.Get, _httpClient.BaseAddress.ToString());
-            var resp = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
+            using var resp = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
             return (int)resp.StatusCode < 500;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "OpenCart ping failed");
             return false;

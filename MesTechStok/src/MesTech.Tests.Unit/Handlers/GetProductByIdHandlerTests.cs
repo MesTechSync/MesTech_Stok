@@ -28,12 +28,12 @@ public class GetProductByIdHandlerTests
             SKU = "SKU-001",
             PurchasePrice = 50m,
             SalePrice = 100m,
-            Stock = 10,
             MinimumStock = 5,
             IsActive = true
         };
+        product.SyncStock(10);
 
-        _productRepoMock.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync(product);
+        _productRepoMock.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var query = new GetProductByIdQuery(productId);
         var result = await _sut.Handle(query, CancellationToken.None);
@@ -47,7 +47,7 @@ public class GetProductByIdHandlerTests
     public async Task Handle_NonExistentProduct_ReturnsNull()
     {
         var productId = Guid.NewGuid();
-        _productRepoMock.Setup(r => r.GetByIdAsync(productId)).ReturnsAsync((Product?)null);
+        _productRepoMock.Setup(r => r.GetByIdAsync(productId, It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
         var query = new GetProductByIdQuery(productId);
         var result = await _sut.Handle(query, CancellationToken.None);

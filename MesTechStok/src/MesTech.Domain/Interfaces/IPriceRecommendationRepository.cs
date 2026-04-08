@@ -4,7 +4,7 @@ namespace MesTech.Domain.Interfaces;
 
 public interface IPriceRecommendationRepository
 {
-    Task<PriceRecommendation?> GetByIdAsync(Guid id);
-    Task<IReadOnlyList<PriceRecommendation>> GetByProductIdAsync(Guid productId);
-    Task AddAsync(PriceRecommendation recommendation);
+    Task<PriceRecommendation?> GetByIdAsync(Guid id, CancellationToken ct = default);
+    Task<IReadOnlyList<PriceRecommendation>> GetByProductIdAsync(Guid productId, CancellationToken ct = default);
+    Task AddAsync(PriceRecommendation recommendation, CancellationToken ct = default);
 }

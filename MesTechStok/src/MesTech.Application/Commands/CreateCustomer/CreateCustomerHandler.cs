@@ -43,7 +43,7 @@ public sealed class CreateCustomerHandler : IRequestHandler<CreateCustomerComman
         customer.PaymentTermDays = request.PaymentTermDays;
         customer.IsActive = request.IsActive;
 
-        await _customerRepository.AddAsync(customer).ConfigureAwait(false);
+        await _customerRepository.AddAsync(customer, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new CustomerCommandResult

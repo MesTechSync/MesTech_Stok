@@ -19,7 +19,7 @@ public sealed class GetCashFlowHandler : IRequestHandler<GetCashFlowQuery, CashF
         var start = new DateTime(request.Year, request.Month, 1, 0, 0, 0, DateTimeKind.Utc);
         var end = start.AddMonths(1).AddTicks(-1);
 
-        var orders = await _orderRepo.GetByDateRangeAsync(start, end).ConfigureAwait(false);
+        var orders = await _orderRepo.GetByDateRangeAsync(start, end, cancellationToken).ConfigureAwait(false);
         var tenantOrders = orders
             .Where(o => o.TenantId == request.TenantId && o.Status != OrderStatus.Cancelled)
             .ToList();

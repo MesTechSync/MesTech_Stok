@@ -58,17 +58,14 @@ public partial class AppHubViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var now = DateTime.Now;
             Greeting = now.Hour switch
             {
-                < 12 => "Gunaydin",
-                < 18 => "Iyi gunler",
-                _ => "Iyi aksamlar"
+                < 12 => "Günaydın",
+                < 18 => "İyi günler",
+                _ => "İyi akşamlar"
             };
             TodayDate = now.ToString("dd MMMM yyyy, dddd", new System.Globalization.CultureInfo("tr-TR"));
 
@@ -77,17 +74,7 @@ public partial class AppHubViewModel : ViewModelBase
             await LoadLowStockAsync();
             await LoadPendingInvoicesAsync();
             await LoadServiceStatusAsync();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Hub yuklenemedi: {ex.Message}";
-            _logger.LogError(ex, "AppHub load failed");
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Hub verileri yüklenirken hata");
     }
 
     private async Task LoadDashboardSummaryAsync()
@@ -127,7 +114,7 @@ public partial class AppHubViewModel : ViewModelBase
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "GetRecentOrdersQuery failed, using fallback");
-            RecentOrders.Add(new("—", "—", "Veri yuklenemedi", 0));
+            RecentOrders.Add(new("—", "—", "Veri yüklenemedi", 0));
         }
     }
 
@@ -187,9 +174,10 @@ public partial class AppHubViewModel : ViewModelBase
             var platformCount = summary?.ActivePlatformCount ?? 0;
             ServiceStatuses.Add(new("Platform API", platformCount > 0, $"{platformCount} aktif"));
         }
-        catch
+        catch (Exception ex)
         {
-            ServiceStatuses.Add(new("Platform API", false, "baglanti yok"));
+            System.Diagnostics.Debug.WriteLine($"[AppHub] Platform API health check failed: {ex.Message}");
+            ServiceStatuses.Add(new("Platform API", false, "bağlantı yok"));
         }
 
         // G540 orphan handler wiring — 4 dashboard queries (optional — failures logged)

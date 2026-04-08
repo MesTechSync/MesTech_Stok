@@ -41,7 +41,7 @@ public sealed class CreateSupplierHandler : IRequestHandler<CreateSupplierComman
         supplier.PaymentTermDays = request.PaymentTermDays;
         supplier.IsActive = request.IsActive;
 
-        await _supplierRepository.AddAsync(supplier).ConfigureAwait(false);
+        await _supplierRepository.AddAsync(supplier, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new SupplierCommandResult

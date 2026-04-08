@@ -47,9 +47,19 @@ public sealed class AnomalyCheckHandler
             "[Anomaly] LedgerPosted yakalandi: JournalEntryId={JournalEntryId}, Tutar={Amount:N2}",
             e.JournalEntryId, e.TotalAmount);
 
-        // Anomali kontrolleri
-        await CheckDuplicateAsync(e, ct);
-        await CheckAbnormalAmountAsync(e, ct);
+        // Anomali kontrolleri — exception domain event zincirini KIRMAMALI
+        try
+        {
+            await CheckDuplicateAsync(e, ct).ConfigureAwait(false);
+            await CheckAbnormalAmountAsync(e, ct).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogWarning(ex,
+                "[Anomaly] Anomaly check failed for JournalEntryId={JournalEntryId} — " +
+                "ledger posting continues, anomaly detection skipped",
+                e.JournalEntryId);
+        }
     }
 
     /// <summary>
@@ -61,7 +71,7 @@ public sealed class AnomalyCheckHandler
         var windowEnd = e.EntryDate;
 
         var recentEntries = await _journalEntryRepository.GetByDateRangeAsync(
-            e.TenantId, windowStart, windowEnd, ct);
+            e.TenantId, windowStart, windowEnd, ct).ConfigureAwait(false);
 
         var duplicates = recentEntries
             .Where(je => je.Id != e.JournalEntryId
@@ -98,7 +108,7 @@ public sealed class AnomalyCheckHandler
         var monthEnd = e.EntryDate;
 
         var monthEntries = await _journalEntryRepository.GetByDateRangeAsync(
-            e.TenantId, monthStart, monthEnd, ct);
+            e.TenantId, monthStart, monthEnd, ct).ConfigureAwait(false);
 
         var postedEntries = monthEntries
             .Where(je => je.Id != e.JournalEntryId && je.IsPosted)
@@ -159,7 +169,7 @@ public sealed class AnomalyCheckHandler
             Details = description
         };
 
-        await _publishEndpoint.Publish(integrationEvent, ct);
+        await _publishEndpoint.Publish(integrationEvent, ct).ConfigureAwait(false);
 
         await _mediator.Publish(
             new DomainEventNotification<AnomalyDetectedEvent>(
@@ -172,7 +182,7 @@ public sealed class AnomalyCheckHandler
                     EntityType = entityType,
                     EntityId = entityId
                 }),
-            ct);
+            ct).ConfigureAwait(false);
 
         _logger.LogInformation(
             "[Anomaly] FinanceAnomalyDetected + AnomalyDetectedEvent yayinlandi: tip={AnomalyType}, aciklama={Description}",

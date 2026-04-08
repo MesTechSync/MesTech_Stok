@@ -40,7 +40,8 @@ public sealed class PlatformCommission : BaseEntity, ITenantEntity
         {
             CommissionType.Percentage => saleAmount * Rate / 100m,
             CommissionType.FixedAmount => Rate,
-            CommissionType.Tiered => saleAmount * Rate / 100m,
+            CommissionType.Tiered => throw new NotSupportedException(
+                "Tiered commission requires bracket data — use IPlatformCommissionService for multi-tier calculation."),
             _ => 0m
         };
 

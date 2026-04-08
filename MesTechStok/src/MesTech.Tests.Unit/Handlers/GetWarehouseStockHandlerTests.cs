@@ -22,7 +22,7 @@ public class GetWarehouseStockHandlerTests
     public async Task Handle_NonExistentWarehouse_ReturnsEmpty()
     {
         var warehouseId = Guid.NewGuid();
-        _warehouseRepoMock.Setup(r => r.GetByIdAsync(warehouseId)).ReturnsAsync((Warehouse?)null);
+        _warehouseRepoMock.Setup(r => r.GetByIdAsync(warehouseId, It.IsAny<CancellationToken>())).ReturnsAsync((Warehouse?)null);
 
         var query = new GetWarehouseStockQuery(warehouseId, Guid.NewGuid());
         var result = await _sut.Handle(query, CancellationToken.None);

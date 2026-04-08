@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Security.Cryptography;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Settlement.Mapping;
 using Microsoft.Extensions.Logging;
 
@@ -16,16 +17,18 @@ namespace MesTech.Infrastructure.Integration.Settlement.Parsers;
 public sealed class AmazonSettlementParser : ISettlementParser
 {
     private readonly ILogger<AmazonSettlementParser> _logger;
+    private readonly string _platformOverride;
 
     // Parsed lines cached between ParseAsync and ParseLinesAsync calls
     private List<AmazonSettlementLine>? _cachedLines;
     private string? _rawFileHash;
 
-    public string Platform => "Amazon";
+    public string Platform => _platformOverride;
 
-    public AmazonSettlementParser(ILogger<AmazonSettlementParser> logger)
+    public AmazonSettlementParser(ILogger<AmazonSettlementParser> logger, string? platformOverride = null)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _platformOverride = platformOverride ?? nameof(PlatformType.Amazon);
     }
 
     [Obsolete("Use ParseAsync(tenantId, rawData, format, ct) — Guid.Empty is a multi-tenant risk (BORÇ-N)")]
@@ -166,14 +169,14 @@ public sealed class AmazonSettlementParser : ISettlementParser
                     ? Math.Round(commission / gross * 100m, 2)
                     : 0m;
 
-                _ = CommissionRecord.Create(
+                batch.AddCommissionRecord(CommissionRecord.Create(
                     tenantId: batch.TenantId,
                     platform: Platform,
                     grossAmount: gross,
                     commissionRate: commissionRate,
                     commissionAmount: commission,
                     serviceFee: serviceFee,
-                    orderId: orderId);
+                    orderId: orderId));
             }
         }
 

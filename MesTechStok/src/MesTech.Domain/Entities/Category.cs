@@ -32,6 +32,8 @@ public sealed class Category : BaseEntity, ITenantEntity
 
     public static Category Create(Guid tenantId, string name, string code, bool isActive = true)
     {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("TenantId cannot be empty.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
 

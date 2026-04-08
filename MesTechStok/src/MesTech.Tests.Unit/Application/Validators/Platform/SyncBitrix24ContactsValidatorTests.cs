@@ -17,4 +17,12 @@ public class SyncBitrix24ContactsValidatorTests
         var result = await _sut.ValidateAsync(cmd);
         result.IsValid.Should().BeTrue();
     }
+
+    [Fact]
+    public async Task DefaultCommand_ShouldProduceNoErrors()
+    {
+        var cmd = new SyncBitrix24ContactsCommand();
+        var result = await _sut.ValidateAsync(cmd);
+        result.Errors.Should().BeEmpty();
+    }
 }

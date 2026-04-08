@@ -1,0 +1,139 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:MesTech.Avalonia.ViewModels"
+             xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
+             x:Class="MesTech.Avalonia.Views.ChequeAvaloniaView"
+             x:DataType="vm:ChequeAvaloniaViewModel"
+             AutomationProperties.Name="Cek Senet Takip">
+<UserControl.KeyBindings>
+    <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
+</UserControl.KeyBindings>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Background="{DynamicResource MesBgPage}">
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="Cek / Senet Takip" Foreground="{DynamicResource MesBgPrimary}"
+                           FontSize="{StaticResource FontSizeH3}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                <Button Grid.Column="1" Content="Yenile" Command="{Binding RefreshCommand}" ToolTip.Tip="Verileri yenile"
+                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+            </Grid>
+        </Border>
+
+        <!-- KPI Cards -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*" Margin="16,16,16,0">
+            <Border Grid.Column="0" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="6"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*">
+                    <Border Grid.Column="0" Background="{DynamicResource MesPrimaryBlue}" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Portfoyde" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding InPortfolioCount}" FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold"
+                                   Foreground="{DynamicResource MesPrimaryBlue}" Margin="0,8,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <Border Grid.Column="1" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="6"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*">
+                    <Border Grid.Column="0" Background="{DynamicResource MesAmber}" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Vadesi Gecmis" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding OverdueCount}" FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold"
+                                   Foreground="{DynamicResource MesAmber}" Margin="0,8,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <Border Grid.Column="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="6"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*">
+                    <Border Grid.Column="0" Background="#EF4444" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Karsiliks&#305;z" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding BouncedCount}" FontSize="{StaticResource FontSizeLargeTitle}" FontWeight="Bold"
+                                   Foreground="#EF4444" Margin="0,8,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <Border Grid.Column="3" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="6"
+                    BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1" ClipToBounds="True">
+                <Grid ColumnDefinitions="6,*">
+                    <Border Grid.Column="0" Background="{DynamicResource MesEmerald}" />
+                    <StackPanel Grid.Column="1" Margin="16">
+                        <TextBlock Text="Toplam Tutar" FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesCoolGray}" />
+                        <TextBlock Text="{Binding TotalAmount, StringFormat='₺{0:N0}'}" FontSize="{StaticResource FontSizeH3}" FontWeight="Bold"
+                                   Foreground="{DynamicResource MesEmerald}" Margin="0,8,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Filter Bar -->
+        <Border Grid.Row="2" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}"
+                Padding="16,10" Margin="22,12,22,0" BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto">
+                <TextBox Grid.Column="0" Text="{Binding SearchText}" Watermark="Cek no, banka veya kesident ara..."
+                         AutomationProperties.Name="Ara" Width="280" HorizontalAlignment="Left" />
+                <ComboBox Grid.Column="1" SelectedItem="{Binding SelectedType}" ItemsSource="{Binding TypeOptions}"
+                          Width="120" Margin="8,0" AutomationProperties.Name="Tur" />
+                <ComboBox Grid.Column="2" SelectedItem="{Binding SelectedStatus}" ItemsSource="{Binding StatusOptions}"
+                          Width="140" Margin="8,0" AutomationProperties.Name="Durum" />
+                <ComboBox Grid.Column="3" SelectedItem="{Binding PageSize}" ItemsSource="{Binding PageSizeOptions}"
+                          Width="80" AutomationProperties.Name="Sayfa" />
+            </Grid>
+        </Border>
+
+        <!-- DataGrid -->
+        <Border Grid.Row="3" Background="{DynamicResource MesBgPrimary}" CornerRadius="{StaticResource MesRadiusMd}" Margin="22,12,22,0"
+                BorderBrush="{DynamicResource MesBorderLight}" BorderThickness="1">
+            <DataGrid ItemsSource="{Binding Cheques}" AutoGenerateColumns="False"
+                      CanUserSortColumns="True" CanUserResizeColumns="True" IsReadOnly="True"
+                      GridLinesVisibility="Horizontal" BorderThickness="0" Background="{DynamicResource MesBgPrimary}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Cek No" Binding="{Binding ChequeNumber}" Width="130" />
+                    <DataGridTextColumn Header="Tutar" Binding="{Binding AmountDisplay}" Width="120" />
+                    <DataGridTextColumn Header="Vade" Binding="{Binding MaturityDate}" Width="100" />
+                    <DataGridTextColumn Header="Banka" Binding="{Binding BankName}" Width="140" />
+                    <DataGridTextColumn Header="Kesident" Binding="{Binding DrawerName}" Width="160" />
+                    <DataGridTextColumn Header="Tur" Binding="{Binding Type}" Width="80" />
+                    <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="110" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- Pagination -->
+        <Border Grid.Row="4" Padding="22,8,22,16">
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto,*">
+                <Button Grid.Column="1" Content="Onceki" Command="{Binding PrevPageCommand}"
+                        Padding="12,6" Margin="0,0,8,0" CornerRadius="{StaticResource MesRadiusSm}" />
+                <TextBlock Grid.Column="2" Text="{Binding PaginationInfo}" VerticalAlignment="Center"
+                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}" />
+                <Button Grid.Column="3" Content="Sonraki" Command="{Binding NextPageCommand}"
+                        Padding="12,6" Margin="8,0,0,0" CornerRadius="{StaticResource MesRadiusSm}" />
+            </Grid>
+        </Border>
+
+        <!-- Loading -->
+        <Border Grid.Row="0" Grid.RowSpan="5" Background="{DynamicResource MesBgPage}" IsVisible="{Binding IsLoading}" ZIndex="100">
+            <controls:SkeletonLoader ShowKpi="True" ShowChart="False" />
+        </Border>
+        <!-- Empty -->
+        <Border Grid.Row="3" Background="{DynamicResource MesBgSurface}" IsVisible="{Binding IsEmpty}" ZIndex="50">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
+                <TextBlock Text="Cek/Senet kaydı bulunamadı" FontSize="{StaticResource FontSizeTitle}" FontWeight="SemiBold"
+                           HorizontalAlignment="Center" Foreground="{DynamicResource MesMutedGray}" />
+                <TextBlock Text="Henuz cek/senet kaydedilmemis. GetChequesQuery handler DEV1 tarafindan yazilacak."
+                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesSlateGray}" HorizontalAlignment="Center" />
+                <Button Content="Yenile" Command="{Binding RefreshCommand}" Margin="0,16,0,0" Padding="16,8" />
+            </StackPanel>
+        </Border>
+        <!-- Error -->
+        <fa:InfoBar Grid.Row="0" Title="Hata" Message="{Binding ErrorMessage}" Severity="Error"
+                    IsOpen="{Binding HasError}" IsClosable="True" Margin="16,8" ZIndex="50">
+            <fa:InfoBar.ActionButton><Button Content="Tekrar Dene" Command="{Binding RefreshCommand}" /></fa:InfoBar.ActionButton>
+        </fa:InfoBar>
+    </Grid>
+</UserControl>

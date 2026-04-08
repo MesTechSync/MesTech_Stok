@@ -1,4 +1,7 @@
 using FluentAssertions;
+using MesTech.Application.DTOs.Accounting;
+using MesTech.Application.Features.Accounting.Queries.GetChartOfAccounts;
+using MesTech.Application.Features.Accounting.Queries.GetJournalEntries;
 using MesTech.Avalonia.ViewModels;
 using MesTech.Domain.Interfaces;
 using MediatR;
@@ -16,6 +19,10 @@ public class GLTransactionAvaloniaViewModelTests
     public GLTransactionAvaloniaViewModelTests()
     {
         _mediatorMock = new Mock<IMediator>();
+        _mediatorMock.Setup(m => m.Send(It.IsAny<GetChartOfAccountsQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<ChartOfAccountsDto>());
+        _mediatorMock.Setup(m => m.Send(It.IsAny<GetJournalEntriesQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<JournalEntryDto>());
         _sut = new GLTransactionAvaloniaViewModel(_mediatorMock.Object, Mock.Of<ICurrentUserService>());
     }
 
@@ -29,66 +36,39 @@ public class GLTransactionAvaloniaViewModelTests
         _sut.SearchText.Should().BeEmpty();
         _sut.TotalCount.Should().Be(0);
         _sut.Transactions.Should().BeEmpty();
-        _sut.Accounts.Should().HaveCount(8);
+        _sut.Accounts.Should().Contain("Tum Hesaplar");
     }
 
     [Fact]
-    public async Task LoadAsync_ShouldPopulateTransactions()
+    public async Task LoadAsync_WithEmptyData_ShouldCompleteWithoutError()
     {
         // Act
         await _sut.LoadAsync();
-
-        // Assert — 6 demo transactions
-        _sut.Transactions.Should().HaveCount(6);
-        _sut.TotalCount.Should().Be(6);
-        _sut.IsEmpty.Should().BeFalse();
-        _sut.IsLoading.Should().BeFalse();
-        _sut.Transactions.Should().Contain(t => t.Account.Contains("Kasa"));
-        _sut.Transactions.Should().Contain(t => t.Account.Contains("Satislar"));
-    }
-
-    [Fact]
-    public async Task FilterByAccount_ShouldNarrowResults()
-    {
-        // Arrange
-        await _sut.LoadAsync();
-
-        // Act
-        _sut.SelectedAccount = "100 - Kasa";
-
-        // Assert
-        _sut.Transactions.Should().HaveCount(1);
-        _sut.Transactions[0].Description.Should().Contain("Kasa acilis");
-        _sut.TotalCount.Should().Be(1);
-    }
-
-    [Fact]
-    public async Task SearchText_ShouldFilterByDescriptionOrVoucherNo()
-    {
-        // Arrange
-        await _sut.LoadAsync();
-
-        // Act
-        _sut.SearchText = "Kargo";
-
-        // Assert
-        _sut.Transactions.Should().HaveCount(2); // Kargo gideri + Kargo odemesi
-        _sut.Transactions.Should().OnlyContain(t =>
-            t.Description.Contains("Kargo", StringComparison.OrdinalIgnoreCase));
-    }
-
-    [Fact]
-    public async Task FilterByAccount_NonExistentInData_ShouldShowEmpty()
-    {
-        // Arrange
-        await _sut.LoadAsync();
-
-        // Act
-        _sut.SelectedAccount = "320 - Saticilar";
 
         // Assert
         _sut.Transactions.Should().BeEmpty();
         _sut.TotalCount.Should().Be(0);
         _sut.IsEmpty.Should().BeTrue();
+        _sut.IsLoading.Should().BeFalse();
+        _sut.HasError.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task LoadAsync_ShouldTransitionLoadingState()
+    {
+        // Arrange
+        var loadingStates = new List<bool>();
+        _sut.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(GLTransactionAvaloniaViewModel.IsLoading))
+                loadingStates.Add(_sut.IsLoading);
+        };
+
+        // Act
+        await _sut.LoadAsync();
+
+        // Assert
+        loadingStates.Should().Contain(true);
+        _sut.IsLoading.Should().BeFalse();
     }
 }

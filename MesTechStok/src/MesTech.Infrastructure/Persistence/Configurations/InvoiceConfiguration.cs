@@ -32,13 +32,17 @@ public sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
         builder.Property(i => i.SubTotal).HasPrecision(18, 2);
         builder.Property(i => i.TaxTotal).HasPrecision(18, 2);
         builder.Property(i => i.GrandTotal).HasPrecision(18, 2);
+        builder.Property(i => i.WithholdingRate).HasPrecision(8, 4);
+        builder.Property(i => i.WithholdingAmount).HasPrecision(18, 4);
+        builder.Property(i => i.ExportExchangeRate).HasPrecision(8, 4);
 
         builder.HasMany(i => i.Lines)
             .WithOne(l => l.Invoice)
             .HasForeignKey(l => l.InvoiceId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Optimistic concurrency — concurrent fatura güncellemelerinde veri bozulmasını önler
-        builder.Property(i => i.RowVersion).IsRowVersion();
+        // Optimistic concurrency — PostgreSQL xmin pattern (SQL Server IsRowVersion yerine)
+        builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
+        builder.Ignore(i => i.RowVersion);
     }
 }

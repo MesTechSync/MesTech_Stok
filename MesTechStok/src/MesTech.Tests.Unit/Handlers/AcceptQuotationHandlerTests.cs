@@ -22,14 +22,14 @@ public class AcceptQuotationHandlerTests
     public async Task Handle_NonExistentQuotation_ReturnsFail()
     {
         var quotationId = Guid.NewGuid();
-        _quotationRepoMock.Setup(r => r.GetByIdAsync(quotationId)).ReturnsAsync((Quotation?)null);
+        _quotationRepoMock.Setup(r => r.GetByIdAsync(quotationId, It.IsAny<CancellationToken>())).ReturnsAsync((Quotation?)null);
 
         var cmd = new AcceptQuotationCommand(quotationId);
         var result = await _sut.Handle(cmd, CancellationToken.None);
 
         result.IsSuccess.Should().BeFalse();
         result.ErrorMessage.Should().Contain("not found");
-        _quotationRepoMock.Verify(r => r.UpdateAsync(It.IsAny<Quotation>()), Times.Never);
+        _quotationRepoMock.Verify(r => r.UpdateAsync(It.IsAny<Quotation>(), It.IsAny<CancellationToken>()), Times.Never);
         _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 

@@ -28,6 +28,7 @@ public sealed class LegalEntity : BaseEntity, ITenantEntity
         string? email = null,
         bool isDefault = false)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentException.ThrowIfNullOrWhiteSpace(taxNumber);
 

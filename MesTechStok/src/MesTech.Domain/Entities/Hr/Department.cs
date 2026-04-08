@@ -12,6 +12,7 @@ public sealed class Department : BaseEntity, ITenantEntity
 
     public static Department Create(Guid tenantId, string name, Guid? parentDepartmentId = null)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         return new Department
         {

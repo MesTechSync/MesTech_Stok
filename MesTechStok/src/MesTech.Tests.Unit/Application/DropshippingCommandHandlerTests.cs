@@ -200,7 +200,7 @@ public class DropshippingCommandHandlerTests
         var product = new Product { Name = "Ürün" };
         _poolRepo.Setup(r => r.GetByIdAsync(pool.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(pool);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id))
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(product);
 
         var handler = new AddProductToPoolCommandHandler(
@@ -239,7 +239,7 @@ public class DropshippingCommandHandlerTests
         var pool = new DropshippingPool(TenantId, "Pool");
         _poolRepo.Setup(r => r.GetByIdAsync(pool.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(pool);
-        _productRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+        _productRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Product?)null);
 
         var handler = new AddProductToPoolCommandHandler(

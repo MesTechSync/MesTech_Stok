@@ -30,36 +30,36 @@ public sealed class DashboardSummaryRepository : IDashboardSummaryRepository
         // ── Satır 1: Ana metrikler ──────────────────────────────────────────
         var todayOrders = _db.Orders
             .Where(o => o.TenantId == tid && o.OrderDate >= today && !o.IsDeleted);
-        dto.TodayOrderCount = await todayOrders.CountAsync(ct);
-        dto.TodaySalesAmount = await todayOrders.SumAsync(o => (decimal?)o.TotalAmount ?? 0m, ct);
+        dto.TodayOrderCount = await todayOrders.CountAsync(ct).ConfigureAwait(false);
+        dto.TodaySalesAmount = await todayOrders.SumAsync(o => (decimal?)o.TotalAmount ?? 0m, ct).ConfigureAwait(false);
 
         dto.ActiveProductCount = await _db.Products
-            .CountAsync(p => p.TenantId == tid && !p.IsDeleted && p.IsActive, ct);
+            .CountAsync(p => p.TenantId == tid && !p.IsDeleted && p.IsActive, ct).ConfigureAwait(false);
 
         // ⚠️ Product.Stock — "StockQuantity" değil
         dto.CriticalStockCount = await _db.Products
-            .CountAsync(p => p.TenantId == tid && !p.IsDeleted && p.Stock <= p.MinimumStock, ct);
+            .CountAsync(p => p.TenantId == tid && !p.IsDeleted && p.Stock <= p.MinimumStock, ct).ConfigureAwait(false);
 
         // ── Satır 2: Platform metrikleri ────────────────────────────────────
         dto.ActivePlatformCount = await _db.Stores
             .Where(s => s.TenantId == tid && s.IsActive && !s.IsDeleted)
             .Select(s => s.PlatformType)
             .Distinct()
-            .CountAsync(ct);
+            .CountAsync(ct).ConfigureAwait(false);
 
         dto.PendingShipmentCount = await _db.Orders
             .CountAsync(o => o.TenantId == tid && !o.IsDeleted
                          && o.Status == OrderStatus.Confirmed
-                         && o.ShippedAt == null, ct);
+                         && o.ShippedAt == null, ct).ConfigureAwait(false);
 
         var monthOrders = _db.Orders
             .Where(o => o.TenantId == tid && o.OrderDate >= monthStart && !o.IsDeleted);
-        dto.MonthlySalesAmount = await monthOrders.SumAsync(o => (decimal?)o.TotalAmount ?? 0m, ct);
+        dto.MonthlySalesAmount = await monthOrders.SumAsync(o => (decimal?)o.TotalAmount ?? 0m, ct).ConfigureAwait(false);
 
-        var monthOrderCount = await monthOrders.CountAsync(ct);
+        var monthOrderCount = await monthOrders.CountAsync(ct).ConfigureAwait(false);
         // ⚠️ ReturnRequests — "Returns" değil
         var monthReturnCount = await _db.ReturnRequests
-            .CountAsync(r => r.TenantId == tid && r.CreatedAt >= monthStart && !r.IsDeleted, ct);
+            .CountAsync(r => r.TenantId == tid && r.CreatedAt >= monthStart && !r.IsDeleted, ct).ConfigureAwait(false);
         dto.ReturnRate = monthOrderCount > 0
             ? Math.Round((decimal)monthReturnCount / monthOrderCount * 100, 1)
             : 0;
@@ -75,7 +75,7 @@ public sealed class DashboardSummaryRepository : IDashboardSummaryRepository
                 OrderCount = g.Count()
             })
             .OrderBy(d => d.Date)
-            .AsNoTracking().ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
         // ── Grafik: Platform dağılımı ────────────────────────────────────────
         var pGroups = await _db.Orders
@@ -83,7 +83,7 @@ public sealed class DashboardSummaryRepository : IDashboardSummaryRepository
                      && !o.IsDeleted && o.SourcePlatform != null)
             .GroupBy(o => o.SourcePlatform)
             .Select(g => new { Platform = g.Key, Count = g.Count() })
-            .AsNoTracking().ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
         var pTotal = pGroups.Sum(g => g.Count);
         dto.PlatformDistribution = pGroups.Select(g => new PlatformOrderDistDto
         {
@@ -107,7 +107,7 @@ public sealed class DashboardSummaryRepository : IDashboardSummaryRepository
                 PlatformName = o.SourcePlatform != null ? o.SourcePlatform.ToString() : null,
                 CreatedAt = o.OrderDate
             })
-            .AsNoTracking().ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
         // ── Tablo: Kritik stok ───────────────────────────────────────────────
         // ⚠️ Product.Stock — "StockQuantity" değil
@@ -123,7 +123,7 @@ public sealed class DashboardSummaryRepository : IDashboardSummaryRepository
                 CurrentStock = p.Stock,
                 MinimumStock = p.MinimumStock
             })
-            .AsNoTracking().ToListAsync(ct);
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
         return dto;
     }

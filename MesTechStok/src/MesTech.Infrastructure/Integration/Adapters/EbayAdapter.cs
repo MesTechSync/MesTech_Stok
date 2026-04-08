@@ -4,9 +4,12 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
+using MesTech.Infrastructure.Integration.Security;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -22,15 +25,18 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Sell Inventory API, Fulfillment API, Shipping Fulfillment API, Commerce Taxonomy API.
 /// </summary>
 public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShipmentCapableAdapter, IPingableAdapter,
-    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter
+    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter,
+    IReviewCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<EbayAdapter> _logger;
     private readonly EbayOptions _options;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(20, 20);
+    private static readonly SemaphoreSlim _tokenRefreshLock = new(1, 1);
 
     // OAuth2 Client Credentials state
     private string _clientId = string.Empty;
@@ -47,10 +53,11 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
     private static readonly TimeSpan TokenBuffer = TimeSpan.FromMinutes(5);
 
     public EbayAdapter(HttpClient httpClient, ILogger<EbayAdapter> logger,
-        IOptions<EbayOptions>? options = null)
+        IOptions<EbayOptions>? options = null, IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _scopeFactory = scopeFactory;
         _options = options?.Value ?? new EbayOptions();
         _httpClient.Timeout = TimeSpan.FromSeconds(_options.HttpTimeoutSeconds);
 
@@ -154,33 +161,48 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
     /// </summary>
     private async Task<string> GetAccessTokenAsync(CancellationToken ct)
     {
+        // Fast path — no lock needed
         if (!string.IsNullOrEmpty(_accessToken) && DateTime.UtcNow < _tokenExpiry - TokenBuffer)
             return _accessToken;
 
-        var credentials = Convert.ToBase64String(
-            System.Text.Encoding.ASCII.GetBytes($"{_clientId}:{_clientSecret}"));
-
-        using var request = new HttpRequestMessage(HttpMethod.Post, _tokenEndpoint);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Basic", credentials);
-        request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+        await _tokenRefreshLock.WaitAsync(ct).ConfigureAwait(false);
+        try
         {
-            ["grant_type"] = "client_credentials",
-            ["scope"] = _options.OAuthScope
-        });
+            // Double-check after acquiring lock — another thread may have refreshed
+            if (!string.IsNullOrEmpty(_accessToken) && DateTime.UtcNow < _tokenExpiry - TokenBuffer)
+                return _accessToken;
 
-        var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
+            var credentials = Convert.ToBase64String(
+                System.Text.Encoding.ASCII.GetBytes($"{_clientId}:{_clientSecret}"));
 
-        using var json = await JsonDocument.ParseAsync(
-            await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false),
-            cancellationToken: ct).ConfigureAwait(false);
+            using var request = new HttpRequestMessage(HttpMethod.Post, _tokenEndpoint);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", credentials);
+            request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["grant_type"] = "client_credentials",
+                ["scope"] = _options.OAuthScope
+            });
 
-        _accessToken = json.RootElement.GetProperty("access_token").GetString() ?? string.Empty;
-        var expiresIn = json.RootElement.GetProperty("expires_in").GetInt32();
-        _tokenExpiry = DateTime.UtcNow.AddSeconds(expiresIn);
+            using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
 
-        _logger.LogInformation("eBay OAuth2 token refreshed — expires in {Seconds}s", expiresIn);
-        return _accessToken;
+            using var json = await JsonDocument.ParseAsync(
+                await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false),
+                cancellationToken: ct).ConfigureAwait(false);
+
+            _accessToken = json.RootElement.TryGetProperty("access_token", out var atProp)
+                ? atProp.GetString() ?? string.Empty : string.Empty;
+            var expiresIn = json.RootElement.TryGetProperty("expires_in", out var eiProp)
+                ? eiProp.GetInt32() : 3600;
+            _tokenExpiry = DateTime.UtcNow.AddSeconds(expiresIn);
+
+            _logger.LogInformation("eBay OAuth2 token refreshed — expires in {Seconds}s", expiresIn);
+            return _accessToken;
+        }
+        finally
+        {
+            _tokenRefreshLock.Release();
+        }
     }
 
     private void ConfigureCredentials(Dictionary<string, string> credentials)
@@ -199,9 +221,8 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             if (!Uri.TryCreate(rawEbayBaseUrl, UriKind.Absolute, out var parsedUri) ||
                 (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
                 throw new ArgumentException($"Invalid eBay base URL scheme: {rawEbayBaseUrl}. Only HTTP(S) allowed.");
-            if (parsedUri.Host is "localhost" or "127.0.0.1" || parsedUri.Host.StartsWith("10.") ||
-                parsedUri.Host.StartsWith("172.") || parsedUri.Host.StartsWith("192.168."))
-                _logger.LogWarning("[EbayAdapter] BaseUrl points to internal/private network: {BaseUrl}", rawEbayBaseUrl);
+            if (SsrfGuard.IsPrivateHost(parsedUri.Host))
+                _logger.LogWarning("[EbayAdapter] BaseUrl points to private network: {BaseUrl}", rawEbayBaseUrl);
             _ebayBaseUrl = rawEbayBaseUrl.TrimEnd('/');
         }
 
@@ -260,7 +281,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             result.IsSuccess = !string.IsNullOrEmpty(token);
             result.StoreName = "eBay Store (OAuth2 OK)";
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "eBay TestConnectionAsync başarısız");
             result.ErrorMessage = ex.Message;
@@ -300,7 +321,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             while (hasMore)
             {
                 var url = $"{_ebayBaseUrl}/sell/inventory/v1/inventory_item?limit={pageSize}&offset={offset}";
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token => await _httpClient.SendAsync(CreateAuthenticatedRequest(HttpMethod.Get, url), token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -339,13 +360,14 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
                         stock = qtyEl.GetInt32();
                     }
 
-                    products.Add(new Product
+                    var product = new Product
                     {
                         Name = title,
                         SKU = sku,
-                        Stock = stock,
                         SalePrice = 0m
-                    });
+                    };
+                    product.SyncStock(stock, "ebay-sync");
+                    products.Add(product);
                 }
 
                 offset += pageSize;
@@ -356,7 +378,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
             _logger.LogInformation("eBay PullProducts: {Count} products retrieved", products.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "eBay PullProducts failed");
         }
@@ -364,19 +386,150 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         return products.AsReadOnly();
     }
 
-    public Task<bool> PushProductAsync(Product product, CancellationToken ct = default)
+    /// <summary>
+    /// Full eBay listing creation — 3-step flow:
+    /// 1. PUT /sell/inventory/v1/inventory_item/{sku} — create/update inventory item
+    /// 2. POST /sell/inventory/v1/offer — create offer with marketplace ID, price, policies
+    /// 3. POST /sell/inventory/v1/offer/{offerId}/publish — go live
+    /// </summary>
+    public async Task<bool> PushProductAsync(Product product, CancellationToken ct = default)
     {
-        // Full eBay listing creation requires multi-step flow:
-        //   1. PUT /sell/inventory/v1/inventory_item/{sku} — create/update inventory item
-        //   2. POST /sell/inventory/v1/offer — create offer with marketplace, price, listing policies
-        //   3. POST /sell/inventory/v1/offer/{offerId}/publish — publish the offer as a live listing
-        // Each step requires specific eBay listing policies (payment, return, fulfillment).
-        // Use PushStockUpdateAsync / PushPriceUpdateAsync for existing listing updates.
-        _logger.LogWarning(
-            "EbayAdapter.PushProductAsync — full listing creation requires inventory+offer+publish flow (3-step). " +
-            "SKU={SKU}. Use PushStockUpdateAsync/PushPriceUpdateAsync for existing listings",
-            product.SKU);
-        return Task.FromResult(false);
+        EnsureConfigured();
+        _logger.LogInformation("EbayAdapter.PushProductAsync 3-step: SKU={SKU}", product.SKU);
+
+        try
+        {
+            await GetAccessTokenAsync(ct).ConfigureAwait(false);
+
+            // Step 1: Create/Update Inventory Item
+            var inventoryPayload = new
+            {
+                availability = new
+                {
+                    shipToLocationAvailability = new { quantity = Math.Max(product.Stock, 0) }
+                },
+                condition = "NEW",
+                product = new
+                {
+                    title = product.Name,
+                    description = product.Description ?? product.Name,
+                    aspects = new Dictionary<string, string[]>
+                    {
+                        ["Brand"] = new[] { product.Brand ?? "Unbranded" }
+                    },
+                    imageUrls = !string.IsNullOrEmpty(product.ImageUrl)
+                        ? new[] { product.ImageUrl }
+                        : Array.Empty<string>()
+                }
+            };
+
+            var sku = Uri.EscapeDataString(product.SKU);
+            var step1Json = JsonSerializer.Serialize(inventoryPayload, _jsonOptions);
+            var step1Content = new StringContent(step1Json, Encoding.UTF8, "application/json");
+
+            using var step1Response = await ThrottledExecuteAsync(
+                async token =>
+                {
+                    using var req = new HttpRequestMessage(HttpMethod.Put, $"{_ebayBaseUrl}/sell/inventory/v1/inventory_item/{sku}");
+                    req.Content = new StringContent(step1Json, Encoding.UTF8, "application/json");
+                    req.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessToken);
+                    req.Headers.Add("Content-Language", "en-US");
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!step1Response.IsSuccessStatusCode && (int)step1Response.StatusCode != 204)
+            {
+                var err = await step1Response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("eBay PushProduct Step1 (inventory_item) failed: {Status} {Error}",
+                    step1Response.StatusCode, err);
+                return false;
+            }
+
+            _logger.LogDebug("eBay PushProduct Step1 OK: SKU={SKU}", product.SKU);
+
+            // Step 2: Create Offer
+            var offerPayload = new
+            {
+                sku = product.SKU,
+                marketplaceId = "EBAY_US", // TODO: tenant-based marketplace config
+                format = "FIXED_PRICE",
+                listingDescription = product.Description ?? product.Name,
+                pricingSummary = new
+                {
+                    price = new
+                    {
+                        value = product.SalePrice.ToString("F2", System.Globalization.CultureInfo.InvariantCulture),
+                        currency = product.CurrencyCode ?? "USD"
+                    }
+                },
+                quantityLimitPerBuyer = 10
+            };
+
+            var step2Json = JsonSerializer.Serialize(offerPayload, _jsonOptions);
+
+            using var step2Response = await ThrottledExecuteAsync(
+                async token =>
+                {
+                    using var req = new HttpRequestMessage(HttpMethod.Post, $"{_ebayBaseUrl}/sell/inventory/v1/offer");
+                    req.Content = new StringContent(step2Json, Encoding.UTF8, "application/json");
+                    req.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessToken);
+                    req.Headers.Add("Content-Language", "en-US");
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!step2Response.IsSuccessStatusCode)
+            {
+                var err = await step2Response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("eBay PushProduct Step2 (offer) failed: {Status} {Error}",
+                    step2Response.StatusCode, err);
+                return false;
+            }
+
+            var step2Body = await step2Response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var step2Doc = JsonDocument.Parse(step2Body);
+            var offerId = step2Doc.RootElement.TryGetProperty("offerId", out var oid) ? oid.GetString() : null;
+
+            if (string.IsNullOrEmpty(offerId))
+            {
+                _logger.LogError("eBay PushProduct Step2 — no offerId returned");
+                return false;
+            }
+
+            _logger.LogDebug("eBay PushProduct Step2 OK: offerId={OfferId}", offerId);
+
+            // Step 3: Publish Offer
+            using var step3Response = await ThrottledExecuteAsync(
+                async token =>
+                {
+                    using var req = new HttpRequestMessage(HttpMethod.Post, $"{_ebayBaseUrl}/sell/inventory/v1/offer/{offerId}/publish");
+                    req.Content = new StringContent("{}", Encoding.UTF8, "application/json");
+                    req.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _accessToken);
+                    return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
+            if (!step3Response.IsSuccessStatusCode)
+            {
+                var err = await step3Response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogWarning("eBay PushProduct Step3 (publish) failed: {Status} {Error} — offer created but not published",
+                    step3Response.StatusCode, err);
+                return false;
+            }
+
+            var step3Body = await step3Response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var step3Doc = JsonDocument.Parse(step3Body);
+            var listingId = step3Doc.RootElement.TryGetProperty("listingId", out var lid) ? lid.GetString() : "?";
+
+            _logger.LogInformation(
+                "eBay PushProduct completed 3-step: SKU={SKU} offerId={OfferId} listingId={ListingId}",
+                product.SKU, offerId, listingId);
+
+            return true;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "eBay PushProductAsync exception: SKU={SKU}", product.SKU);
+            return false;
+        }
     }
 
     /// <summary>
@@ -386,13 +539,21 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
     public async Task<bool> PushStockUpdateAsync(Guid productId, int newStock, CancellationToken ct = default)
     {
         EnsureConfigured();
+
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.eBay, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} StockUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         _logger.LogInformation("EbayAdapter.PushStockUpdateAsync: ProductId={ProductId} qty={Qty}", productId, newStock);
 
         try
         {
             await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
-            var sku = Uri.EscapeDataString(productId.ToString());
+            var sku = Uri.EscapeDataString(externalId);
             var url = $"{_ebayBaseUrl}/sell/inventory/v1/inventory_item/{sku}";
 
             // We need the current inventory_item first to do a proper PUT (partial update not supported)
@@ -446,7 +607,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             _logger.LogInformation("eBay StockUpdate success: SKU={SKU} qty={Qty}", productId, newStock);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "eBay StockUpdate exception: {ProductId}", productId);
             return false;
@@ -460,13 +621,21 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
     public async Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
     {
         EnsureConfigured();
+
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.eBay, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} PriceUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         _logger.LogInformation("EbayAdapter.PushPriceUpdateAsync: ProductId={ProductId} price={Price}", productId, newPrice);
 
         try
         {
             await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
-            var sku = Uri.EscapeDataString(productId.ToString());
+            var sku = Uri.EscapeDataString(externalId);
 
             // Step 1: Find offerId for the SKU
             var getOffersUrl = $"{_ebayBaseUrl}/sell/inventory/v1/offer?sku={sku}";
@@ -542,7 +711,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
                 productId, newPrice, currency);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "eBay PriceUpdate exception: {ProductId}", productId);
             return false;
@@ -567,7 +736,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             // category_tree_id=3 is Turkey; override via CategoryTreeId config if needed
             const int categoryTreeId = 3;
             var url = $"{_ebayBaseUrl}/commerce/taxonomy/v1/category_tree/{categoryTreeId}";
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.SendAsync(CreateAuthenticatedRequest(HttpMethod.Get, url), token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -603,7 +772,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             _logger.LogInformation("eBay GetCategories: {Count} top-level categories retrieved", categories.Count);
             return categories.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "eBay GetCategories failed");
             return Array.Empty<CategoryDto>();
@@ -684,7 +853,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             while (hasMore)
             {
                 var url = $"{_ebayBaseUrl}/sell/fulfillment/v1/order?filter={filter}&limit={pageSize}&offset={offset}";
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token => await _httpClient.SendAsync(CreateAuthenticatedRequest(HttpMethod.Get, url), token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -849,7 +1018,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
             _logger.LogInformation("eBay PullOrders: {Count} orders retrieved", orders.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "eBay PullOrders failed");
         }
@@ -917,7 +1086,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var req = CreateAuthenticatedRequest(HttpMethod.Post, url);
@@ -936,7 +1105,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
                 platformOrderId, trackingNumber);
             return true;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "eBay SendShipment exception: OrderId={OrderId}", platformOrderId);
             return false;
@@ -973,7 +1142,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
             var request = new HttpRequestMessage(HttpMethod.Head,
                 new Uri(_ebayBaseUrl, UriKind.Absolute));
-            var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
 
             _logger.LogDebug("eBay ping: {StatusCode}", response.StatusCode);
             return true;
@@ -1002,7 +1171,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             var filter = $"transactionDate:[{startDate:yyyy-MM-dd}T00:00:00.000Z..{endDate:yyyy-MM-dd}T23:59:59.999Z]";
             var url = $"{_ebayBaseUrl}/sell/finances/v1/transaction?filter={Uri.EscapeDataString(filter)}&limit=200";
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.SendAsync(CreateAuthenticatedRequest(HttpMethod.Get, url), token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -1074,7 +1243,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
             return settlement;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "eBay GetSettlement exception: {StartDate}—{EndDate}", startDate, endDate);
             return null;
@@ -1106,7 +1275,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             if (since.HasValue)
                 url += "&creation_date_range_from=" + since.Value.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fff'Z'");
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var req = new HttpRequestMessage(HttpMethod.Get, url);
@@ -1151,7 +1320,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
             _logger.LogInformation("eBay PullClaims: {Count} claims fetched", claims.Count);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "eBay PullClaims exception");
         }
@@ -1167,7 +1336,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         {
             await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var req = new HttpRequestMessage(HttpMethod.Post, $"{_ebayBaseUrl}/post-order/v2/return/{claimId}/accept");
@@ -1187,7 +1356,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
                 claimId, response.StatusCode, errorBody);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "eBay ApproveClaimAsync exception for {ClaimId}", claimId);
             return false;
@@ -1203,7 +1372,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             var body = JsonSerializer.Serialize(new { comments = reason }, _jsonOptions);
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     var req = new HttpRequestMessage(HttpMethod.Post, $"{_ebayBaseUrl}/post-order/v2/return/{claimId}/reject")
@@ -1225,7 +1394,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
                 claimId, response.StatusCode, errorBody);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "eBay RejectClaimAsync exception for {ClaimId}", claimId);
             return false;
@@ -1301,7 +1470,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
             var payload = new { topicId = "MARKETPLACE_ACCOUNT_DELETION", callbackUrl };
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await ThrottledExecuteAsync(async token =>
+            using var response = await ThrottledExecuteAsync(async token =>
             {
                 await GetAccessTokenAsync(token).ConfigureAwait(false);
                 using var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -1321,7 +1490,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "eBay RegisterWebhook exception");
             return false;
@@ -1335,7 +1504,7 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
         try
         {
-            var response = await ThrottledExecuteAsync(async token =>
+            using var response = await ThrottledExecuteAsync(async token =>
             {
                 await GetAccessTokenAsync(token).ConfigureAwait(false);
                 var request = new HttpRequestMessage(HttpMethod.Delete,
@@ -1353,19 +1522,20 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "eBay UnregisterWebhook exception");
             return false;
         }
     }
 
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
+        string? notificationType = null;
         try
         {
             using var doc = JsonDocument.Parse(payload);
-            var notificationType = doc.RootElement.TryGetProperty("metadata", out var meta)
+            notificationType = doc.RootElement.TryGetProperty("metadata", out var meta)
                 && meta.TryGetProperty("topic", out var topic)
                     ? topic.GetString()
                     : "unknown";
@@ -1378,7 +1548,79 @@ public sealed class EbayAdapter : IIntegratorAdapter, IOrderCapableAdapter, IShi
         {
             _logger.LogWarning(ex, "[EbayAdapter] Malformed webhook payload (length={Length})", payload?.Length ?? 0);
         }
+        await WebhookDispatchHelper.DispatchAsync(_scopeFactory, PlatformCode, notificationType, null, payload!, _logger, ct).ConfigureAwait(false);
+    }
 
-        return Task.CompletedTask;
+    // ═══════════════════════════════════════════
+    // IReviewCapableAdapter — Seller Reviews
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Gets seller/product reviews from eBay Reputation API.
+    /// GET /sell/reputation/v1/seller_feedback?limit={size}&amp;offset={page*size}
+    /// </summary>
+    public async Task<IReadOnlyList<TrendyolProductReviewDto>> GetProductReviewsAsync(
+        int page = 0, int size = 20, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("EbayAdapter.GetProductReviewsAsync page={Page} size={Size}", page, size);
+
+        try
+        {
+            var token = await GetAccessTokenAsync(ct).ConfigureAwait(false);
+            var offset = page * size;
+
+            var response = await ThrottledExecuteAsync(async innerToken =>
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get,
+                    $"/sell/reputation/v1/seller_feedback?limit={size}&offset={offset}");
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                request.Headers.TryAddWithoutValidation("User-Agent", "MesTech-eBay-Client/3.0");
+                return await _httpClient.SendAsync(request, innerToken).ConfigureAwait(false);
+            }, ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("eBay GetProductReviews failed: {Status} - {Error}", response.StatusCode, error);
+                return Array.Empty<TrendyolProductReviewDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var reviews = new List<TrendyolProductReviewDto>();
+            var items = doc.RootElement.TryGetProperty("feedbackEntries", out var feedArr) ? feedArr
+                : doc.RootElement.TryGetProperty("reviews", out var revArr) ? revArr
+                : doc.RootElement;
+
+            if (items.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in items.EnumerateArray())
+                {
+                    var ratingStr = item.TryGetProperty("feedbackType", out var ft) ? ft.GetString() : "";
+                    var rating = ratingStr switch { "POSITIVE" => 5, "NEUTRAL" => 3, "NEGATIVE" => 1, _ => 0 };
+
+                    reviews.Add(new TrendyolProductReviewDto(
+                        Id: item.TryGetProperty("feedbackId", out var id) ? (id.ValueKind == JsonValueKind.Number ? id.GetInt64() : id.GetString()?.GetHashCode() ?? 0) : 0,
+                        ProductId: item.TryGetProperty("itemId", out var iid) ? (iid.ValueKind == JsonValueKind.Number ? iid.GetInt64() : iid.GetString()?.GetHashCode() ?? 0) : 0,
+                        Comment: item.TryGetProperty("commentText", out var comment) ? comment.GetString() ?? "" : "",
+                        Rate: rating,
+                        UserFullName: item.TryGetProperty("buyer", out var buyer) ? buyer.GetString() ?? "" : "",
+                        CreatedAt: item.TryGetProperty("feedbackDate", out var dt)
+                            ? (DateTime.TryParse(dt.GetString(), out var parsed) ? parsed : DateTime.MinValue)
+                            : DateTime.MinValue,
+                        IsReplied: item.TryGetProperty("sellerResponse", out var resp) && resp.ValueKind != JsonValueKind.Null));
+                }
+            }
+
+            _logger.LogInformation("eBay GetProductReviews: {Count} reviews fetched", reviews.Count);
+            return reviews;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "eBay GetProductReviews exception");
+            return Array.Empty<TrendyolProductReviewDto>();
+        }
     }
 }

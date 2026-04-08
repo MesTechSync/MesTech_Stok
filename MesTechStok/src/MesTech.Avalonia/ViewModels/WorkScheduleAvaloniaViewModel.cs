@@ -31,13 +31,9 @@ public partial class WorkScheduleAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var employees = await _mediator.Send(new GetEmployeesQuery(_currentUser.TenantId));
+            var employees = await _mediator.Send(new GetEmployeesQuery(_currentUser.TenantId), ct);
 
             _allItems.Clear();
             foreach (var e in employees)
@@ -53,16 +49,7 @@ public partial class WorkScheduleAvaloniaViewModel : ViewModelBase
             }
 
             ApplyFilter();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Takvim yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Calisma takvimi yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();

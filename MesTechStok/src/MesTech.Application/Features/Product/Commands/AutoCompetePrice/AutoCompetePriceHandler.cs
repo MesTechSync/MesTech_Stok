@@ -19,17 +19,20 @@ public sealed class AutoCompetePriceHandler
     private readonly IBuyboxService _buybox;
     private readonly IAdapterFactory _adapterFactory;
     private readonly IProductRepository _productRepo;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<AutoCompetePriceHandler> _logger;
 
     public AutoCompetePriceHandler(
         IBuyboxService buybox,
         IAdapterFactory adapterFactory,
         IProductRepository productRepo,
+        IUnitOfWork unitOfWork,
         ILogger<AutoCompetePriceHandler> logger)
     {
         _buybox = buybox;
         _adapterFactory = adapterFactory;
         _productRepo = productRepo;
+        _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
@@ -37,7 +40,7 @@ public sealed class AutoCompetePriceHandler
         AutoCompetePriceCommand request, CancellationToken cancellationToken)
     {
         // 1. Ürünü bul
-        var product = await _productRepo.GetByIdAsync(request.ProductId).ConfigureAwait(false);
+        var product = await _productRepo.GetByIdAsync(request.ProductId, cancellationToken).ConfigureAwait(false);
         if (product is null)
             return AutoCompetePriceResult.Failure("Ürün bulunamadı");
 
@@ -87,6 +90,11 @@ public sealed class AutoCompetePriceHandler
         var pushed = await adapter.PushPriceUpdateAsync(request.ProductId, targetPrice, cancellationToken).ConfigureAwait(false);
         if (!pushed)
             return AutoCompetePriceResult.Failure("Fiyat platforma gönderilemedi — adapter hatası");
+
+        // Domain entity güncelle — PriceChangedEvent firlatirir → diger platformlara sync
+        product.UpdatePrice(targetPrice);
+        await _productRepo.UpdateAsync(product, cancellationToken).ConfigureAwait(false);
+        await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         _logger.LogInformation(
             "AutoCompete: Fiyat güncellendi. SKU={SKU} Platform={Platform} {Old}→{New} (Rakip: {Competitor} {CompPrice})",

@@ -1,6 +1,8 @@
 ﻿<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="MesTech.Avalonia.Dialogs.StockAdjustDialog"
+             x:CompileBindings="False"
+             AutomationProperties.Name="Stock Adjust Dialog"
         Title="Stok Duzeltme"
         Width="450" Height="350"
         CanResize="False"

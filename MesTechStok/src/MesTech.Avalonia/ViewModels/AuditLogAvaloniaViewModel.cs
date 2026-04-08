@@ -12,10 +12,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class AuditLogAvaloniaViewModel : ViewModelBase
 {
-    private readonly ISender _mediator;
+    private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
 
-    public AuditLogAvaloniaViewModel(ISender mediator, ICurrentUserService currentUser)
+    public AuditLogAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
         _currentUser = currentUser;
@@ -24,6 +24,10 @@ public partial class AuditLogAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string searchText = string.Empty;
     [ObservableProperty] private string exportMessage = string.Empty;
     [ObservableProperty] private bool isExported;
+
+    // Sort
+    [ObservableProperty] private string sortColumn = "default";
+    [ObservableProperty] private bool sortAscending = false; // newest first by default
 
     private readonly List<AuditLogEntry> _allItems = [];
 
@@ -52,11 +56,7 @@ public partial class AuditLogAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var userFilter = SelectedUser == "Tumu" ? null : SelectedUser;
             var actionFilter = SelectedAction == "Tumu" ? null : SelectedAction;
@@ -65,7 +65,7 @@ public partial class AuditLogAvaloniaViewModel : ViewModelBase
                 StartDate.DateTime,
                 EndDate.DateTime,
                 userFilter,
-                actionFilter));
+                actionFilter), ct);
 
             _allItems.Clear();
             foreach (var log in logs)
@@ -82,16 +82,7 @@ public partial class AuditLogAvaloniaViewModel : ViewModelBase
             }
 
             ApplyFilter();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Denetim kayitlari yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Audit log yuklenirken hata");
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
@@ -105,9 +96,28 @@ public partial class AuditLogAvaloniaViewModel : ViewModelBase
                 r.Action.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
                 r.User.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
                 r.EntityType.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+
+        // Sort
+        filtered = SortColumn switch
+        {
+            "User"       => SortAscending ? filtered.OrderBy(x => x.User)       : filtered.OrderByDescending(x => x.User),
+            "Action"     => SortAscending ? filtered.OrderBy(x => x.Action)     : filtered.OrderByDescending(x => x.Action),
+            "EntityType" => SortAscending ? filtered.OrderBy(x => x.EntityType) : filtered.OrderByDescending(x => x.EntityType),
+            "Timestamp"  => SortAscending ? filtered.OrderBy(x => x.Timestamp)  : filtered.OrderByDescending(x => x.Timestamp),
+            _            => SortAscending ? filtered.OrderBy(x => x.Timestamp)  : filtered.OrderByDescending(x => x.Timestamp),
+        };
+
         foreach (var item in filtered)
             LogEntries.Add(item);
         IsEmpty = LogEntries.Count == 0;
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column) SortAscending = !SortAscending;
+        else { SortColumn = column; SortAscending = true; }
+        ApplyFilter();
     }
 
     [RelayCommand]

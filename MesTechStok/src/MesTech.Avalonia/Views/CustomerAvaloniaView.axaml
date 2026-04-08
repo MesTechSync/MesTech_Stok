@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
              x:Class="MesTech.Avalonia.Views.CustomerAvaloniaView"
              x:DataType="vm:CustomerAvaloniaViewModel">
 <UserControl.KeyBindings>        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />        <KeyBinding Gesture="Ctrl+F" Command="{Binding FocusSearchCommand}" />    </UserControl.KeyBindings>
@@ -21,10 +22,17 @@
                                    Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
-                <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
-                        Command="{Binding RefreshCommand}"
-                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                    <!-- KD-DEV2-008: Export Excel button -->
+                    <Button Content="Excel Aktar" ToolTip.Tip="Musteri listesini Excel olarak disari aktar"
+                            Command="{Binding ExportExcelCommand}"
+                            Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesTeal}" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                    <Button Content="Yenile" ToolTip.Tip="Verileri yenile"
+                            Command="{Binding RefreshCommand}"
+                            Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                </StackPanel>
             </Grid>
         </Border>
 
@@ -47,7 +55,7 @@
                                     CommandParameter="{Binding Key}"
                                     ToolTip.Tip="{Binding Label}"
                                     Padding="12,6"
-                                    CornerRadius="4"
+                                    CornerRadius="{StaticResource MesRadiusSm}"
                                     FontSize="{StaticResource FontSizeSmall}"
                                     FontWeight="SemiBold" />
                         </DataTemplate>
@@ -111,10 +119,10 @@
                     <DataGridTemplateColumn Header="Segment" Width="100">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate x:DataType="vm:CustomerItemDto">
-                                <Border Background="{Binding SegmentRenk}" CornerRadius="4"
+                                <Border Background="{Binding SegmentRenk}" CornerRadius="{StaticResource MesRadiusSm}"
                                         Padding="8,2" HorizontalAlignment="Left" Margin="4,2">
                                     <TextBlock Text="{Binding Segment}"
-                                               Foreground="White" FontSize="11" FontWeight="SemiBold" />
+                                               Foreground="White" FontSize="{StaticResource FontSizeCaption}" FontWeight="SemiBold" />
                                 </Border>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
@@ -143,7 +151,7 @@
                                     ToolTip.Tip="Detay panelini kapat"
                                     Background="Transparent"
                                     Padding="8,4"
-                                    FontSize="14" />
+                                    FontSize="{StaticResource FontSizeBody}" />
                         </Grid>
                     </Border>
 
@@ -155,12 +163,12 @@
                             <Border Background="{Binding SelectedCustomer.SegmentRenk}"
                                     CornerRadius="6" Padding="12,6" HorizontalAlignment="Left">
                                 <TextBlock Text="{Binding SelectedCustomer.Segment}"
-                                           Foreground="White" FontWeight="Bold" FontSize="13" />
+                                           Foreground="White" FontWeight="Bold" FontSize="{StaticResource FontSizeCallout}" />
                             </Border>
 
                             <!-- Personal Info -->
                             <StackPanel Spacing="8">
-                                <TextBlock Text="KİŞİSEL BİLGİLER" FontSize="10" FontWeight="Bold"
+                                <TextBlock Text="KİŞİSEL BİLGİLER" FontSize="{StaticResource FontSizeCaption1}" FontWeight="Bold"
                                            Foreground="{DynamicResource MesSlateGray}"
                                            LetterSpacing="1" />
                                 <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="Auto,*" >
@@ -192,7 +200,7 @@
 
                             <!-- Order Summary -->
                             <StackPanel Spacing="8">
-                                <TextBlock Text="SİPARİŞ ÖZETİ" FontSize="10" FontWeight="Bold"
+                                <TextBlock Text="SİPARİŞ ÖZETİ" FontSize="{StaticResource FontSizeCaption1}" FontWeight="Bold"
                                            Foreground="{DynamicResource MesSlateGray}"
                                            LetterSpacing="1" />
                                 <Border Background="{DynamicResource MesBgSurface}" CornerRadius="6" Padding="12">
@@ -265,7 +273,7 @@
         </Border>
 
         <!-- Empty State (no data at all) -->
-        <Border Grid.Row="0" Grid.RowSpan="3"
+        <Border Grid.Row="1" Grid.RowSpan="2"
                 Background="{DynamicResource MesBgSurface}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
@@ -278,23 +286,19 @@
             </StackPanel>
         </Border>
 
-        <!-- Error State -->
-        <Border Grid.Row="0" Grid.RowSpan="3"
-                Background="{DynamicResource MesBgSurface}"
-                IsVisible="{Binding HasError}"
-                ZIndex="50">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock Text="!" FontSize="{StaticResource FontSizeHero}" FontWeight="Bold"
-                           HorizontalAlignment="Center" Foreground="{DynamicResource MesDanger}"
-                           Margin="0,0,0,8" />
-                <TextBlock Text="{Binding ErrorMessage}"
-                           FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesDanger}"
-                           HorizontalAlignment="Center" Margin="0,0,0,12"
-                           TextWrapping="Wrap" MaxWidth="400" />
+        <!-- Error State — FluentAvalonia InfoBar -->
+        <fa:InfoBar Grid.Row="0"
+                    Title="Bir sorun olustu"
+                    Message="{Binding ErrorMessage}"
+                    Severity="Error"
+                    IsOpen="{Binding HasError}"
+                    IsClosable="True"
+                    Margin="16,8"
+                    ZIndex="50">
+            <fa:InfoBar.ActionButton>
                 <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
-                        Command="{Binding RefreshCommand}"
-                        Padding="16,6" />
-            </StackPanel>
-        </Border>
+                        Command="{Binding RefreshCommand}" />
+            </fa:InfoBar.ActionButton>
+        </fa:InfoBar>
     </Grid>
 </UserControl>

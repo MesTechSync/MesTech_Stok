@@ -53,7 +53,7 @@ public sealed class GetMonthlySummaryHandler : IRequestHandler<GetMonthlySummary
 
         // Expenses for the period
         var expenses = await _expenseRepo.GetByDateRangeAsync(
-            start, end, request.TenantId);
+            start, end, request.TenantId, cancellationToken);
 
         var totalExpenses = expenses.Sum(e => e.Amount);
 

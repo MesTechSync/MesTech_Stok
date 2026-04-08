@@ -8,12 +8,11 @@
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
 <div class="d-flex align-items-center mb-4">
-  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-       style="width: 48px; height: 48px; background-color: #2855AC;">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
     <i class="fas fa-folder-open text-white"></i>
   </div>
   <div>
-    <h3 class="mb-0" style="color: #2855AC;">Belgeler</h3>
+    <h3 class="mb-0" >Belgeler</h3>
     <small class="text-muted">Dokuman yonetimi ve arsiv</small>
   </div>
   <button class="btn btn-outline-primary ms-auto" @onclick="LoadAsync" disabled="@_isLoading">
@@ -54,7 +53,7 @@ else
   <!-- Documents Table -->
   <div class="card shadow-sm">
     <div class="card-header bg-white d-flex align-items-center justify-content-between">
-      <h6 class="mb-0"><i class="fas fa-list me-2" style="color: #2855AC;"></i>Belge Listesi</h6>
+      <h6 class="mb-0"><i class="fas fa-list me-2" ></i>Belge Listesi</h6>
       <span class="badge bg-secondary">@_documents.Count belge</span>
     </div>
     <div class="card-body p-0">
@@ -133,20 +132,20 @@ else
                     var json = System.Text.Json.JsonSerializer.Serialize(result.Data);
                     _documents = System.Text.Json.JsonSerializer.Deserialize<List<DocumentItem>>(json,
                         new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })
-                        ?? GetDemoData();
+                        ?? (ApiClient.IsDemoAllowed ? GetDemoData() : new());
                 }
-                catch { _documents = GetDemoData(); _isDemoMode = true; }
+                catch { _documents = ApiClient.IsDemoAllowed ? GetDemoData() : new(); _isDemoMode = true; }
             }
             else
             {
                 _isDemoMode = true;
-                _documents = GetDemoData();
+                _documents = ApiClient.IsDemoAllowed ? GetDemoData() : new();
             }
         }
         catch (Exception ex)
         {
             _isDemoMode = true;
-            _documents = GetDemoData();
+            _documents = ApiClient.IsDemoAllowed ? GetDemoData() : new();
             Logger.LogWarning(ex, "API error, falling back to demo mode");
         }
         finally
@@ -168,11 +167,11 @@ else
 
     private static string GetFileColor(string tur) => tur switch
     {
-        "pdf" => "#dc3545",
-        "xlsx" => "#198754",
-        "docx" => "#0d6efd",
-        "png" or "jpg" => "#6f42c1",
-        "zip" => "#fd7e14",
+        "pdf" => "var(--mestech-danger)",
+        "xlsx" => "var(--mestech-success)",
+        "docx" => "var(--mestech-info)",
+        "png" or "jpg" => "var(--mestech-purple)",
+        "zip" => "var(--mestech-orange)",
         _ => "#6c757d"
     };
 

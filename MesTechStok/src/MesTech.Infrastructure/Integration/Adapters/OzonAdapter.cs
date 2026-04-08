@@ -4,9 +4,12 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Platform;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
+using MesTech.Infrastructure.Integration.Security;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -22,12 +25,14 @@ namespace MesTech.Infrastructure.Integration.Adapters;
 /// Implements IIntegratorAdapter + IOrderCapableAdapter.
 /// </summary>
 public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPingableAdapter, IShipmentCapableAdapter,
-    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter
+    ISettlementCapableAdapter, IClaimCapableAdapter, IInvoiceCapableAdapter, IWebhookCapableAdapter,
+    IReviewCapableAdapter
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<OzonAdapter> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(20, 20);
 
@@ -41,10 +46,11 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
     private const string ApiKeyHeader = "Api-Key";
 
     public OzonAdapter(HttpClient httpClient, ILogger<OzonAdapter> logger,
-        IOptions<OzonOptions>? options = null)
+        IOptions<OzonOptions>? options = null, IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _scopeFactory = scopeFactory;
 
         var opts = options?.Value ?? new OzonOptions();
         _httpClient.Timeout = TimeSpan.FromSeconds(opts.HttpTimeoutSeconds);
@@ -175,9 +181,8 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             if (!Uri.TryCreate(rawOzonBaseUrl, UriKind.Absolute, out var parsedUri) ||
                 (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
                 throw new ArgumentException($"Invalid Ozon base URL scheme: {rawOzonBaseUrl}. Only HTTP(S) allowed.");
-            if (parsedUri.Host is "localhost" or "127.0.0.1" || parsedUri.Host.StartsWith("10.") ||
-                parsedUri.Host.StartsWith("172.") || parsedUri.Host.StartsWith("192.168."))
-                _logger.LogWarning("[OzonAdapter] BaseUrl points to internal/private network: {BaseUrl}", rawOzonBaseUrl);
+            if (SsrfGuard.IsPrivateHost(parsedUri.Host))
+                _logger.LogWarning("[OzonAdapter] BaseUrl points to private network: {BaseUrl}", rawOzonBaseUrl);
             _baseUrl = rawOzonBaseUrl;
         }
 
@@ -215,7 +220,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
 
             // Probe call to verify credentials — POST /v1/seller/info
             using var probe = BuildPostRequest("/v1/seller/info", new { });
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.SendAsync(probe, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             result.HttpStatusCode = (int)response.StatusCode;
@@ -311,7 +316,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             };
 
             using var request = BuildPostRequest("/v2/product/import", payload);
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -453,15 +458,16 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
                         if (info.TryGetProperty("visible", out var visibleProp))
                             isActive = visibleProp.GetBoolean();
 
-                        products.Add(new Product
+                        var product = new Product
                         {
                             Name = name,
                             SKU = offerId,
                             Barcode = barcode,
                             SalePrice = price,
-                            Stock = stock,
                             IsActive = isActive
-                        });
+                        };
+                        product.SyncStock(stock, "ozon-sync");
+                        products.Add(product);
                     }
                 }
 
@@ -499,6 +505,14 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
     public async Task<bool> PushStockUpdateAsync(Guid productId, int newStock, CancellationToken ct = default)
     {
         EnsureConfigured();
+
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Ozon, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} StockUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         _logger.LogInformation("OzonAdapter.PushStockUpdateAsync: ProductId={ProductId} qty={Qty}",
             productId, newStock);
 
@@ -510,7 +524,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
                 {
                     new
                     {
-                        offer_id = productId.ToString(),
+                        offer_id = externalId,
                         stock = newStock,
                         warehouse_id = 0L // Default warehouse — override via configuration
                     }
@@ -518,7 +532,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             };
 
             using var request = BuildPostRequest("/v2/products/stocks", payload);
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -573,6 +587,14 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
     public async Task<bool> PushPriceUpdateAsync(Guid productId, decimal newPrice, CancellationToken ct = default)
     {
         EnsureConfigured();
+
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.Ozon, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} PriceUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         _logger.LogInformation("OzonAdapter.PushPriceUpdateAsync: ProductId={ProductId} price={Price}",
             productId, newPrice);
 
@@ -584,7 +606,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
                 {
                     new
                     {
-                        offer_id = productId.ToString(),
+                        offer_id = externalId,
                         price = newPrice.ToString("F2", CultureInfo.InvariantCulture),
                         old_price = "0"  // Ozon requires old_price; "0" means no strikethrough
                     }
@@ -592,7 +614,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             };
 
             using var request = BuildPostRequest("/v1/product/import/prices", payload);
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -672,7 +694,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
                 };
 
                 using var request = BuildPostRequest("/v3/posting/fbs/list", payload);
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -826,7 +848,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         {
             var payload = new { language = "DEFAULT" };
             using var request = BuildPostRequest("/v1/description-category/tree", payload);
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -931,7 +953,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             };
 
             using var request = BuildPostRequest("/v3/posting/fbs/ship", payload);
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
@@ -996,7 +1018,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             request.Headers.Add(ClientIdHeader, _clientId);
             request.Headers.Add(ApiKeyHeader, _apiKey);
 
-            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1007,7 +1029,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Ozon RegisterWebhook exception");
             return false;
@@ -1025,7 +1047,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             request.Headers.Add(ClientIdHeader, _clientId);
             request.Headers.Add(ApiKeyHeader, _apiKey);
 
-            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1036,14 +1058,14 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Ozon UnregisterWebhook exception");
             return false;
         }
     }
 
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
         try
         {
@@ -1053,12 +1075,79 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
             _logger.LogInformation(
                 "OzonAdapter webhook processed: EventType={EventType} PayloadLength={Length}",
                 eventType, payload.Length);
+
+            await WebhookDispatchHelper.DispatchAsync(_scopeFactory, PlatformCode, eventType, null, payload, _logger, ct).ConfigureAwait(false);
         }
         catch (JsonException ex)
         {
             _logger.LogWarning(ex, "[Ozon] Malformed webhook payload ({Length}b)", payload?.Length ?? 0);
         }
-        return Task.CompletedTask;
+    }
+
+    // ═══════════════════════════════════════════
+    // IReviewCapableAdapter — Product Reviews
+    // ═══════════════════════════════════════════
+
+    /// <summary>
+    /// Gets product reviews from Ozon API.
+    /// Uses GET /v1/product/reviews with pagination.
+    /// </summary>
+    public async Task<IReadOnlyList<TrendyolProductReviewDto>> GetProductReviewsAsync(
+        int page = 0, int size = 20, CancellationToken ct = default)
+    {
+        EnsureConfigured();
+        _logger.LogInformation("OzonAdapter.GetProductReviewsAsync page={Page} size={Size}", page, size);
+
+        try
+        {
+            var request = BuildRequest(HttpMethod.Get, $"/v1/product/reviews?page={page}&page_size={size}");
+            var response = await ThrottledExecuteAsync(async token =>
+                await _httpClient.SendAsync(request, token).ConfigureAwait(false),
+                ct).ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                _logger.LogError("Ozon GetProductReviews failed: {Status} - {Error}", response.StatusCode, error);
+                return Array.Empty<TrendyolProductReviewDto>();
+            }
+
+            var content = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+            using var doc = JsonDocument.Parse(content);
+
+            var reviews = new List<TrendyolProductReviewDto>();
+            var items = doc.RootElement.TryGetProperty("reviews", out var revArr) ? revArr
+                : doc.RootElement.TryGetProperty("result", out var resArr) ? resArr
+                : doc.RootElement;
+
+            if (items.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var item in items.EnumerateArray())
+                {
+                    reviews.Add(new TrendyolProductReviewDto(
+                        Id: item.TryGetProperty("review_id", out var id) ? (id.ValueKind == JsonValueKind.Number ? id.GetInt64() : 0) : 0,
+                        ProductId: item.TryGetProperty("product_id", out var pid) ? (pid.ValueKind == JsonValueKind.Number ? (int)pid.GetInt64() : 0) : 0,
+                        Comment: item.TryGetProperty("comment", out var body) ? body.GetString() ?? ""
+                            : item.TryGetProperty("text", out var text) ? text.GetString() ?? "" : "",
+                        Rate: item.TryGetProperty("rating", out var rate) ? (int)rate.GetDouble()
+                            : item.TryGetProperty("stars", out var stars) ? (int)stars.GetDouble() : 0,
+                        UserFullName: item.TryGetProperty("author_name", out var author) ? author.GetString() ?? ""
+                            : item.TryGetProperty("author", out var auth2) ? auth2.GetString() ?? "" : "",
+                        CreatedAt: item.TryGetProperty("created_at", out var dt)
+                            ? (DateTime.TryParse(dt.GetString(), out var parsed) ? parsed : DateTime.MinValue)
+                            : DateTime.MinValue,
+                        IsReplied: item.TryGetProperty("is_replied", out var replied) && replied.GetBoolean()));
+                }
+            }
+
+            _logger.LogInformation("Ozon GetProductReviews: {Count} reviews fetched", reviews.Count);
+            return reviews;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, "Ozon GetProductReviews exception");
+            return Array.Empty<TrendyolProductReviewDto>();
+        }
     }
 
     // ═══════════════════════════════════════════
@@ -1075,7 +1164,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
 
             var request = new HttpRequestMessage(HttpMethod.Head,
                 new Uri(_baseUrl, UriKind.Absolute));
-            var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
 
             _logger.LogDebug("Ozon ping: {StatusCode}", response.StatusCode);
             return true;
@@ -1132,7 +1221,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
                 };
 
                 using var request = BuildPostRequest("/v3/finance/transaction/list", payload);
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -1262,7 +1351,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
                 };
 
                 using var request = BuildPostRequest("/v2/returns/company/fbs", payload);
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -1370,7 +1459,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         try
         {
             using var request = BuildPostRequest($"/v2/returns/company/{claimId}/approve", new { });
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
@@ -1403,7 +1492,7 @@ public sealed class OzonAdapter : IIntegratorAdapter, IOrderCapableAdapter, IPin
         {
             var payload = new { comment = reason };
             using var request = BuildPostRequest($"/v2/returns/company/{claimId}/reject", payload);
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token => await _httpClient.SendAsync(request, token).ConfigureAwait(false), ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)

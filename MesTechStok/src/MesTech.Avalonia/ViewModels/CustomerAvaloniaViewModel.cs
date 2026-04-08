@@ -3,6 +3,7 @@ using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MediatR;
+using MesTech.Application.Features.Crm.Commands.ExportCustomers;
 using MesTech.Application.Features.Crm.Queries.GetCustomersCrm;
 using MesTech.Domain.Interfaces;
 
@@ -22,6 +23,10 @@ public partial class CustomerAvaloniaViewModel : ViewModelBase
     [ObservableProperty] private string activeSegment = "Tum";
     [ObservableProperty] private bool isDetailOpen;
     [ObservableProperty] private CustomerItemDto? selectedCustomer;
+
+    // Sort
+    [ObservableProperty] private string sortColumn = "default";
+    [ObservableProperty] private bool sortAscending = true;
 
     private readonly List<CustomerItemDto> _allItems = [];
 
@@ -44,11 +49,7 @@ public partial class CustomerAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var result = await _mediator.Send(new GetCustomersCrmQuery(
                 _currentUser.TenantId,
@@ -56,7 +57,7 @@ public partial class CustomerAvaloniaViewModel : ViewModelBase
                 IsActive: null,
                 SearchTerm: string.IsNullOrWhiteSpace(SearchText) ? null : SearchText,
                 Page: 1,
-                PageSize: 200));
+                PageSize: 200), ct);
 
             _allItems.Clear();
 
@@ -84,13 +85,7 @@ public partial class CustomerAvaloniaViewModel : ViewModelBase
             }
 
             ApplyFilter();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Musteriler yuklenemedi: {ex.Message}";
-        }
-        finally { IsLoading = false; }
+        }, "Musteriler yuklenirken hata");
     }
 
     private static string SegmentColor(string segment) => segment switch
@@ -117,11 +112,51 @@ public partial class CustomerAvaloniaViewModel : ViewModelBase
                 c.Email.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
                 c.Telefon.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
 
-        foreach (var item in filtered)
+        // Sort
+        var sortedList = SortColumn switch
+        {
+            "AdSoyad"       => SortAscending ? filtered.OrderBy(x => x.AdSoyad).ToList()         : filtered.OrderByDescending(x => x.AdSoyad).ToList(),
+            "Email"         => SortAscending ? filtered.OrderBy(x => x.Email).ToList()            : filtered.OrderByDescending(x => x.Email).ToList(),
+            "ToplamHarcama" => SortAscending ? filtered.OrderBy(x => x.ToplamHarcama).ToList()    : filtered.OrderByDescending(x => x.ToplamHarcama).ToList(),
+            "Segment"       => SortAscending ? filtered.OrderBy(x => x.Segment).ToList()          : filtered.OrderByDescending(x => x.Segment).ToList(),
+            "SiparisSayisi" => SortAscending ? filtered.OrderBy(x => x.SiparisSayisi).ToList()    : filtered.OrderByDescending(x => x.SiparisSayisi).ToList(),
+            _               => SortAscending ? filtered.OrderBy(x => x.AdSoyad).ToList()          : filtered.OrderByDescending(x => x.AdSoyad).ToList(),
+        };
+
+        foreach (var item in sortedList)
             Items.Add(item);
 
         TotalCount = Items.Count;
         IsEmpty = Items.Count == 0;
+    }
+
+    [RelayCommand]
+    private void SortBy(string column)
+    {
+        if (SortColumn == column) SortAscending = !SortAscending;
+        else { SortColumn = column; SortAscending = true; }
+        ApplyFilter();
+    }
+
+    // HH-FIX-014: Excel export
+    [RelayCommand]
+    private async Task ExportExcel()
+    {
+        await SafeExecuteAsync(async ct =>
+        {
+            var result = await _mediator.Send(new ExportCustomersCommand(
+                _currentUser.TenantId, "xlsx",
+                string.IsNullOrWhiteSpace(SearchText) ? null : SearchText), ct);
+
+            if (result.FileData.Length > 0)
+            {
+                var dir = System.IO.Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "MesTech_Exports");
+                System.IO.Directory.CreateDirectory(dir);
+                await System.IO.File.WriteAllBytesAsync(
+                    System.IO.Path.Combine(dir, result.FileName), result.FileData.ToArray());
+            }
+        }, "Musteriler disa aktarilirken hata");
     }
 
     [RelayCommand]

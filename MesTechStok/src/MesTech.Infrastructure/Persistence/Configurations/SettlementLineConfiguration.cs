@@ -15,10 +15,15 @@ public sealed class SettlementLineConfiguration : IEntityTypeConfiguration<Settl
         builder.Property(x => x.CargoDeduction).HasPrecision(18, 2);
         builder.Property(x => x.RefundDeduction).HasPrecision(18, 2);
         builder.Property(x => x.NetAmount).HasPrecision(18, 2);
+        builder.Property(x => x.VatAmount).HasPrecision(18, 2);
 
         builder.HasIndex(x => x.SettlementBatchId);
         builder.HasIndex(x => x.OrderId);
 
         builder.HasIndex(x => x.TenantId).HasDatabaseName("ix_settlement_lines_tenant_id");
+        builder.HasIndex(x => new { x.TenantId, x.SettlementBatchId })
+            .HasDatabaseName("IX_SettlementLines_Tenant_Batch");
+
+        builder.Property<uint>("xmin").HasColumnType("xid").IsConcurrencyToken();
     }
 }

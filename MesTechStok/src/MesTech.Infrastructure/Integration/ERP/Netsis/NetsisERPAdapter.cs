@@ -51,6 +51,11 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         _config = config ?? throw new ArgumentNullException(nameof(config));
         _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+        var netsisUrl = _config["ERP:Netsis:BaseUrl"];
+        if (!string.IsNullOrEmpty(netsisUrl) && Uri.TryCreate(netsisUrl, UriKind.Absolute, out var parsedUri)
+            && Security.SsrfGuard.IsPrivateHost(parsedUri.Host))
+            _logger.LogWarning("[NetsisERPAdapter] BaseUrl points to private network: {BaseUrl}", netsisUrl);
     }
 
     private string BaseUrl => _config["ERP:Netsis:BaseUrl"]
@@ -108,7 +113,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 JsonSerializer.Serialize(netsisOrder, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{BaseUrl}/siparisler", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
@@ -131,7 +136,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
             return ErpSyncResult.Fail(
                 $"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[NetsisERPAdapter] SyncOrderAsync exception — OrderId:{OrderId}", orderId);
@@ -168,7 +173,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 JsonSerializer.Serialize(netsisInvoice, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{BaseUrl}/faturalar", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
@@ -186,7 +191,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 invoiceId, (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
             return ErpSyncResult.Fail($"HTTP {(int)response.StatusCode}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "[NetsisERPAdapter] SyncInvoiceAsync exception — InvoiceId:{InvoiceId}", invoiceId);
@@ -208,7 +213,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         {
             SetBasicAuthHeader();
 
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{BaseUrl}/cariler?limit=200", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -241,7 +246,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
 
             return accounts.AsReadOnly();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] GetAccountBalancesAsync exception");
             return Array.Empty<ErpAccountDto>();
@@ -259,7 +264,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         try
         {
             SetBasicAuthHeader();
-            var response = await _httpClient.GetAsync($"{BaseUrl}/ping", ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync($"{BaseUrl}/ping", ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -272,7 +277,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 response.StatusCode, errorBody);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] Ping exception");
             return false;
@@ -322,7 +327,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 JsonSerializer.Serialize(netsisInvoice, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{BaseUrl}/faturalar", content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync($"{BaseUrl}/faturalar", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -350,7 +355,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
             return ErpInvoiceResult.Failed($"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] CreateInvoiceAsync exception");
             return ErpInvoiceResult.Failed(ex.Message);
@@ -368,7 +373,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         try
         {
             SetBasicAuthHeader();
-            var response = await _httpClient.GetAsync($"{BaseUrl}/faturalar/{invoiceNumber}", ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync($"{BaseUrl}/faturalar/{invoiceNumber}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -390,7 +395,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
 
             return ErpInvoiceResult.Ok(number, erpRef, date, grandTotal, pdfUrl);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] GetInvoiceAsync exception — Number:{Number}", invoiceNumber);
             return null;
@@ -409,7 +414,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
             SetBasicAuthHeader();
             var fromStr = from.ToString("yyyy-MM-dd");
             var toStr = to.ToString("yyyy-MM-dd");
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{BaseUrl}/faturalar?baslangic={fromStr}&bitis={toStr}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -439,7 +444,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
             _logger.LogInformation("[NetsisERPAdapter] Retrieved {Count} invoices", results.Count);
             return results;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] GetInvoicesAsync exception");
             return [];
@@ -467,7 +472,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
             {
                 Content = content
             };
-            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -480,7 +485,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 (int)response.StatusCode, errorBody);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] CancelInvoiceAsync exception — Number:{Number}", invoiceNumber);
             return false;
@@ -519,7 +524,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 JsonSerializer.Serialize(netsisCari, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{BaseUrl}/cariler", content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync($"{BaseUrl}/cariler", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -539,7 +544,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
             return ErpAccountResult.Failed($"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] CreateAccountAsync exception");
             return ErpAccountResult.Failed(ex.Message);
@@ -557,7 +562,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         try
         {
             SetBasicAuthHeader();
-            var response = await _httpClient.GetAsync($"{BaseUrl}/cariler/{accountCode}", ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync($"{BaseUrl}/cariler/{accountCode}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -577,7 +582,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
 
             return ErpAccountResult.Ok(code, name, balance, currency);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] GetAccountAsync exception — Code:{Code}", accountCode);
             return null;
@@ -612,7 +617,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 JsonSerializer.Serialize(netsisCari, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PutAsync($"{BaseUrl}/cariler/{request.AccountCode}", content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PutAsync($"{BaseUrl}/cariler/{request.AccountCode}", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -632,7 +637,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
             return ErpAccountResult.Failed($"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] UpdateAccountAsync exception");
             return ErpAccountResult.Failed(ex.Message);
@@ -650,7 +655,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         try
         {
             SetBasicAuthHeader();
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{BaseUrl}/cariler?arama={Uri.EscapeDataString(query)}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -678,7 +683,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
             _logger.LogInformation("[NetsisERPAdapter] Found {Count} accounts for query '{Query}'", results.Count, query);
             return results;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] SearchAccountsAsync exception");
             return [];
@@ -698,7 +703,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
             var account = await GetAccountAsync(accountCode, ct).ConfigureAwait(false);
             return account?.Balance ?? 0m;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] GetAccountBalanceAsync exception — Code:{Code}", accountCode);
             return 0m;
@@ -719,7 +724,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         try
         {
             SetBasicAuthHeader();
-            var response = await _httpClient.GetAsync($"{BaseUrl}/stoklar", ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync($"{BaseUrl}/stoklar", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -748,7 +753,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
             _logger.LogInformation("[NetsisERPAdapter] Retrieved {Count} stock items", items.Count);
             return items;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] GetStockLevelsAsync exception");
             return [];
@@ -766,7 +771,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         try
         {
             SetBasicAuthHeader();
-            var response = await _httpClient.GetAsync($"{BaseUrl}/stoklar/{productCode}", ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync($"{BaseUrl}/stoklar/{productCode}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -788,7 +793,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
 
             return new ErpStockItem(code, name, quantity, unitCode, warehouseCode, unitCost);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] GetStockByCodeAsync exception — Code:{Code}", productCode);
             return null;
@@ -822,7 +827,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 JsonSerializer.Serialize(hareket, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync(
+            using var response = await _httpClient.PostAsync(
                 $"{BaseUrl}/stoklar/{productCode}/hareket", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
@@ -837,7 +842,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 (int)response.StatusCode, errorBody);
             return false;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] UpdateStockAsync exception — Code:{Code}", productCode);
             return false;
@@ -879,7 +884,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 JsonSerializer.Serialize(netsisWaybill, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{BaseUrl}/irsaliyeler", content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync($"{BaseUrl}/irsaliyeler", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -900,7 +905,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
             return ErpWaybillResult.Failed($"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] CreateWaybillAsync exception");
             return ErpWaybillResult.Failed(ex.Message);
@@ -918,7 +923,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         try
         {
             SetBasicAuthHeader();
-            var response = await _httpClient.GetAsync($"{BaseUrl}/irsaliyeler/{waybillNumber}", ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync($"{BaseUrl}/irsaliyeler/{waybillNumber}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -938,7 +943,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
 
             return ErpWaybillResult.Ok(number, date);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] GetWaybillAsync exception — Number:{Number}", waybillNumber);
             return null;
@@ -962,7 +967,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
 
             var fromStr = from.ToString("yyyy-MM-dd");
             var toStr = to.ToString("yyyy-MM-dd");
-            var response = await _httpClient.GetAsync(
+            using var response = await _httpClient.GetAsync(
                 $"{BaseUrl}/api/bankTransaction?startDate={fromStr}&endDate={toStr}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -992,7 +997,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
             _logger.LogInformation("[NetsisERPAdapter] Retrieved {Count} bank transactions", transactions.Count);
             return transactions;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] GetTransactionsAsync exception");
             return [];
@@ -1025,7 +1030,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 JsonSerializer.Serialize(netsisPayment, JsonOptions),
                 Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync($"{BaseUrl}/api/payment", content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync($"{BaseUrl}/api/payment", content, ct).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {
@@ -1044,7 +1049,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
                 (int)response.StatusCode, err[..Math.Min(200, err.Length)]);
             return ErpPaymentResult.Failed($"HTTP {(int)response.StatusCode}: {err[..Math.Min(100, err.Length)]}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] RecordPaymentAsync exception");
             return ErpPaymentResult.Failed(ex.Message);
@@ -1087,7 +1092,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         try
         {
             SetBasicAuthHeader();
-            var response = await _httpClient.GetAsync($"{BaseUrl}/stoklar", ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync($"{BaseUrl}/stoklar", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1116,7 +1121,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
             _logger.LogInformation("[NetsisERPAdapter] Retrieved {Count} price items", items.Count);
             return items;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] GetProductPricesAsync exception");
             return [];
@@ -1133,7 +1138,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
         try
         {
             SetBasicAuthHeader();
-            var response = await _httpClient.GetAsync($"{BaseUrl}/stoklar/{Uri.EscapeDataString(productCode)}", ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync($"{BaseUrl}/stoklar/{Uri.EscapeDataString(productCode)}", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
                 return null;
@@ -1150,7 +1155,7 @@ public sealed class NetsisERPAdapter : IErpAdapter, IErpInvoiceCapable, IErpAcco
 
             return new ErpPriceItem(code, name, purchasePrice, salePrice, listPrice, currency);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[NetsisERPAdapter] GetPriceByCodeAsync exception for {Code}", productCode);
             return null;

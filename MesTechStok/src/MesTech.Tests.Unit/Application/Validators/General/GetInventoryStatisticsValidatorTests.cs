@@ -18,5 +18,13 @@ public class GetInventoryStatisticsValidatorTests
         result.IsValid.Should().BeTrue();
     }
 
+    [Fact]
+    public async Task DefaultQuery_ShouldProduceNoErrors()
+    {
+        var input = new GetInventoryStatisticsQuery();
+        var result = await _sut.ValidateAsync(input);
+        result.Errors.Should().BeEmpty();
+    }
+
     private static GetInventoryStatisticsQuery CreateValidQuery() => new();
 }

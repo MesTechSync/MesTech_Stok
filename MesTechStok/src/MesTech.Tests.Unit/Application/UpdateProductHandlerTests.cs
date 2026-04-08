@@ -20,7 +20,7 @@ public class UpdateProductHandlerTests
     public async Task Handle_ValidUpdate_ShouldModifyProduct()
     {
         var product = FakeData.CreateProduct(sku: "UPD-001", salePrice: 100m);
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var handler = CreateHandler();
         var command = new UpdateProductCommand(product.Id, Name: "Updated Name", SalePrice: 200m);
@@ -30,7 +30,7 @@ public class UpdateProductHandlerTests
         result.IsSuccess.Should().BeTrue();
         product.Name.Should().Be("Updated Name");
         product.SalePrice.Should().Be(200m);
-        _productRepo.Verify(r => r.UpdateAsync(product), Times.Once);
+        _productRepo.Verify(r => r.UpdateAsync(product, It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -38,7 +38,7 @@ public class UpdateProductHandlerTests
     public async Task Handle_ProductNotFound_ShouldReturnError()
     {
         var missingId = Guid.NewGuid();
-        _productRepo.Setup(r => r.GetByIdAsync(missingId)).ReturnsAsync((Product?)null);
+        _productRepo.Setup(r => r.GetByIdAsync(missingId, It.IsAny<CancellationToken>())).ReturnsAsync((Product?)null);
 
         var handler = CreateHandler();
         var command = new UpdateProductCommand(missingId, Name: "Ghost");
@@ -54,7 +54,7 @@ public class UpdateProductHandlerTests
     {
         var product = FakeData.CreateProduct(sku: "PART-001", purchasePrice: 50m, salePrice: 100m);
         var originalName = product.Name;
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var handler = CreateHandler();
         var command = new UpdateProductCommand(product.Id, PurchasePrice: 75m);
@@ -72,7 +72,7 @@ public class UpdateProductHandlerTests
     {
         var product = FakeData.CreateProduct(sku: "DEACT-001");
         product.IsActive.Should().BeTrue("product starts active");
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var handler = CreateHandler();
         var command = new UpdateProductCommand(product.Id, IsActive: false);
@@ -87,7 +87,7 @@ public class UpdateProductHandlerTests
     public async Task Handle_UpdateAllFields_ShouldApplyAll()
     {
         var product = FakeData.CreateProduct(sku: "FULL-001");
-        _productRepo.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _productRepo.Setup(r => r.GetByIdAsync(product.Id, It.IsAny<CancellationToken>())).ReturnsAsync(product);
 
         var newCat = Guid.NewGuid();
         var newSup = Guid.NewGuid();

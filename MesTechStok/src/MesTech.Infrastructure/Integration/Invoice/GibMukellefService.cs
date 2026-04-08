@@ -70,7 +70,7 @@ public sealed class GibMukellefService : IGibMukellefService
                     provider.ProviderName, vkn, result);
                 return result;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogWarning(ex, "GIB sorgu basarisiz via {Provider}, sonraki deneniyor",
                     provider.ProviderName);

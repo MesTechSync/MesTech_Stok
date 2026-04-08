@@ -564,17 +564,17 @@
   (function() {
     'use strict';
 
-    var API_BASE = '/api/v1/products/bulk';
-    var selectedFile = null;
-    var validatedData = null;
-    var productList = [];
-    var selectedProductIds = new Set();
+    const API_BASE = '/api/v1/products/bulk';
+    let selectedFile = null;
+    let validatedData = null;
+    let productList = [];
+    const selectedProductIds = new Set();
 
     // ========================================
     // DOM Helper Utilities (XSS-safe)
     // ========================================
     function el(tag, attrs, children) {
-      var node = document.createElement(tag);
+      const node = document.createElement(tag);
       if (attrs) {
         Object.keys(attrs).forEach(function(key) {
           if (key === 'className') {
@@ -620,8 +620,8 @@
     // TAB 1: IMPORT — File Upload
     // ========================================
     function initDropZone() {
-      var dropZone = document.getElementById('drop-zone');
-      var fileInput = document.getElementById('file-input');
+      const dropZone = document.getElementById('drop-zone');
+      const fileInput = document.getElementById('file-input');
 
       dropZone.addEventListener('click', function() {
         fileInput.click();
@@ -639,7 +639,7 @@
       dropZone.addEventListener('drop', function(e) {
         e.preventDefault();
         dropZone.classList.remove('dragover');
-        var files = e.dataTransfer.files;
+        const files = e.dataTransfer.files;
         if (files.length > 0) {
           handleFileSelect(files[0]);
         }
@@ -657,19 +657,19 @@
     }
 
     function handleFileSelect(file) {
-      var validTypes = [
+      const validTypes = [
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         'application/vnd.ms-excel',
         'text/csv'
       ];
-      var ext = file.name.split('.').pop().toLowerCase();
+      const ext = file.name.split('.').pop().toLowerCase();
       if (validTypes.indexOf(file.type) < 0 && ['xlsx', 'xls', 'csv'].indexOf(ext) < 0) {
         showAlert('Gecersiz dosya formati. Lutfen .xlsx, .xls veya .csv dosyasi secin.', 'danger');
         return;
       }
 
       selectedFile = file;
-      var fileInfo = document.getElementById('selected-file-info');
+      const fileInfo = document.getElementById('selected-file-info');
       fileInfo.style.display = 'flex';
       fileInfo.removeAttribute('style');
       fileInfo.style.display = 'flex';
@@ -679,7 +679,7 @@
 
     function clearFile() {
       selectedFile = null;
-      var fileInfo = document.getElementById('selected-file-info');
+      const fileInfo = document.getElementById('selected-file-info');
       fileInfo.style.display = 'none';
       document.getElementById('file-input').value = '';
       document.getElementById('btn-validate').disabled = true;
@@ -691,13 +691,13 @@
     async function validateFile() {
       if (!selectedFile) return;
 
-      var btn = document.getElementById('btn-validate');
+      const btn = document.getElementById('btn-validate');
       btn.disabled = true;
       clearChildren(btn);
       btn.appendChild(el('span', { className: 'spinner-border spinner-border-sm me-2' }));
       btn.appendChild(document.createTextNode('Dogrulaniyor...'));
 
-      var formData = new FormData();
+      const formData = new FormData();
       formData.append('file', selectedFile);
 
       try {
@@ -707,9 +707,9 @@
         });
 
         // Show column mapping
-        var mappingText = document.getElementById('column-mapping-text');
+        const mappingText = document.getElementById('column-mapping-text');
         if (validatedData.columnMappings) {
-          var mapParts = [];
+          const mapParts = [];
           validatedData.columnMappings.forEach(function(m) {
             mapParts.push(m.source + ' -> ' + m.target);
           });
@@ -738,11 +738,11 @@
     }
 
     function renderPreviewTable(rows) {
-      var wrapper = document.getElementById('preview-table-wrapper');
+      const wrapper = document.getElementById('preview-table-wrapper');
       clearChildren(wrapper);
 
       if (!rows || rows.length === 0) {
-        var fallback = el('div', { className: 'fallback-state' }, [
+        const fallback = el('div', { className: 'fallback-state' }, [
           el('i', { className: 'fas fa-table text-muted' }),
           el('p', { textContent: 'Onizleme verisi bulunamadi' })
         ]);
@@ -750,12 +750,12 @@
         return;
       }
 
-      var table = el('table', { className: 'table table-sm table-hover mb-0' });
+      const table = el('table', { className: 'table table-sm table-hover mb-0' });
 
       // Head
-      var thead = el('thead');
-      var headRow = el('tr');
-      var columns = Object.keys(rows[0]);
+      const thead = el('thead');
+      const headRow = el('tr');
+      const columns = Object.keys(rows[0]);
       columns.forEach(function(col) {
         headRow.appendChild(el('th', {
           className: 'small text-muted text-uppercase',
@@ -770,9 +770,9 @@
       table.appendChild(thead);
 
       // Body
-      var tbody = el('tbody');
+      const tbody = el('tbody');
       rows.forEach(function(row) {
-        var tr = el('tr');
+        const tr = el('tr');
         columns.forEach(function(col) {
           tr.appendChild(el('td', {
             className: 'small',
@@ -781,11 +781,11 @@
         });
 
         // Status cell
-        var statusCell = el('td');
-        var statusClass = row._status === 'error' ? 'bg-danger-subtle text-danger' :
+        const statusCell = el('td');
+        const statusClass = row._status === 'error' ? 'bg-danger-subtle text-danger' :
                           row._status === 'warning' ? 'bg-warning-subtle text-warning' :
                           'bg-success-subtle text-success';
-        var statusText = row._status === 'error' ? 'Hata' :
+        const statusText = row._status === 'error' ? 'Hata' :
                          row._status === 'warning' ? 'Uyari' : 'Hazir';
         statusCell.appendChild(el('span', {
           className: 'badge ' + statusClass,
@@ -806,15 +806,15 @@
     async function startImport() {
       if (!selectedFile) return;
 
-      var formData = new FormData();
+      const formData = new FormData();
       formData.append('file', selectedFile);
 
       document.getElementById('import-step-preview').style.display = 'none';
-      var progressEl = document.getElementById('import-progress');
+      const progressEl = document.getElementById('import-progress');
       progressEl.classList.add('active');
 
       try {
-        var resultPromise = mestechApi.request(API_BASE + '/import', {
+        const resultPromise = mestechApi.request(API_BASE + '/import', {
           method: 'POST',
           body: formData
         });
@@ -822,7 +822,7 @@
         // Simulate progress (real implementation would use SSE/WebSocket)
         await simulateProgress();
 
-        var result = await resultPromise;
+        const result = await resultPromise;
         showImportResult(result);
 
       } catch (error) {
@@ -836,17 +836,17 @@
 
     function simulateProgress() {
       return new Promise(function(resolve) {
-        var progress = 0;
-        var bar = document.getElementById('import-progress-bar');
-        var pct = document.getElementById('import-progress-pct');
-        var text = document.getElementById('import-progress-text');
-        var total = validatedData ? (validatedData.totalRows || 100) : 100;
+        let progress = 0;
+        const bar = document.getElementById('import-progress-bar');
+        const pct = document.getElementById('import-progress-pct');
+        const text = document.getElementById('import-progress-text');
+        const total = validatedData ? (validatedData.totalRows || 100) : 100;
 
-        var interval = setInterval(function() {
+        const interval = setInterval(function() {
           progress += Math.random() * 15;
           if (progress > 100) progress = 100;
 
-          var current = Math.floor(progress / 100 * total);
+          const current = Math.floor(progress / 100 * total);
           bar.style.width = progress + '%';
           pct.textContent = Math.floor(progress) + '%';
           text.textContent = current + ' / ' + total + ' urun islendi';
@@ -861,7 +861,7 @@
 
     function showImportResult(result) {
       document.getElementById('import-progress').classList.remove('active');
-      var resultEl = document.getElementById('import-result');
+      const resultEl = document.getElementById('import-result');
       resultEl.classList.add('active');
 
       document.getElementById('result-imported').textContent = String(result.imported || 0);
@@ -878,7 +878,7 @@
       document.getElementById('import-step-preview').style.display = 'none';
       document.getElementById('import-step-upload').style.display = 'block';
 
-      var bar = document.getElementById('import-progress-bar');
+      const bar = document.getElementById('import-progress-bar');
       bar.style.width = '0%';
       document.getElementById('import-progress-pct').textContent = '0%';
     }
@@ -887,17 +887,17 @@
     // TAB 2: EXPORT
     // ========================================
     async function loadExportCount() {
-      var platform = document.getElementById('export-platform').value;
-      var category = document.getElementById('export-category').value;
-      var stockStatus = document.getElementById('export-stock-status').value;
+      const platform = document.getElementById('export-platform').value;
+      const category = document.getElementById('export-category').value;
+      const stockStatus = document.getElementById('export-stock-status').value;
 
-      var params = new URLSearchParams();
+      const params = new URLSearchParams();
       if (platform) params.append('platform', platform);
       if (category) params.append('category', category);
       if (stockStatus) params.append('stockStatus', stockStatus);
 
       try {
-        var data = await mestechApi.get(API_BASE + '/export/count?' + params.toString());
+        const data = await mestechApi.get(API_BASE + '/export/count?' + params.toString());
         document.getElementById('export-product-count').textContent = String(data.count || 0);
       } catch (error) {
         console.error('Export count hatasi:', error);
@@ -907,22 +907,22 @@
     }
 
     async function exportProducts() {
-      var platform = document.getElementById('export-platform').value;
-      var category = document.getElementById('export-category').value;
-      var stockStatus = document.getElementById('export-stock-status').value;
-      var format = document.querySelector('input[name="export-format"]:checked').value;
+      const platform = document.getElementById('export-platform').value;
+      const category = document.getElementById('export-category').value;
+      const stockStatus = document.getElementById('export-stock-status').value;
+      const format = document.querySelector('input[name="export-format"]:checked').value;
 
-      var btn = document.getElementById('btn-export');
+      const btn = document.getElementById('btn-export');
       btn.disabled = true;
       clearChildren(btn);
       btn.appendChild(el('span', { className: 'spinner-border spinner-border-sm me-2' }));
       btn.appendChild(document.createTextNode('Hazirlaniyor...'));
 
-      var progressEl = document.getElementById('export-progress');
+      const progressEl = document.getElementById('export-progress');
       progressEl.classList.add('active');
 
       try {
-        var response = await fetch(API_BASE + '/export', {
+        const response = await fetch(API_BASE + '/export', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -935,9 +935,9 @@
 
         if (!response.ok) throw new Error('HTTP ' + response.status);
 
-        var blob = await response.blob();
-        var url = window.URL.createObjectURL(blob);
-        var a = document.createElement('a');
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
         a.href = url;
         a.download = 'mestech-urunler-' + new Date().toISOString().split('T')[0] + '.' + format;
         document.body.appendChild(a);
@@ -964,9 +964,9 @@
     // TAB 3: BULK UPDATE — Load Products
     // ========================================
     async function loadProducts() {
-      var wrapper = document.getElementById('product-table-wrapper');
+      const wrapper = document.getElementById('product-table-wrapper');
       clearChildren(wrapper);
-      var spinner = el('div', {
+      const spinner = el('div', {
         className: 'loading-spinner',
         style: { display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' }
       }, [
@@ -977,14 +977,14 @@
       wrapper.appendChild(spinner);
 
       try {
-        var data = await mestechApi.get('/api/v1/products?page=1&pageSize=50');
+        const data = await mestechApi.get('/api/v1/products?page=1&pageSize=50');
         productList = data.items || data || [];
         renderProductTable(productList);
       } catch (error) {
         console.error('Urun listesi yukleme hatasi:', error);
         mestechToast.error('Urun listesi yuklenemedi');
         clearChildren(wrapper);
-        var fallback = el('div', { className: 'fallback-state' }, [
+        const fallback = el('div', { className: 'fallback-state' }, [
           el('i', { className: 'fas fa-exclamation-triangle text-danger' }),
           el('p', { textContent: 'Veri yuklenemedi. Lutfen tekrar deneyin.' })
         ]);
@@ -993,11 +993,11 @@
     }
 
     function renderProductTable(products) {
-      var wrapper = document.getElementById('product-table-wrapper');
+      const wrapper = document.getElementById('product-table-wrapper');
       clearChildren(wrapper);
 
       if (!products || products.length === 0) {
-        var fallback = el('div', { className: 'fallback-state' }, [
+        const fallback = el('div', { className: 'fallback-state' }, [
           el('i', { className: 'fas fa-box-open text-muted' }),
           el('p', { textContent: 'Urun bulunamadi' })
         ]);
@@ -1005,13 +1005,13 @@
         return;
       }
 
-      var table = el('table', { className: 'table table-hover mb-0' });
+      const table = el('table', { className: 'table table-hover mb-0' });
 
       // Head
-      var thead = el('thead');
-      var headRow = el('tr');
+      const thead = el('thead');
+      const headRow = el('tr');
 
-      var thCheck = el('th', { style: { width: '40px' } });
+      const thCheck = el('th', { style: { width: '40px' } });
       // Select all handled separately
       headRow.appendChild(thCheck);
 
@@ -1025,14 +1025,14 @@
       table.appendChild(thead);
 
       // Body
-      var tbody = el('tbody');
+      const tbody = el('tbody');
 
       products.forEach(function(product) {
-        var tr = el('tr', { className: 'product-select-row' });
+        const tr = el('tr', { className: 'product-select-row' });
 
         // Checkbox
-        var tdCheck = el('td');
-        var checkbox = el('input', {
+        const tdCheck = el('td');
+        const checkbox = el('input', {
           className: 'form-check-input product-checkbox',
           type: 'checkbox',
           'data-product-id': String(product.id || '')
@@ -1061,7 +1061,7 @@
         }));
 
         // Price
-        var priceCell = el('td', { className: 'small' });
+        const priceCell = el('td', { className: 'small' });
         priceCell.appendChild(document.createTextNode(
           '\u20BA' + formatCurrency(product.price || 0)
         ));
@@ -1074,11 +1074,11 @@
         }));
 
         // Status
-        var statusCell = el('td');
-        var sClass = product.status === 'active' ? 'bg-success-subtle text-success' :
+        const statusCell = el('td');
+        const sClass = product.status === 'active' ? 'bg-success-subtle text-success' :
                      product.status === 'inactive' ? 'bg-secondary-subtle text-secondary' :
                      'bg-warning-subtle text-warning';
-        var sText = product.status === 'active' ? 'Aktif' :
+        const sText = product.status === 'active' ? 'Aktif' :
                     product.status === 'inactive' ? 'Pasif' : 'Taslak';
         statusCell.appendChild(el('span', {
           className: 'badge ' + sClass,
@@ -1094,10 +1094,10 @@
     }
 
     function updateSelectedCount() {
-      var badge = document.getElementById('selected-count');
+      const badge = document.getElementById('selected-count');
       badge.textContent = selectedProductIds.size + ' secili';
 
-      var action = document.getElementById('bulk-action').value;
+      const action = document.getElementById('bulk-action').value;
       document.getElementById('btn-preview-update').disabled =
         selectedProductIds.size === 0 || !action;
       document.getElementById('btn-apply-update').disabled =
@@ -1108,10 +1108,10 @@
     // TAB 3: BULK UPDATE — Action Config
     // ========================================
     function onActionChange() {
-      var action = document.getElementById('bulk-action').value;
-      var valueWrapper = document.getElementById('bulk-value-wrapper');
-      var valueInput = document.getElementById('bulk-value-input');
-      var valueLabel = document.getElementById('bulk-value-label');
+      const action = document.getElementById('bulk-action').value;
+      const valueWrapper = document.getElementById('bulk-value-wrapper');
+      const valueInput = document.getElementById('bulk-value-input');
+      const valueLabel = document.getElementById('bulk-value-label');
 
       if (!action) {
         valueWrapper.style.display = 'none';
@@ -1120,7 +1120,7 @@
 
       valueWrapper.style.display = 'block';
 
-      var config = {
+      const config = {
         'price-update': { label: 'Yeni Fiyat (TL)', placeholder: 'Ornek: 199.90', type: 'number' },
         'stock-update': { label: 'Yeni Stok Miktari', placeholder: 'Ornek: 100', type: 'number' },
         'status-change': { label: 'Yeni Durum', placeholder: 'active / inactive', type: 'text' },
@@ -1128,7 +1128,7 @@
         'discount-apply': { label: 'Indirim Orani (%)', placeholder: 'Ornek: 15', type: 'number' }
       };
 
-      var c = config[action] || { label: 'Deger', placeholder: '', type: 'text' };
+      const c = config[action] || { label: 'Deger', placeholder: '', type: 'text' };
       valueLabel.textContent = c.label;
       valueInput.placeholder = c.placeholder;
       valueInput.type = c.type;
@@ -1141,13 +1141,13 @@
     // TAB 3: BULK UPDATE — Preview
     // ========================================
     function showUpdatePreview() {
-      var action = document.getElementById('bulk-action').value;
-      var value = document.getElementById('bulk-value-input').value;
-      var previewCard = document.getElementById('update-preview-card');
-      var previewBody = document.getElementById('update-preview-body');
+      const action = document.getElementById('bulk-action').value;
+      const value = document.getElementById('bulk-value-input').value;
+      const previewCard = document.getElementById('update-preview-card');
+      const previewBody = document.getElementById('update-preview-body');
       clearChildren(previewBody);
 
-      var actionLabels = {
+      const actionLabels = {
         'price-update': 'Fiyat Guncelleme',
         'stock-update': 'Stok Guncelleme',
         'status-change': 'Durum Degisikligi',
@@ -1155,20 +1155,20 @@
         'discount-apply': 'Indirim Uygulama'
       };
 
-      var summaryText = (actionLabels[action] || action) +
+      const summaryText = (actionLabels[action] || action) +
         ' - ' + selectedProductIds.size + ' urun - Deger: ' + (value || 'Belirtilmedi');
 
-      var summary = el('div', { className: 'alert alert-warning' }, [
+      const summary = el('div', { className: 'alert alert-warning' }, [
         el('i', { className: 'fas fa-info-circle me-2' }),
         document.createTextNode(summaryText)
       ]);
       previewBody.appendChild(summary);
 
       // Show affected products
-      var list = el('ul', { className: 'list-group' });
+      const list = el('ul', { className: 'list-group' });
       productList.forEach(function(p) {
         if (selectedProductIds.has(p.id)) {
-          var item = el('li', { className: 'list-group-item d-flex justify-content-between align-items-center' });
+          const item = el('li', { className: 'list-group-item d-flex justify-content-between align-items-center' });
           item.appendChild(el('span', { textContent: (p.sku || '--') + ' - ' + (p.name || '--') }));
           item.appendChild(el('span', { className: 'badge bg-primary', textContent: value || '--' }));
           list.appendChild(item);
@@ -1183,19 +1183,19 @@
     // TAB 3: BULK UPDATE — Apply
     // ========================================
     async function applyBulkUpdate() {
-      var action = document.getElementById('bulk-action').value;
-      var value = document.getElementById('bulk-value-input').value;
+      const action = document.getElementById('bulk-action').value;
+      const value = document.getElementById('bulk-value-input').value;
 
       if (!action || selectedProductIds.size === 0) return;
 
-      var btn = document.getElementById('btn-apply-update');
+      const btn = document.getElementById('btn-apply-update');
       btn.disabled = true;
       clearChildren(btn);
       btn.appendChild(el('span', { className: 'spinner-border spinner-border-sm me-2' }));
       btn.appendChild(document.createTextNode('Uygulanıyor...'));
 
       try {
-        var result = await mestechApi.post(API_BASE + '/update', {
+        const result = await mestechApi.post(API_BASE + '/update', {
             action: action,
             value: value,
             productIds: Array.from(selectedProductIds)
@@ -1230,25 +1230,25 @@
     // Alert Helper
     // ========================================
     function showAlert(message, type) {
-      var existing = document.getElementById('page-alert');
+      const existing = document.getElementById('page-alert');
       if (existing) existing.remove();
 
-      var alertDiv = el('div', {
+      const alertDiv = el('div', {
         className: 'alert alert-' + type + ' alert-dismissible fade show',
         id: 'page-alert',
         role: 'alert'
       });
       alertDiv.appendChild(document.createTextNode(message));
 
-      var closeBtn = el('button', {
+      const closeBtn = el('button', {
         className: 'btn-close',
         'data-bs-dismiss': 'alert',
         'aria-label': 'Kapat'
       });
       alertDiv.appendChild(closeBtn);
 
-      var main = document.querySelector('.dashboard-main');
-      var header = main.querySelector('.page-header-bar');
+      const main = document.querySelector('.dashboard-main');
+      const header = main.querySelector('.page-header-bar');
       if (header && header.nextSibling) {
         main.insertBefore(alertDiv, header.nextSibling);
       } else {
@@ -1256,7 +1256,7 @@
       }
 
       setTimeout(function() {
-        var a = document.getElementById('page-alert');
+        const a = document.getElementById('page-alert');
         if (a) a.remove();
       }, 5000);
     }
@@ -1284,10 +1284,10 @@
       // Tab 3: Bulk Update
       document.getElementById('bulk-action').addEventListener('change', onActionChange);
       document.getElementById('select-all-products').addEventListener('change', function(e) {
-        var checkboxes = document.querySelectorAll('.product-checkbox');
+        const checkboxes = document.querySelectorAll('.product-checkbox');
         checkboxes.forEach(function(cb) {
           cb.checked = e.target.checked;
-          var pid = cb.getAttribute('data-product-id');
+          const pid = cb.getAttribute('data-product-id');
           if (e.target.checked) {
             selectedProductIds.add(pid);
           } else {
@@ -1303,12 +1303,12 @@
       });
 
       // Product search
-      var searchTimer = null;
+      let searchTimer = null;
       document.getElementById('product-search').addEventListener('input', function(e) {
         clearTimeout(searchTimer);
         searchTimer = setTimeout(function() {
-          var term = e.target.value.toLowerCase();
-          var filtered = productList.filter(function(p) {
+          const term = e.target.value.toLowerCase();
+          const filtered = productList.filter(function(p) {
             return (p.name || '').toLowerCase().indexOf(term) >= 0 ||
                    (p.sku || '').toLowerCase().indexOf(term) >= 0;
           });

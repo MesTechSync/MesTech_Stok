@@ -43,7 +43,8 @@ public class SovosInvoiceProviderTests : IClassFixture<WireMockFixture>, IDispos
     {
         var httpClient = new HttpClient { BaseAddress = new Uri(_fixture.BaseUrl) };
         var ublBuilder = new Mock<IUblTrXmlBuilder>().Object;
-        return new SovosInvoiceProvider(httpClient, _logger, ublBuilder);
+        var ublValidator = new Mock<IUblTrXmlValidator>().Object;
+        return new SovosInvoiceProvider(httpClient, _logger, ublBuilder, ublValidator);
     }
 
     private SovosInvoiceProvider CreateConfiguredProvider()

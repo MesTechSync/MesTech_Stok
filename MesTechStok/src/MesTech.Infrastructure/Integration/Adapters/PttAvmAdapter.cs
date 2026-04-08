@@ -7,6 +7,8 @@ using MesTech.Application.DTOs;
 using MesTech.Application.Interfaces;
 using MesTech.Domain.Entities;
 using MesTech.Domain.Enums;
+using MesTech.Infrastructure.Integration.Security;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -30,8 +32,10 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
     private readonly ILogger<PttAvmAdapter> _logger;
     private readonly JsonSerializerOptions _jsonOptions;
     private readonly ResiliencePipeline<HttpResponseMessage> _retryPipeline;
+    private readonly IServiceScopeFactory? _scopeFactory;
 
     private static readonly SemaphoreSlim _rateLimitSemaphore = new(10, 10);
+    private static readonly SemaphoreSlim _tokenRefreshLock = new(1, 1);
 
     // Username/Password -> Bearer token exchange
     private string _username = Environment.GetEnvironmentVariable("PTTAVM_USERNAME") ?? string.Empty;
@@ -46,10 +50,11 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
     private static readonly TimeSpan TokenBuffer = TimeSpan.FromMinutes(5);
 
     public PttAvmAdapter(HttpClient httpClient, ILogger<PttAvmAdapter> logger,
-        IOptions<PttAvmOptions>? options = null)
+        IOptions<PttAvmOptions>? options = null, IServiceScopeFactory? scopeFactory = null)
     {
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _scopeFactory = scopeFactory;
 
         var opts = options?.Value ?? new PttAvmOptions();
         _httpClient.Timeout = TimeSpan.FromSeconds(opts.HttpTimeoutSeconds);
@@ -154,33 +159,45 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
         if (!string.IsNullOrEmpty(_accessToken) && DateTime.UtcNow < _tokenExpiry - TokenBuffer)
             return _accessToken;
 
-        var loginPayload = JsonSerializer.Serialize(new
+        await _tokenRefreshLock.WaitAsync(ct).ConfigureAwait(false);
+        try
         {
-            username = _username,
-            password = _password
-        }, _jsonOptions);
+            // Double-check after acquiring lock
+            if (!string.IsNullOrEmpty(_accessToken) && DateTime.UtcNow < _tokenExpiry - TokenBuffer)
+                return _accessToken;
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, _tokenEndpoint);
-        request.Content = new StringContent(loginPayload, Encoding.UTF8, "application/json");
+            var loginPayload = JsonSerializer.Serialize(new
+            {
+                username = _username,
+                password = _password
+            }, _jsonOptions);
 
-        var response = await ThrottledExecuteAsync(async cancellationToken => 
-            await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false), ct).ConfigureAwait(false);
-        response.EnsureSuccessStatusCode();
+            using var request = new HttpRequestMessage(HttpMethod.Post, _tokenEndpoint);
+            request.Content = new StringContent(loginPayload, Encoding.UTF8, "application/json");
 
-        using var json = await JsonDocument.ParseAsync(
-            await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false),
-            cancellationToken: ct).ConfigureAwait(false);
+            using var response = await ThrottledExecuteAsync(async cancellationToken =>
+                await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false), ct).ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
 
-        _accessToken = json.RootElement.GetProperty("token").GetString() ?? string.Empty;
+            using var json = await JsonDocument.ParseAsync(
+                await response.Content.ReadAsStreamAsync(ct).ConfigureAwait(false),
+                cancellationToken: ct).ConfigureAwait(false);
 
-        // PTT AVM tokens expire in 1 hour; parse if available, else default
-        if (json.RootElement.TryGetProperty("expiresIn", out var expiresInEl))
-            _tokenExpiry = DateTime.UtcNow.AddSeconds(expiresInEl.GetInt32());
-        else
-            _tokenExpiry = DateTime.UtcNow.AddHours(1);
+            _accessToken = json.RootElement.TryGetProperty("token", out var tokenProp)
+                ? tokenProp.GetString() ?? string.Empty : string.Empty;
 
-        _logger.LogInformation("PttAVM Bearer token refreshed — expires at {Expiry:u}", _tokenExpiry);
-        return _accessToken;
+            if (json.RootElement.TryGetProperty("expiresIn", out var expiresInEl))
+                _tokenExpiry = DateTime.UtcNow.AddSeconds(expiresInEl.GetInt32());
+            else
+                _tokenExpiry = DateTime.UtcNow.AddHours(1);
+
+            _logger.LogInformation("PttAVM Bearer token refreshed — expires at {Expiry:u}", _tokenExpiry);
+            return _accessToken;
+        }
+        finally
+        {
+            _tokenRefreshLock.Release();
+        }
     }
 
     private void ConfigureCredentials(Dictionary<string, string> credentials)
@@ -195,9 +212,8 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             if (!Uri.TryCreate(rawPttBaseUrl, UriKind.Absolute, out var parsedUri) ||
                 (parsedUri.Scheme != "https" && parsedUri.Scheme != "http"))
                 throw new ArgumentException($"Invalid PttAvm base URL scheme: {rawPttBaseUrl}. Only HTTP(S) allowed.");
-            if (parsedUri.Host is "localhost" or "127.0.0.1" || parsedUri.Host.StartsWith("10.") ||
-                parsedUri.Host.StartsWith("172.") || parsedUri.Host.StartsWith("192.168."))
-                _logger.LogWarning("[PttAvmAdapter] BaseUrl points to internal/private network: {BaseUrl}", rawPttBaseUrl);
+            if (SsrfGuard.IsPrivateHost(parsedUri.Host))
+                _logger.LogWarning("[PttAvmAdapter] BaseUrl points to private network: {BaseUrl}", rawPttBaseUrl);
             _baseUrl = rawPttBaseUrl;
         }
         if (!string.IsNullOrEmpty(credentials.GetValueOrDefault("TokenEndpoint")))
@@ -247,7 +263,7 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             result.IsSuccess = !string.IsNullOrEmpty(token);
             result.StoreName = "PTT AVM Satici";
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "PttAVM TestConnectionAsync basarisiz");
             result.ErrorMessage = ex.Message;
@@ -293,7 +309,7 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
             var url = $"{_baseUrl}/api/product/create";
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Post, url);
@@ -340,7 +356,7 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             while (hasMore)
             {
                 var url = $"{_baseUrl}/api/product/list?page={page}&size={pageSize}";
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token =>
                     {
                         using var req = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -383,13 +399,14 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
                             NumberStyles.Any, CultureInfo.InvariantCulture, out price);
                     }
 
-                    products.Add(new Product
+                    var product = new Product
                     {
                         Name = name,
                         SKU = sku,
-                        Stock = stock,
                         SalePrice = price
-                    });
+                    };
+                    product.SyncStock(stock, "pttavm-sync");
+                    products.Add(product);
                 }
 
                 page++;
@@ -417,20 +434,27 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
         _logger.LogInformation("PttAvmAdapter.PushStockUpdateAsync: ProductId={ProductId} qty={Qty}",
             productId, newStock);
 
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.PttAVM, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} StockUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         try
         {
             await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             var payload = new
             {
-                productId = productId.ToString(),
+                productId = externalId,
                 stockQuantity = newStock
             };
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
             var url = $"{_baseUrl}/api/product/stock";
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Put, url);
@@ -467,20 +491,27 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
         _logger.LogInformation("PttAvmAdapter.PushPriceUpdateAsync: ProductId={ProductId} price={Price}",
             productId, newPrice);
 
+        var externalId = await BarcodeResolverHelper.ResolveAsync(_scopeFactory, productId, PlatformType.PttAVM, _logger, ct).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(externalId))
+        {
+            _logger.LogError("{Platform} PriceUpdate ABORTED: no externalId for ProductId={ProductId}", PlatformCode, productId);
+            return false;
+        }
+
         try
         {
             await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             var payload = new
             {
-                productId = productId.ToString(),
+                productId = externalId,
                 price = newPrice
             };
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
             var url = $"{_baseUrl}/api/product/price";
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Put, url);
@@ -521,7 +552,7 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             var url = $"{_baseUrl}/api/category/list";
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -619,7 +650,7 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             while (hasMore)
             {
                 var url = $"{_baseUrl}/api/orders?startDate={sinceStr}&page={page}&size={pageSize}";
-                var response = await ThrottledExecuteAsync(
+                using var response = await ThrottledExecuteAsync(
                     async token =>
                     {
                         using var req = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -797,7 +828,7 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
             var url = $"{_baseUrl}/api/order/shipment";
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Post, url);
@@ -872,7 +903,7 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             var endStr = endDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             var url = $"{_baseUrl}/api/settlement?startDate={startStr}&endDate={endStr}";
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -982,7 +1013,7 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             var sinceStr = sinceDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
             var url = $"{_baseUrl}/api/return-requests?startDate={sinceStr}";
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Get, url);
@@ -1100,7 +1131,7 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             await GetAccessTokenAsync(ct).ConfigureAwait(false);
 
             var url = $"{_baseUrl}/api/return-requests/{claimId}/approve";
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Put, url);
@@ -1147,7 +1178,7 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
             var url = $"{_baseUrl}/api/return-requests/{claimId}/reject";
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Put, url);
@@ -1207,7 +1238,7 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             using var content = new StringContent(json, Encoding.UTF8, "application/json");
             var url = $"{_baseUrl}/api/orders/{shipmentPackageId}/invoice";
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Post, url);
@@ -1267,7 +1298,7 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
 
             var url = $"{_baseUrl}/api/orders/{shipmentPackageId}/invoice-upload";
 
-            var response = await ThrottledExecuteAsync(
+            using var response = await ThrottledExecuteAsync(
                 async token =>
                 {
                     using var req = CreateAuthenticatedRequest(HttpMethod.Post, url);
@@ -1319,7 +1350,7 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             request.Content = new StringContent(json, Encoding.UTF8, "application/json");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1330,7 +1361,7 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "PttAVM RegisterWebhook exception");
             return false;
@@ -1349,7 +1380,7 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             var request = new HttpRequestMessage(HttpMethod.Delete, $"{_baseUrl}/api/webhook/unregister");
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -1360,14 +1391,14 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
 
             return response.IsSuccessStatusCode;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "PttAVM UnregisterWebhook exception");
             return false;
         }
     }
 
-    public Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
+    public async Task ProcessWebhookPayloadAsync(string payload, CancellationToken ct = default)
     {
         try
         {
@@ -1377,12 +1408,13 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
             _logger.LogInformation(
                 "PttAvmAdapter webhook processed: EventType={EventType} PayloadLength={Length}",
                 eventType, payload.Length);
+
+            await WebhookDispatchHelper.DispatchAsync(_scopeFactory, PlatformCode, eventType, null, payload, _logger, ct).ConfigureAwait(false);
         }
         catch (JsonException ex)
         {
             _logger.LogWarning(ex, "[PttAvm] Malformed webhook payload ({Length}b)", payload?.Length ?? 0);
         }
-        return Task.CompletedTask;
     }
 
     // ═══════════════════════════════════════════
@@ -1399,7 +1431,7 @@ public sealed class PttAvmAdapter : IIntegratorAdapter, IOrderCapableAdapter, IP
 
             var request = new HttpRequestMessage(HttpMethod.Head,
                 new Uri(_baseUrl, UriKind.Absolute));
-            var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
+            using var response = await _httpClient.SendAsync(request, cts.Token).ConfigureAwait(false);
 
             _logger.LogDebug("PttAVM ping: {StatusCode}", response.StatusCode);
             return true;

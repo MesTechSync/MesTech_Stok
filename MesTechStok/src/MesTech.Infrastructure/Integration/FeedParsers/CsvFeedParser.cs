@@ -55,7 +55,7 @@ public sealed class CsvFeedParser : IFeedParserService
 
                 products.Add(product);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 skipped++;
                 errors.Add($"Line {lineNumber}: Parse error — {ex.Message}");
@@ -157,7 +157,7 @@ public sealed class CsvFeedParser : IFeedParserService
             if (field != null && headerIndex.TryGetValue(field, out var idx) && idx < values.Length)
             {
                 mapped.Add(field);
-                var val = values[idx].Trim();
+                var val = values[idx]?.Trim();
                 return string.IsNullOrEmpty(val) ? null : val;
             }
             return null;

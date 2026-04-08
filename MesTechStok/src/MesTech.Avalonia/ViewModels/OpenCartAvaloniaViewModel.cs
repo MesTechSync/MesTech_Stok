@@ -64,13 +64,9 @@ public partial class OpenCartAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetPlatformDashboardQuery(_currentUser.TenantId, PlatformType.OpenCart)) ?? new PlatformDashboardDto();
+            var result = await _mediator.Send(new GetPlatformDashboardQuery(_currentUser.TenantId, PlatformType.OpenCart), ct) ?? new PlatformDashboardDto();
             IsConnected = result.IsConnected;
             ProductCount = result.ProductCount;
             OrderCount = result.OrderCount;
@@ -84,7 +80,7 @@ public partial class OpenCartAvaloniaViewModel : ViewModelBase
             IsEmpty = result.ProductCount == 0 && result.OrderCount == 0;
 
             // Load store selector from real data
-            var stores = await _mediator.Send(new GetStoresByTenantQuery(_currentUser.TenantId));
+            var stores = await _mediator.Send(new GetStoresByTenantQuery(_currentUser.TenantId), ct);
             Stores.Clear();
             foreach (var s in stores.Where(s => s.PlatformType == PlatformType.OpenCart))
                 Stores.Add(!string.IsNullOrEmpty(s.StoreName) ? s.StoreName : $"OpenCart #{s.Id.ToString()[..8]}");
@@ -95,7 +91,7 @@ public partial class OpenCartAvaloniaViewModel : ViewModelBase
             var store = stores.FirstOrDefault(s => s.PlatformType == PlatformType.OpenCart && s.IsActive);
             if (store is not null)
             {
-                var products = await _mediator.Send(new GetOpenCartProductsQuery(_currentUser.TenantId, store.Id));
+                var products = await _mediator.Send(new GetOpenCartProductsQuery(_currentUser.TenantId, store.Id), ct);
                 Products.Clear();
                 foreach (var p in products.Products)
                     Products.Add(new OpenCartProductItem
@@ -107,16 +103,7 @@ public partial class OpenCartAvaloniaViewModel : ViewModelBase
                         InMesTech = true
                     });
             }
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"OpenCart verileri yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "OpenCart verileri yuklenirken hata");
     }
 
     // ── Search Filter ────────────────────────────────────────────────────────

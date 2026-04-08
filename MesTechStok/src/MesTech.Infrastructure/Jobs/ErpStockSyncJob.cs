@@ -93,7 +93,7 @@ public sealed class ErpStockSyncJob : ISyncJob
                 var productsBySku = new Dictionary<string, Product>(StringComparer.OrdinalIgnoreCase);
                 foreach (var sku in skus)
                 {
-                    var p = await _productRepository.GetBySKUAsync(sku).ConfigureAwait(false);
+                    var p = await _productRepository.GetBySKUAsync(sku, ct).ConfigureAwait(false);
                     if (p is not null) productsBySku[sku] = p;
                 }
 
@@ -117,7 +117,7 @@ public sealed class ErpStockSyncJob : ISyncJob
                     var movementType = delta > 0 ? StockMovementType.StockIn : StockMovementType.StockOut;
                     product.AdjustStock(delta, movementType, $"ERP sync ({provider})");
 
-                    await _productRepository.UpdateAsync(product).ConfigureAwait(false);
+                    await _productRepository.UpdateAsync(product, ct).ConfigureAwait(false);
                     providerUpdated++;
                 }
 
@@ -138,7 +138,7 @@ public sealed class ErpStockSyncJob : ISyncJob
                 _logger.LogWarning("[{JobId}] ERP stok sync iptal edildi ({Provider})", JobId, provider);
                 throw;
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 totalFailed++;
                 sw.Stop();

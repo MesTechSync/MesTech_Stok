@@ -85,6 +85,7 @@ public static class HealthEndpoints
                 catch (Exception ex)
                 {
                     adapterSw.Stop();
+                    logger.LogWarning(ex, "Adapter {Platform} health ping failed", adapter.PlatformCode);
                     return new HealthCheckItem(name, false, adapterSw.Elapsed.TotalMilliseconds, "Connection failed");
                 }
             });
@@ -105,9 +106,10 @@ public static class HealthEndpoints
                     cargoSw.Stop();
                     return new HealthCheckItem(name, ok, cargoSw.Elapsed.TotalMilliseconds, ok ? null : "Cargo ping failed");
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     cargoSw.Stop();
+                    logger.LogWarning(ex, "Cargo {Provider} health ping failed", cargo.Provider);
                     return new HealthCheckItem(name, false, cargoSw.Elapsed.TotalMilliseconds, "Cargo connection failed");
                 }
             });
@@ -128,6 +130,7 @@ public static class HealthEndpoints
             }
             catch (Exception ex)
             {
+                logger.LogWarning(ex, "MESA OS health check failed at {MesaUrl}", mesaUrl);
                 mesaCheck = new HealthCheckItem("mesa-os", false, 0, "Connection failed");
             }
 

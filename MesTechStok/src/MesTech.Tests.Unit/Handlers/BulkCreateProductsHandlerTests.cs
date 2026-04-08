@@ -53,7 +53,7 @@ public class BulkCreateProductsHandlerTests
         result.Errors.Should().BeEmpty();
 
         _productRepoMock.Verify(
-            r => r.AddAsync(It.IsAny<global::MesTech.Domain.Entities.Product>()),
+            r => r.AddAsync(It.IsAny<global::MesTech.Domain.Entities.Product>(), It.IsAny<CancellationToken>()),
             Times.Exactly(2));
 
         _uowMock.Verify(
@@ -89,7 +89,7 @@ public class BulkCreateProductsHandlerTests
             .And.Contain("zaten mevcut");
 
         _productRepoMock.Verify(
-            r => r.AddAsync(It.IsAny<global::MesTech.Domain.Entities.Product>()),
+            r => r.AddAsync(It.IsAny<global::MesTech.Domain.Entities.Product>(), It.IsAny<CancellationToken>()),
             Times.Never);
 
         _uowMock.Verify(

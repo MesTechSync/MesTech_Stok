@@ -26,13 +26,13 @@ public class DeleteWarehouseHandlerTests
     {
         var wh = new Warehouse { TenantId = _tenantId, Name = "Test" };
         var warehouseId = wh.Id;
-        _repo.Setup(r => r.GetByIdAsync(warehouseId)).ReturnsAsync(wh);
+        _repo.Setup(r => r.GetByIdAsync(warehouseId, It.IsAny<CancellationToken>())).ReturnsAsync(wh);
 
         var result = await _sut.Handle(
             new DeleteWarehouseCommand(_tenantId, warehouseId), CancellationToken.None);
 
         result.Should().BeTrue();
-        _repo.Verify(r => r.DeleteAsync(warehouseId), Times.Once());
+        _repo.Verify(r => r.DeleteAsync(warehouseId, It.IsAny<CancellationToken>()), Times.Once());
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once());
     }
 
@@ -40,7 +40,7 @@ public class DeleteWarehouseHandlerTests
     public async Task Handle_WarehouseNotFound_ReturnsFalse()
     {
         var warehouseId = Guid.NewGuid();
-        _repo.Setup(r => r.GetByIdAsync(warehouseId)).ReturnsAsync((Warehouse?)null);
+        _repo.Setup(r => r.GetByIdAsync(warehouseId, It.IsAny<CancellationToken>())).ReturnsAsync((Warehouse?)null);
 
         var result = await _sut.Handle(
             new DeleteWarehouseCommand(_tenantId, warehouseId), CancellationToken.None);
@@ -55,12 +55,12 @@ public class DeleteWarehouseHandlerTests
         var otherTenant = Guid.NewGuid();
         var wh = new Warehouse { TenantId = otherTenant };
         var warehouseId = wh.Id;
-        _repo.Setup(r => r.GetByIdAsync(warehouseId)).ReturnsAsync(wh);
+        _repo.Setup(r => r.GetByIdAsync(warehouseId, It.IsAny<CancellationToken>())).ReturnsAsync(wh);
 
         var result = await _sut.Handle(
             new DeleteWarehouseCommand(_tenantId, warehouseId), CancellationToken.None);
 
         result.Should().BeFalse();
-        _repo.Verify(r => r.DeleteAsync(It.IsAny<Guid>()), Times.Never());
+        _repo.Verify(r => r.DeleteAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never());
     }
 }

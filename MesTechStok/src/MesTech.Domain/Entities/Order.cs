@@ -178,7 +178,14 @@ public sealed class Order : BaseEntity, ITenantEntity
 
     public void MarkAsPaid()
     {
+        if (PaymentStatus == "Paid") return; // idempotent — çift event önleme
+
+        if (Status == OrderStatus.Cancelled)
+            throw new BusinessRuleException("OrderPayment",
+                "Cannot mark a cancelled order as paid.");
+
         PaymentStatus = "Paid";
+        RaiseDomainEvent(new OrderPaidEvent(Id, TenantId, OrderNumber, TotalAmount, DateTime.UtcNow));
     }
 
     public void SetCommission(decimal? rate, decimal? amount)
@@ -227,6 +234,8 @@ public sealed class Order : BaseEntity, ITenantEntity
         string? notes = null,
         DateTime? requiredDate = null)
     {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("TenantId cannot be empty.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(customerName);
 
         var order = new Order
@@ -248,8 +257,8 @@ public sealed class Order : BaseEntity, ITenantEntity
         // OrderPlacedEvent burada fırlatılMAZ — Pending = taslak.
         // Place() çağrıldığında Confirmed statüsüne geçer ve event fırlatır.
         // Aksi halde OrderPlacedStockDeductionHandler çift stok düşürür.
-        order.RaiseDomainEvent(new OrderReceivedEvent(
-            order.Id, tenantId, "Manual", order.OrderNumber, 0m, DateTime.UtcNow));
+        // NOT: OrderReceivedEvent burada fırlatılMAZ — MarkAsDelivered()'da fırlatılır.
+        // Pending taslakta event fırlatmak çift gelir kaydı oluşturuyordu (G10869).
 
         return order;
     }
@@ -266,6 +275,8 @@ public sealed class Order : BaseEntity, ITenantEntity
         string? customerEmail,
         IReadOnlyList<OrderItem> items)
     {
+        if (tenantId == Guid.Empty)
+            throw new ArgumentException("TenantId cannot be empty.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(platformOrderId);
         ArgumentNullException.ThrowIfNull(items);
 

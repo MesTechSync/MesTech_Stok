@@ -98,7 +98,7 @@ public sealed class BankStatementImportWorker : IAccountingJob
                     // Islenmis dosyayi arsive tasi
                     MoveToArchive(filePath, importPath);
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not OperationCanceledException)
                 {
                     errors++;
                     _logger.LogError(ex,
@@ -137,7 +137,7 @@ public sealed class BankStatementImportWorker : IAccountingJob
             File.Move(filePath, archivePath);
             _logger.LogDebug("[{JobId}] Dosya arsive tasinildi: {Archive}", JobId, archivePath);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "[{JobId}] Dosya arsive tasinamadi: {File}", JobId, filePath);
         }

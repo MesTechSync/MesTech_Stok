@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:MesTech.Avalonia.ViewModels"
              xmlns:controls="using:MesTech.Avalonia.Controls"
+             xmlns:fa="using:FluentAvalonia.UI.Controls"
              x:Class="MesTech.Avalonia.Views.OrdersAvaloniaView"
              x:Name="RootOrdersAvaloniaView"
              x:DataType="vm:OrdersAvaloniaViewModel">
@@ -9,7 +10,7 @@
 
     <!-- Avalonia Orders — DataGrid with 15 demo orders + status filter -->
 
-    <Grid RowDefinitions="Auto,Auto,*" Background="{DynamicResource MesBgPage}">
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Background="{DynamicResource MesBgPage}">
 
         <!-- Row 0: Header -->
         <Border Grid.Row="0" Background="{DynamicResource MesPrimaryBlue}" Padding="20,14">
@@ -22,10 +23,17 @@
                                    Foreground="{DynamicResource MesBgPrimary}" FontSize="{StaticResource FontSizeSmall}" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
-                <Button Grid.Column="1" Content="Yenile" ToolTip.Tip="Verileri yenile"
-                        Command="{Binding RefreshCommand}"
-                        Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
-                        Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                    <!-- KD-DEV2-004: Export CSV -->
+                    <Button Content="CSV Aktar" ToolTip.Tip="Siparis listesini CSV olarak disari aktar"
+                            Command="{Binding ExportCsvCommand}"
+                            Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesTeal}" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                    <Button Content="Yenile" ToolTip.Tip="Verileri yenile"
+                            Command="{Binding RefreshCommand}"
+                            Background="{DynamicResource MesBgPrimary}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold"
+                            Padding="16,8" CornerRadius="{StaticResource MesRadiusBase}" />
+                </StackPanel>
             </Grid>
         </Border>
 
@@ -33,17 +41,31 @@
         <Border Grid.Row="1" Background="{DynamicResource MesBgPrimary}" Padding="16,10"
                 BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,0,0,1">
             <StackPanel Orientation="Horizontal" Spacing="12">
-                <TextBox Width="280" Watermark="Siparis no veya musteri ara..." AutomationProperties.Name="Siparis no veya musteri ara..."
+                <TextBox Width="260" Watermark="Siparis no veya musteri ara..." AutomationProperties.Name="Siparis no veya musteri ara..."
                          Text="{Binding SearchText}" />
-                <ComboBox Width="180"
+                <ComboBox Width="150"
                           ItemsSource="{Binding Statuses}"
-                          SelectedItem="{Binding SelectedStatus}"  AutomationProperties.Name="Status seciniz"/>
+                          SelectedItem="{Binding SelectedStatus}" AutomationProperties.Name="Durum seciniz"/>
+                <!-- HH-DEV2-006: Platform filter -->
+                <ComboBox Width="150"
+                          ItemsSource="{Binding PlatformOptions}"
+                          SelectedItem="{Binding SelectedPlatform}" AutomationProperties.Name="Platform seciniz"/>
+                <!-- HH-DEV2-007: Date range filter -->
+                <ComboBox Width="130"
+                          ItemsSource="{Binding DateRangeOptions}"
+                          SelectedItem="{Binding SelectedDateRange}" AutomationProperties.Name="Tarih araligi"/>
+                <!-- HH-DEV2-010: Order detail button -->
+                <Button Content="Detay" ToolTip.Tip="Secili siparisi goruntule"
+                        Command="{Binding ShowOrderDetailCommand}"
+                        Background="{DynamicResource MesPrimaryBlue}" Foreground="{DynamicResource MesBgPrimary}"
+                        FontWeight="SemiBold" Padding="14,8" CornerRadius="{StaticResource MesRadiusBase}" />
             </StackPanel>
         </Border>
 
         <!-- Row 2: Orders DataGrid -->
         <DataGrid Grid.Row="2"
                   ItemsSource="{Binding Orders}"
+                  SelectedItem="{Binding SelectedOrder}"
                   AutoGenerateColumns="False"
                   CanUserReorderColumns="True"
                   CanUserResizeColumns="True"
@@ -53,14 +75,25 @@
                   BorderThickness="0"
                   Background="{DynamicResource MesBgPrimary}"
                   Margin="0"
-                  IsVisible="{Binding !IsLoading}">
+                  DoubleTapped="OnOrderDoubleTapped"
+                 >
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Siparis No" Binding="{Binding OrderNo}" Width="140" />
                 <DataGridTextColumn Header="Tarih" Binding="{Binding Date}" Width="110" />
                 <DataGridTextColumn Header="Musteri" Binding="{Binding Customer}" Width="180" />
                 <DataGridTextColumn Header="Platform" Binding="{Binding Platform}" Width="100" />
                 <DataGridTextColumn Header="Tutar" Binding="{Binding Amount}" Width="120" />
-                <DataGridTextColumn Header="Durum" Binding="{Binding Status}" Width="110" />
+                <DataGridTemplateColumn Header="Durum" Width="120">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate x:DataType="vm:OrderItemDto">
+                            <Border Padding="6,2" CornerRadius="4" HorizontalAlignment="Left"
+                                    Margin="4,0" Background="{Binding StatusColor}">
+                                <TextBlock Text="{Binding Status}" FontSize="11"
+                                           FontWeight="SemiBold" Foreground="White"/>
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn Header="Stok" Binding="{Binding StockStatusText}" Width="120" />
             </DataGrid.Columns>
         </DataGrid>
@@ -75,8 +108,36 @@
                    FontSize="{StaticResource FontSizeSubtitle}"
                    IsVisible="{Binding !Orders.Count}" />
 
+        <!-- Row 3: HH-DEV2-008 Pagination Controls -->
+        <Border Grid.Row="3" Background="{DynamicResource MesBgPrimary}" Padding="12,8"
+                BorderBrush="{DynamicResource MesBorderMedium}" BorderThickness="0,1,0,0">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="{Binding PaginationInfo}"
+                           FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesSlateGray}"
+                           VerticalAlignment="Center" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                    <Button Content="&#x2039;" ToolTip.Tip="Onceki sayfa"
+                            Command="{Binding PrevPageCommand}" Padding="10,6"
+                            Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusSm}" />
+                    <Border Background="{DynamicResource MesBgSecondary}" CornerRadius="{StaticResource MesRadiusSm}" Padding="12,6">
+                        <TextBlock FontSize="{StaticResource FontSizeSmall}" Foreground="{DynamicResource MesPrimaryBlue}" FontWeight="SemiBold">
+                            <TextBlock.Text>
+                                <MultiBinding StringFormat="{}{0} / {1}">
+                                    <Binding Path="CurrentPage" />
+                                    <Binding Path="TotalPages" />
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                    </Border>
+                    <Button Content="&#x203A;" ToolTip.Tip="Sonraki sayfa"
+                            Command="{Binding NextPageCommand}" Padding="10,6"
+                            Background="{DynamicResource MesBgMist}" CornerRadius="{StaticResource MesRadiusSm}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
         <!-- Loading Skeleton -->
-        <Border Grid.Row="0" Grid.RowSpan="3"
+        <Border Grid.Row="0" Grid.RowSpan="4"
                 Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding IsLoading}"
                 ZIndex="100">
@@ -84,7 +145,7 @@
         </Border>
 
         <!-- Empty State -->
-        <Border Grid.Row="0" Grid.RowSpan="3"
+        <Border Grid.Row="1" Grid.RowSpan="3"
                 Background="{DynamicResource MesBgPage}"
                 IsVisible="{Binding IsEmpty}"
                 ZIndex="50">
@@ -97,24 +158,19 @@
             </StackPanel>
         </Border>
 
-        <!-- Error State -->
-        <Border Grid.Row="0" Grid.RowSpan="3"
-                Background="{DynamicResource MesBgPage}"
-                IsVisible="{Binding HasError}"
-                ZIndex="50">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <Border Background="{DynamicResource MesBgDangerLight}" CornerRadius="{StaticResource MesRadiusMd}" Padding="24" HorizontalAlignment="Center">
-                    <StackPanel Spacing="8">
-                        <TextBlock Text="Hata Olustu" FontWeight="Bold" Foreground="{DynamicResource MesRedClassic}" FontSize="{StaticResource FontSizeSubtitle}" />
-                        <TextBlock Text="{Binding ErrorMessage}"
-                                   FontSize="{StaticResource FontSizeBody}" Foreground="{DynamicResource MesCoolGray}"
-                                   TextWrapping="Wrap" MaxWidth="400" />
-                        <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
-                                Command="{Binding RefreshCommand}"
-                                Padding="16,6" Margin="0,8,0,0" />
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-        </Border>
+        <!-- Error State — FluentAvalonia InfoBar -->
+        <fa:InfoBar Grid.Row="0" Grid.ColumnSpan="3"
+                    Title="Bir sorun olustu"
+                    Message="{Binding ErrorMessage}"
+                    Severity="Error"
+                    IsOpen="{Binding HasError}"
+                    IsClosable="True"
+                    Margin="16,8"
+                    ZIndex="50">
+            <fa:InfoBar.ActionButton>
+                <Button Content="Tekrar Dene" ToolTip.Tip="Islemi tekrar dene"
+                        Command="{Binding RefreshCommand}" />
+            </fa:InfoBar.ActionButton>
+        </fa:InfoBar>
     </Grid>
 </UserControl>

@@ -71,7 +71,12 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
         _lwaEndpoint = opts.LwaEndpoint;
 
         if (_httpClient.BaseAddress == null)
-            _httpClient.BaseAddress = new Uri(_spApiBaseUrl, UriKind.Absolute);
+        {
+            var baseUri = new Uri(_spApiBaseUrl, UriKind.Absolute);
+            if (Security.SsrfGuard.IsPrivateHost(baseUri.Host))
+                _logger.LogWarning("[AmazonFBAAdapter] SP-API BaseUrl points to private network: {BaseUrl}", _spApiBaseUrl);
+            _httpClient.BaseAddress = baseUri;
+        }
 
         _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "MesTech-AmazonFBA-Client/1.0");
 
@@ -154,7 +159,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
             ["client_secret"] = _clientSecret
         });
 
-        var response = await lwaClient.PostAsync(_lwaEndpoint, content, ct).ConfigureAwait(false);
+        using var response = await lwaClient.PostAsync(_lwaEndpoint, content, ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         using var json = await JsonDocument.ParseAsync(
@@ -222,7 +227,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
 
             var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
-            var response = await _retryPipeline.ExecuteAsync(async token =>
+            using var response = await _retryPipeline.ExecuteAsync(async token =>
             {
                 var req = await CreateAuthRequestAsync(
                     HttpMethod.Post,
@@ -256,7 +261,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
             _logger.LogWarning(ex, "[AmazonFBA] Circuit breaker open — CreateInboundShipment skipped");
             return new InboundResult(false, string.Empty, "Service temporarily unavailable (circuit breaker open)");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[AmazonFBA] CreateInboundShipment exception");
             return new InboundResult(false, string.Empty, ex.Message);
@@ -291,7 +296,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
                            "&granularityType=Marketplace" +
                            $"&granularityId={TurkeyMarketplaceId}";
 
-                var response = await _retryPipeline.ExecuteAsync(async token =>
+                using var response = await _retryPipeline.ExecuteAsync(async token =>
                 {
                     var req = await CreateAuthRequestAsync(HttpMethod.Get, path, token).ConfigureAwait(false);
                     return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
@@ -348,7 +353,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[AmazonFBA] GetInventoryLevels exception");
         }
@@ -370,7 +375,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
         {
             var path = $"/inbound/fba/2024-03-20/inboundPlans/{Uri.EscapeDataString(shipmentId)}/operationStatus";
 
-            var response = await _retryPipeline.ExecuteAsync(async token =>
+            using var response = await _retryPipeline.ExecuteAsync(async token =>
             {
                 var req = await CreateAuthRequestAsync(HttpMethod.Get, path, token).ConfigureAwait(false);
                 return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
@@ -410,7 +415,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
             _logger.LogWarning(ex, "[AmazonFBA] Circuit breaker open — GetInboundStatus unavailable");
             return new InboundStatus(shipmentId, "UNAVAILABLE", 0, 0);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[AmazonFBA] GetInboundStatus exception: {ShipmentId}", shipmentId);
             return new InboundStatus(shipmentId, "ERROR", 0, 0);
@@ -441,7 +446,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
                     ? $"/fba/outbound/2020-07-01/fulfillmentOrders?nextToken={Uri.EscapeDataString(nextToken)}"
                     : $"/fba/outbound/2020-07-01/fulfillmentOrders?queryStartDate={Uri.EscapeDataString(queryDate)}";
 
-                var response = await _retryPipeline.ExecuteAsync(async token =>
+                using var response = await _retryPipeline.ExecuteAsync(async token =>
                 {
                     var req = await CreateAuthRequestAsync(HttpMethod.Get, path, token).ConfigureAwait(false);
                     return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
@@ -510,7 +515,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[AmazonFBA] GetFulfillmentOrders exception");
         }
@@ -532,7 +537,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
                        "&granularityType=Marketplace" +
                        $"&granularityId={TurkeyMarketplaceId}&details=false";
 
-            var response = await _retryPipeline.ExecuteAsync(async token =>
+            using var response = await _retryPipeline.ExecuteAsync(async token =>
             {
                 var req = await CreateAuthRequestAsync(HttpMethod.Get, path, token).ConfigureAwait(false);
                 return await _httpClient.SendAsync(req, token).ConfigureAwait(false);
@@ -542,7 +547,7 @@ public sealed class AmazonFBAAdapter : IFulfillmentProvider
             _logger.LogInformation("[AmazonFBA] IsAvailable: {Available} ({Status})", available, response.StatusCode);
             return available;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "[AmazonFBA] IsAvailable check failed");
             return false;

@@ -31,6 +31,7 @@ public sealed class GLTransaction : BaseEntity, ITenantEntity
         Guid? orderId = null, Guid? invoiceId = null, Guid? expenseId = null,
         string? referenceNumber = null, Guid? storeId = null)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(description);
         return new GLTransaction
         {

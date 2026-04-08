@@ -34,7 +34,7 @@ public sealed class CreateBarcodeScanLogHandler
             CorrelationId = request.CorrelationId
         };
 
-        await _repository.AddAsync(log).ConfigureAwait(false);
+        await _repository.AddAsync(log, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new CreateBarcodeScanLogResult

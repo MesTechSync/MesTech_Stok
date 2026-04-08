@@ -11,17 +11,20 @@ public sealed class TransferStockHandler : IRequestHandler<TransferStockCommand,
     private readonly IStockMovementRepository _movementRepository;
     private readonly IWarehouseRepository _warehouseRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ITenantProvider _tenantProvider;
 
     public TransferStockHandler(
         IProductRepository productRepository,
         IStockMovementRepository movementRepository,
         IWarehouseRepository warehouseRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ITenantProvider tenantProvider)
     {
         _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
         _movementRepository = movementRepository ?? throw new ArgumentNullException(nameof(movementRepository));
         _warehouseRepository = warehouseRepository ?? throw new ArgumentNullException(nameof(warehouseRepository));
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+        _tenantProvider = tenantProvider ?? throw new ArgumentNullException(nameof(tenantProvider));
     }
 
 #pragma warning disable MA0051 // Method is too long — warehouse transfer requires atomic dual-movement creation
@@ -36,15 +39,15 @@ public sealed class TransferStockHandler : IRequestHandler<TransferStockCommand,
         if (request.SourceWarehouseId == request.TargetWarehouseId)
             return new TransferStockResult { IsSuccess = false, ErrorMessage = "Kaynak ve hedef depo aynı olamaz." };
 
-        var product = await _productRepository.GetByIdAsync(request.ProductId).ConfigureAwait(false);
+        var product = await _productRepository.GetByIdAsync(request.ProductId, cancellationToken).ConfigureAwait(false);
         if (product == null)
             return new TransferStockResult { IsSuccess = false, ErrorMessage = $"Product {request.ProductId} not found." };
 
-        var sourceWarehouse = await _warehouseRepository.GetByIdAsync(request.SourceWarehouseId).ConfigureAwait(false);
+        var sourceWarehouse = await _warehouseRepository.GetByIdAsync(request.SourceWarehouseId, cancellationToken).ConfigureAwait(false);
         if (sourceWarehouse == null)
             return new TransferStockResult { IsSuccess = false, ErrorMessage = $"Source warehouse {request.SourceWarehouseId} not found." };
 
-        var targetWarehouse = await _warehouseRepository.GetByIdAsync(request.TargetWarehouseId).ConfigureAwait(false);
+        var targetWarehouse = await _warehouseRepository.GetByIdAsync(request.TargetWarehouseId, cancellationToken).ConfigureAwait(false);
         if (targetWarehouse == null)
             return new TransferStockResult { IsSuccess = false, ErrorMessage = $"Target warehouse {request.TargetWarehouseId} not found." };
 
@@ -52,16 +55,25 @@ public sealed class TransferStockHandler : IRequestHandler<TransferStockCommand,
             return new TransferStockResult { IsSuccess = false, ErrorMessage = $"Yetersiz stok. Mevcut: {product.Stock}, İstenen: {request.Quantity}" };
 
         var previousStock = product.Stock;
+        var transferReason = $"Transfer: {sourceWarehouse.Name} → {targetWarehouse.Name}";
+
+        // Product.AdjustStock ile stok düş — StockChangedEvent fırlatır → platform sync tetiklenir
+        // Transfer depo-içi hareket: toplam stok DEĞİŞMEZ (aynı ürün, farklı depo)
+        // Ancak AdjustStock çağrısı domain event'leri tetikler (low stock alert vb.)
+        product.AdjustStock(-request.Quantity, StockMovementType.Transfer, transferReason);
+        product.AdjustStock(request.Quantity, StockMovementType.Transfer, transferReason);
+        await _productRepository.UpdateAsync(product, cancellationToken).ConfigureAwait(false);
 
         // OUT movement from source
         var outMovement = new StockMovement
         {
             ProductId = request.ProductId,
+            TenantId = _tenantProvider.GetCurrentTenantId(),
             Quantity = -request.Quantity,
             FromWarehouseId = request.SourceWarehouseId,
             ToWarehouseId = request.TargetWarehouseId,
             Notes = request.Notes,
-            Reason = $"Transfer: {sourceWarehouse.Name} → {targetWarehouse.Name}",
+            Reason = transferReason,
             Date = DateTime.UtcNow
         };
         outMovement.SetStockLevels(previousStock, previousStock - request.Quantity);
@@ -71,24 +83,25 @@ public sealed class TransferStockHandler : IRequestHandler<TransferStockCommand,
         var inMovement = new StockMovement
         {
             ProductId = request.ProductId,
+            TenantId = _tenantProvider.GetCurrentTenantId(),
             Quantity = request.Quantity,
             FromWarehouseId = request.SourceWarehouseId,
             ToWarehouseId = request.TargetWarehouseId,
             Notes = request.Notes,
-            Reason = $"Transfer: {sourceWarehouse.Name} → {targetWarehouse.Name}",
+            Reason = transferReason,
             Date = DateTime.UtcNow
         };
         inMovement.SetStockLevels(previousStock - request.Quantity, previousStock);
         inMovement.SetMovementType(StockMovementType.Transfer);
 
-        await _movementRepository.AddAsync(outMovement).ConfigureAwait(false);
-        await _movementRepository.AddAsync(inMovement).ConfigureAwait(false);
+        await _movementRepository.AddAsync(outMovement, cancellationToken).ConfigureAwait(false);
+        await _movementRepository.AddAsync(inMovement, cancellationToken).ConfigureAwait(false);
         await _unitOfWork.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
 
         return new TransferStockResult
         {
             IsSuccess = true,
-            SourceRemainingStock = previousStock - request.Quantity,
+            SourceRemainingStock = product.Stock,
             TargetNewStock = request.Quantity,
             MovementId = outMovement.Id
         };

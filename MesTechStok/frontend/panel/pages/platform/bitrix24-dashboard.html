@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<!--
+  MesTech Stok Panel - Bitrix24 CRM Paneli
+  Version: 1.0.0
+  Date: 2026-04-06
+  Author: DEV 2 (Frontend & UI/UX)
+  Status: ACTIVE
+
+  FEATURES:
+  - 4 KPI cards: Aktif Lead, Acik Firsatlar, Kapanan Anlasmalar, Toplam CRM Geliri
+  - Leads table with status badges
+  - Deals table with pipeline stage
+  - API Settings: Webhook URL, Portal ID
+  - Chart.js: Deal pipeline stage distribution (pie)
+  - DOM-SAFE: createElement + textContent only (no innerHTML)
+  - Dark mode [data-theme="dark"]
+  - Responsive breakpoints
+
+  DEPENDENCIES:
+  - Bootstrap 5.3.0
+  - FontAwesome 6.4.0
+  - Chart.js 4.4.0
+-->
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' cdn.jsdelivr.net cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' cdn.jsdelivr.net cdnjs.cloudflare.com fonts.googleapis.com; img-src 'self' data: blob:; font-src 'self' cdnjs.cloudflare.com fonts.gstatic.com; connect-src 'self' localhost:*">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MesTech Panel - Bitrix24 CRM yonetim paneli">
+  <meta name="theme-color" content="#2FC6F6">
+  <title>MesTech Stok - Bitrix24 Dashboard</title>
+
+  <!-- CDN Libraries -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
+
+  <style>
+    :root {
+      --mestech-primary: #2FC6F6;
+      --mestech-primary-hover: #1BA8D4;
+      --mestech-bg: #f4f5f7;
+      --mestech-card-bg: #ffffff;
+      --mestech-text: #1e293b;
+      --mestech-text-secondary: #64748b;
+      --mestech-text-muted: #94a3b8;
+      --mestech-border: #e2e8f0;
+      --mestech-success: #10b981;
+      --mestech-danger: #ef4444;
+      --mestech-warning: #f59e0b;
+      --mestech-info: #3b82f6;
+      --mestech-purple: #7c3aed;
+      --mestech-radius: 12px;
+      --mestech-shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --mestech-shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    [data-theme="dark"] {
+      --mestech-bg: #0f172a;
+      --mestech-card-bg: #1e293b;
+      --mestech-text: #f1f5f9;
+      --mestech-text-secondary: #94a3b8;
+      --mestech-border: #334155;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background-color: var(--mestech-bg); color: var(--mestech-text); margin: 0; padding: 0; }
+    #root { display: flex; flex-direction: column; min-height: 100vh; }
+    .dashboard-main { flex: 1; padding: 24px; max-width: 1800px; margin: 0 auto; width: 100%; }
+    .page-header-bar { background: linear-gradient(135deg, var(--mestech-primary), var(--mestech-primary-hover)); color: #fff; padding: 20px 24px; margin-bottom: 24px; border-radius: var(--mestech-radius); }
+    .page-header-bar .breadcrumb-item a { color: rgba(255,255,255,0.7); text-decoration: none; }
+    .page-header-bar .breadcrumb-item.active { color: #fff; }
+    .kpi-card { background: var(--mestech-card-bg); border: none; border-radius: var(--mestech-radius); box-shadow: var(--mestech-shadow-sm); padding: 20px; height: 100%; transition: transform 0.2s, box-shadow 0.2s; }
+    .kpi-card:hover { transform: translateY(-2px); box-shadow: var(--mestech-shadow-md); }
+    .kpi-icon-badge { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+    .data-card { background: var(--mestech-card-bg); border: none; border-radius: var(--mestech-radius); box-shadow: var(--mestech-shadow-sm); margin-bottom: 24px; }
+    .data-card .card-header-custom { background: var(--mestech-card-bg); border-bottom: 1px solid var(--mestech-border); padding: 16px 20px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; border-radius: var(--mestech-radius) var(--mestech-radius) 0 0; }
+    .data-card .card-body-custom { padding: 20px; }
+    .chart-wrapper { position: relative; height: 280px; }
+    .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--mestech-border); }
+    .setting-row:last-child { border-bottom: none; }
+    .table { color: var(--mestech-text); }
+    .table thead th { border-bottom: 2px solid var(--mestech-border); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; color: var(--mestech-text-secondary); }
+    .table tbody td { border-bottom: 1px solid var(--mestech-border); vertical-align: middle; font-size: 0.9rem; }
+    @media (max-width: 767px) { .dashboard-main { padding: 12px; } .page-header-bar { padding: 16px; } }
+    @media print { .sidebar, .navbar, .btn, .no-print, nav, footer { display: none !important; } body { background: white !important; color: black !important; } .card { box-shadow: none !important; border: 1px solid #ddd !important; break-inside: avoid; } }
+  </style>
+</head>
+<body>
+  <noscript><div class="alert alert-warning text-center m-3">Bu sayfa JavaScript gerektirir. Lutfen tarayicinizda JavaScript'i etkinlestirin.</div></noscript>
+  <div id="root">
+    <div id="header-component"></div>
+    <div id="sidebar-component"></div>
+
+    <main class="dashboard-main">
+      <!-- Page Header -->
+      <div class="page-header-bar">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div>
+            <h4 class="mb-1 fw-bold"><i class="fas fa-b me-2"></i>Bitrix24 CRM Dashboard</h4>
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb mb-0" style="font-size: 0.85rem;">
+                <li class="breadcrumb-item"><a href="#">MesTech</a></li>
+                <li class="breadcrumb-item"><a href="#">Platform</a></li>
+                <li class="breadcrumb-item active">Bitrix24</li>
+              </ol>
+            </nav>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <button data-theme-toggle class="btn btn-sm btn-outline-light" title="Koyu temaya gec"><i class="fas fa-moon"></i></button>
+            <div class="text-end">
+              <small class="d-block opacity-75">Son guncelleme</small>
+              <strong id="last-update-time">--:--:--</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="row g-3 mb-4" id="kpi-row"></div>
+
+      <!-- Charts Row -->
+      <div class="row g-4 mb-4">
+        <div class="col-lg-5">
+          <div class="data-card">
+            <div class="card-header-custom"><span><i class="fas fa-chart-pie me-2 text-info"></i>Firsat Asama Dagilimi</span></div>
+            <div class="card-body-custom"><div class="chart-wrapper"><canvas id="dealStageChart"></canvas></div></div>
+          </div>
+        </div>
+        <div class="col-lg-7">
+          <div class="data-card">
+            <div class="card-header-custom"><span><i class="fas fa-chart-line me-2 text-success"></i>Aylik CRM Geliri</span></div>
+            <div class="card-body-custom"><div class="chart-wrapper"><canvas id="revenueTrendChart"></canvas></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tables Row -->
+      <div class="row g-4">
+        <div class="col-lg-7">
+          <div class="data-card">
+            <div class="card-header-custom"><span><i class="fas fa-user-plus me-2" style="color:var(--mestech-primary)"></i>Son Lead'ler</span></div>
+            <div class="card-body-custom"><div class="table-responsive"><table class="table table-hover mb-0"><thead id="leads-thead"></thead><tbody id="leads-tbody"></tbody></table></div></div>
+          </div>
+        </div>
+        <div class="col-lg-5">
+          <div class="data-card">
+            <div class="card-header-custom"><span><i class="fas fa-handshake me-2" style="color:var(--mestech-warning)"></i>Acik Firsatlar</span></div>
+            <div class="card-body-custom"><div class="table-responsive"><table class="table table-hover mb-0"><thead id="deals-thead"></thead><tbody id="deals-tbody"></tbody></table></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- API Settings -->
+      <div class="row g-4 mt-2">
+        <div class="col-lg-6">
+          <div class="data-card">
+            <div class="card-header-custom"><span><i class="fas fa-cog me-2 text-secondary"></i>Bitrix24 API Ayarlari</span></div>
+            <div class="card-body-custom" id="api-settings"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    'use strict';
+    // DOM-SAFE: No innerHTML usage (XSS hardening)
+    function el(tag, attrs, children) {
+      var e = document.createElement(tag);
+      if (attrs) Object.keys(attrs).forEach(function(k) { if (k === 'className') e.className = attrs[k]; else if (k === 'textContent') e.textContent = attrs[k]; else e.setAttribute(k, attrs[k]); });
+      if (children) children.forEach(function(c) { if (c) e.appendChild(c); });
+      return e;
+    }
+
+    var MOCK = {
+      kpi: { aktifLead: 156, acikFirsat: 42, kapananAnlasma: 18, toplamGelir: 284500 },
+      leads: [
+        { ad: 'Mehmet Yilmaz', firma: 'ABC Tekstil', kaynak: 'Web Form', durum: 'Yeni' },
+        { ad: 'Ayse Demir', firma: 'XYZ Gida', kaynak: 'Telefon', durum: 'Ilgileniyor' },
+        { ad: 'Ahmet Kaya', firma: 'Delta Makine', kaynak: 'E-posta', durum: 'Teklif Gonderildi' },
+        { ad: 'Fatma Celik', firma: 'Omega Kimya', kaynak: 'Referans', durum: 'Yeni' },
+        { ad: 'Ali Ozturk', firma: 'Sigma Elektronik', kaynak: 'Web Form', durum: 'Ilgileniyor' }
+      ],
+      deals: [
+        { baslik: 'ERP Entegrasyonu', firma: 'ABC Tekstil', tutar: 75000, asama: 'Teklif' },
+        { baslik: 'Stok Modulu', firma: 'XYZ Gida', tutar: 42000, asama: 'Muzakere' },
+        { baslik: 'CRM Kurulumu', firma: 'Delta Makine', tutar: 28000, asama: 'Sunum' },
+        { baslik: 'E-ticaret Paketi', firma: 'Omega Kimya', tutar: 95000, asama: 'Teklif' },
+        { baslik: 'Destek Sozlesmesi', firma: 'Sigma Elektronik', tutar: 18000, asama: 'Kapanis' }
+      ],
+      dealStages: { Sunum: 8, Teklif: 15, Muzakere: 10, Kapanis: 5, Kaybedildi: 4 },
+      revenueTrend: { labels: ['Eki', 'Kas', 'Ara', 'Oca', 'Sub', 'Mar'], data: [180000, 210000, 245000, 220000, 260000, 284500] }
+    };
+
+    function fetchData(url) {
+      return fetch(url).then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); }).catch(function() { return null; });
+    }
+
+    function renderKPIs(data) {
+      var kpis = [
+        { label: 'Aktif Lead', value: data.aktifLead, icon: 'fas fa-user-plus', color: 'var(--mestech-primary)', bg: 'rgba(47,198,246,0.12)' },
+        { label: 'Acik Firsatlar', value: data.acikFirsat, icon: 'fas fa-handshake', color: 'var(--mestech-warning)', bg: 'rgba(245,158,11,0.12)' },
+        { label: 'Kapanan Anlasma', value: data.kapananAnlasma, icon: 'fas fa-check-circle', color: 'var(--mestech-success)', bg: 'rgba(16,185,129,0.12)' },
+        { label: 'CRM Geliri', value: data.toplamGelir.toLocaleString('tr-TR') + ' TL', icon: 'fas fa-coins', color: 'var(--mestech-purple)', bg: 'rgba(124,58,237,0.12)' }
+      ];
+      var row = document.getElementById('kpi-row');
+      kpis.forEach(function(k) {
+        var col = el('div', { className: 'col-sm-6 col-xl-3' });
+        var card = el('div', { className: 'kpi-card' });
+        var d1 = el('div', { className: 'd-flex justify-content-between align-items-start' });
+        var left = el('div');
+        var lbl = el('small', { className: 'd-block text-secondary mb-1', textContent: k.label });
+        var val = el('h3', { className: 'mb-0 fw-bold', textContent: String(k.value) });
+        left.appendChild(lbl); left.appendChild(val);
+        var badge = el('div', { className: 'kpi-icon-badge' }); badge.style.background = k.bg; badge.style.color = k.color;
+        var icon = el('i', { className: k.icon }); badge.appendChild(icon);
+        d1.appendChild(left); d1.appendChild(badge); card.appendChild(d1); col.appendChild(card); row.appendChild(col);
+      });
+    }
+
+    function renderLeadsTable(leads) {
+      var thead = document.getElementById('leads-thead');
+      var hrow = el('tr'); ['Ad Soyad', 'Firma', 'Kaynak', 'Durum'].forEach(function(h) { hrow.appendChild(el('th', { textContent: h })); }); thead.appendChild(hrow);
+      var tbody = document.getElementById('leads-tbody');
+      leads.forEach(function(l) {
+        var tr = el('tr');
+        tr.appendChild(el('td', { className: 'fw-semibold', textContent: l.ad }));
+        tr.appendChild(el('td', { textContent: l.firma }));
+        tr.appendChild(el('td', { textContent: l.kaynak }));
+        var cls = l.durum === 'Yeni' ? 'bg-primary' : l.durum === 'Ilgileniyor' ? 'bg-info' : 'bg-warning text-dark';
+        var durumTd = el('td'); durumTd.appendChild(el('span', { className: 'badge ' + cls, textContent: l.durum })); tr.appendChild(durumTd); tbody.appendChild(tr);
+      });
+    }
+
+    function renderDealsTable(deals) {
+      var thead = document.getElementById('deals-thead');
+      var hrow = el('tr'); ['Baslik', 'Firma', 'Tutar', 'Asama'].forEach(function(h) { hrow.appendChild(el('th', { textContent: h })); }); thead.appendChild(hrow);
+      var tbody = document.getElementById('deals-tbody');
+      deals.forEach(function(d) {
+        var tr = el('tr');
+        tr.appendChild(el('td', { className: 'fw-semibold', textContent: d.baslik }));
+        tr.appendChild(el('td', { textContent: d.firma }));
+        tr.appendChild(el('td', { textContent: d.tutar.toLocaleString('tr-TR') + ' TL' }));
+        var cls = d.asama === 'Kapanis' ? 'bg-success' : d.asama === 'Muzakere' ? 'bg-warning text-dark' : d.asama === 'Teklif' ? 'bg-info' : 'bg-secondary';
+        var asamaTd = el('td'); asamaTd.appendChild(el('span', { className: 'badge ' + cls, textContent: d.asama })); tr.appendChild(asamaTd); tbody.appendChild(tr);
+      });
+    }
+
+    function renderAPISettings() {
+      var container = document.getElementById('api-settings');
+      var fields = [
+        { label: 'Webhook URL', id: 'b24-webhook-url', type: 'text', placeholder: 'https://yourportal.bitrix24.com/rest/...' },
+        { label: 'Portal ID', id: 'b24-portal-id', type: 'text', placeholder: 'Portal kimlik numarasi' }
+      ];
+      fields.forEach(function(f) {
+        var row = el('div', { className: 'setting-row' });
+        row.appendChild(el('label', { className: 'form-label fw-semibold mb-0', textContent: f.label, for: f.id }));
+        var input = el('input', { className: 'form-control', type: f.type, id: f.id, placeholder: f.placeholder, style: 'max-width:320px' });
+        row.appendChild(input); container.appendChild(row);
+      });
+      var btnRow = el('div', { className: 'mt-3 text-end' });
+      var btn = el('button', { className: 'btn btn-sm', textContent: 'Kaydet' }); btn.style.background = 'var(--mestech-primary)'; btn.style.color = '#fff';
+      btnRow.appendChild(btn); container.appendChild(btnRow);
+    }
+
+    function initCharts(data) {
+      if (typeof Chart === 'undefined') { setTimeout(function() { initCharts(data); }, 200); return; }
+      new Chart(document.getElementById('dealStageChart'), {
+        type: 'pie',
+        data: { labels: Object.keys(data.dealStages), datasets: [{ data: Object.values(data.dealStages), backgroundColor: ['#64748b', '#3b82f6', '#f59e0b', '#10b981', '#ef4444'] }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+      });
+      new Chart(document.getElementById('revenueTrendChart'), {
+        type: 'line',
+        data: { labels: data.revenueTrend.labels, datasets: [{ label: 'CRM Geliri (TL)', data: data.revenueTrend.data, borderColor: '#2FC6F6', backgroundColor: 'rgba(47,198,246,0.1)', fill: true, tension: 0.3 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+      });
+    }
+
+    document.addEventListener('click', function(e) {
+      if (e.target.closest('[data-theme-toggle]')) {
+        var html = document.documentElement;
+        var isDark = html.getAttribute('data-theme') === 'dark';
+        html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+      fetchData('/api/platform/bitrix24/dashboard').then(function(data) {
+        var d = data || MOCK;
+        renderKPIs(d.kpi || MOCK.kpi);
+        renderLeadsTable(d.leads || MOCK.leads);
+        renderDealsTable(d.deals || MOCK.deals);
+        renderAPISettings();
+        initCharts({ dealStages: d.dealStages || MOCK.dealStages, revenueTrend: d.revenueTrend || MOCK.revenueTrend });
+        var ts = document.getElementById('last-update-time');
+        ts.textContent = new Date().toLocaleTimeString('tr-TR');
+      });
+    });
+  </script>
+</body>
+</html>

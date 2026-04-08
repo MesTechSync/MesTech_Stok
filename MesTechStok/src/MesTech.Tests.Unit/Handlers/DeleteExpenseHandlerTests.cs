@@ -24,13 +24,13 @@ public class DeleteExpenseHandlerTests
     public async Task Handle_ExistingExpense_SoftDeletes()
     {
         var expense = new Expense { Description = "Test" };
-        _repo.Setup(r => r.GetByIdAsync(expense.Id)).ReturnsAsync(expense);
+        _repo.Setup(r => r.GetByIdAsync(expense.Id, It.IsAny<CancellationToken>())).ReturnsAsync(expense);
 
         await _sut.Handle(new DeleteExpenseCommand(expense.Id), CancellationToken.None);
 
         expense.IsDeleted.Should().BeTrue();
         expense.DeletedAt.Should().NotBeNull();
-        _repo.Verify(r => r.UpdateAsync(expense), Times.Once());
+        _repo.Verify(r => r.UpdateAsync(expense, It.IsAny<CancellationToken>()), Times.Once());
         _uow.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once());
     }
 
@@ -38,7 +38,7 @@ public class DeleteExpenseHandlerTests
     public async Task Handle_NotFound_ThrowsKeyNotFoundException()
     {
         var id = Guid.NewGuid();
-        _repo.Setup(r => r.GetByIdAsync(id)).ReturnsAsync((Expense?)null);
+        _repo.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>())).ReturnsAsync((Expense?)null);
 
         await Assert.ThrowsAsync<KeyNotFoundException>(
             () => _sut.Handle(new DeleteExpenseCommand(id), CancellationToken.None));

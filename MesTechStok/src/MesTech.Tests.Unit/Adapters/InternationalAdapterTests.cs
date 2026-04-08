@@ -115,13 +115,13 @@ public class InternationalAdapterTests
     }
 
     [Fact]
-    public async Task EbayAdapter_PushProductAsync_ReturnsFalse()
+    public async Task EbayAdapter_PushProductAsync_Unconfigured_ThrowsInvalidOperation()
     {
-        // PushProductAsync is a stub that returns false (3-step flow not implemented)
+        // PushProductAsync now requires EnsureConfigured — unconfigured adapter throws
         var sut = CreateEbayAdapter();
         var product = new MesTech.Domain.Entities.Product { Name = "Test", SalePrice = 100m };
-        var result = await sut.PushProductAsync(product);
-        result.Should().BeFalse();
+        var act = () => sut.PushProductAsync(product);
+        await act.Should().ThrowAsync<InvalidOperationException>();
     }
 
     [Fact]

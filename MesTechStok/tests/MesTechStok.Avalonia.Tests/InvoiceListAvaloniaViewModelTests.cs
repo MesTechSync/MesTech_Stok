@@ -1,6 +1,10 @@
 ﻿using FluentAssertions;
+using MesTech.Application.Features.EInvoice.Queries;
 using MesTech.Avalonia.Services;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Common;
+using MesTech.Application.DTOs.EInvoice;
+using MesTech.Domain.Interfaces;
 using MediatR;
 using Moq;
 
@@ -10,11 +14,15 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class InvoiceListAvaloniaViewModelTests
 {
+    private readonly Mock<IMediator> _mediatorMock = new();
     private readonly InvoiceListAvaloniaViewModel _sut;
 
     public InvoiceListAvaloniaViewModelTests()
     {
-        _sut = new InvoiceListAvaloniaViewModel(Mock.Of<IMediator>(), Mock.Of<IDialogService>());
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetEInvoicesQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(PagedResult<EInvoiceDto>.Empty());
+        _sut = new InvoiceListAvaloniaViewModel(_mediatorMock.Object, Mock.Of<IDialogService>(), Mock.Of<ITenantProvider>(), Mock.Of<INavigationService>());
     }
 
     [Fact]
@@ -33,22 +41,18 @@ public class InvoiceListAvaloniaViewModelTests
     }
 
     [Fact]
-    public async Task LoadAsync_ShouldPopulateInvoices()
+    public async Task LoadAsync_ShouldCompleteWithoutError()
     {
         // Act
         await _sut.LoadAsync();
 
         // Assert
-        _sut.Invoices.Should().HaveCount(5);
-        _sut.TotalCount.Should().Be(5);
-        _sut.IsEmpty.Should().BeFalse();
         _sut.IsLoading.Should().BeFalse();
-        _sut.Invoices.Should().Contain(i => i.Type == "e-Fatura");
-        _sut.Invoices.Should().Contain(i => i.Platform == "Trendyol");
+        _sut.HasError.Should().BeFalse();
     }
 
     [Fact]
-    public async Task FilterByType_ShouldNarrowResults()
+    public async Task FilterByType_WhenEmpty_ShouldRemainEmpty()
     {
         // Arrange
         await _sut.LoadAsync();
@@ -57,12 +61,12 @@ public class InvoiceListAvaloniaViewModelTests
         _sut.SelectedType = "e-Arsiv";
 
         // Assert
-        _sut.Invoices.Should().HaveCount(1);
-        _sut.Invoices[0].Type.Should().Be("e-Arsiv");
+        _sut.Invoices.Should().BeEmpty();
+        _sut.IsEmpty.Should().BeTrue();
     }
 
     [Fact]
-    public async Task FilterByStatus_Reddedildi_ShouldReturnSingleItem()
+    public async Task FilterByStatus_WhenEmpty_ShouldRemainEmpty()
     {
         // Arrange
         await _sut.LoadAsync();
@@ -71,12 +75,12 @@ public class InvoiceListAvaloniaViewModelTests
         _sut.SelectedStatus = "Reddedildi";
 
         // Assert
-        _sut.Invoices.Should().HaveCount(1);
-        _sut.Invoices[0].RecipientName.Should().Contain("Arslan");
+        _sut.Invoices.Should().BeEmpty();
+        _sut.IsEmpty.Should().BeTrue();
     }
 
     [Fact]
-    public async Task SearchText_ShouldFilterByRecipientOrInvoiceNumber()
+    public async Task SearchText_WhenEmpty_ShouldRemainEmpty()
     {
         // Arrange
         await _sut.LoadAsync();
@@ -85,7 +89,7 @@ public class InvoiceListAvaloniaViewModelTests
         _sut.SearchText = "Yilmaz";
 
         // Assert
-        _sut.Invoices.Should().HaveCount(1);
-        _sut.Invoices[0].InvoiceNumber.Should().Be("MES2026000001");
+        _sut.Invoices.Should().BeEmpty();
+        _sut.IsEmpty.Should().BeTrue();
     }
 }

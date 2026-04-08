@@ -11,6 +11,9 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class PlatformStatusViewModel : ViewModelBase
 {
+    private static Color Tk(string key) =>
+        global::Avalonia.Application.Current?.Resources.TryGetResource(key, null, out var val) == true && val is Color c ? c : Colors.Gray;
+
     [ObservableProperty] private string platformName = "";
     [ObservableProperty] private string tooltipText = "";
     [ObservableProperty] private IBrush statusColor = Brushes.Gray;
@@ -49,10 +52,10 @@ public partial class PlatformStatusViewModel : ViewModelBase
 
         StatusColor = status switch
         {
-            PlatformHealthStatus.Active   => new SolidColorBrush(Color.Parse("#388E3C")),  // Green
-            PlatformHealthStatus.Warning  => new SolidColorBrush(Color.Parse("#F57C00")),  // Orange
-            PlatformHealthStatus.Error    => new SolidColorBrush(Color.Parse("#D32F2F")),  // Red
-            PlatformHealthStatus.Inactive => new SolidColorBrush(Color.Parse("#9CA3AF")),  // Gray
+            PlatformHealthStatus.Active   => new SolidColorBrush(Tk("MesGreenForest")),
+            PlatformHealthStatus.Warning  => new SolidColorBrush(Tk("MesWarningDark")),
+            PlatformHealthStatus.Error    => new SolidColorBrush(Tk("MesDangerDark")),
+            PlatformHealthStatus.Inactive => new SolidColorBrush(Tk("MesGrayLight")),
             _ => Brushes.Gray
         };
 

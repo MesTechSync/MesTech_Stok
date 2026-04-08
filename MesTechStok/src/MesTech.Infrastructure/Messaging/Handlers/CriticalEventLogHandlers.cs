@@ -47,7 +47,7 @@ public sealed class OrderShippedLogHandler : INotificationHandler<DomainEventNot
                          $"Takip No: {e.TrackingNumber}\n" +
                          $"Kargo: {e.CargoProvider}"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "OrderShipped bildirim gönderilemedi — OrderId={OrderId}", e.OrderId);
         }
@@ -86,7 +86,7 @@ public sealed class StockCriticalLogHandler : INotificationHandler<DomainEventNo
                          $"Mevcut: {e.CurrentStock} / Minimum: {e.MinimumStock}\n" +
                          $"Seviye: {e.Level}"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "StockCritical bildirim gönderilemedi — SKU={SKU}", e.SKU);
         }
@@ -125,7 +125,7 @@ public sealed class InvoiceApprovedLogHandler : INotificationHandler<DomainEvent
                          $"Toplam: {e.GrandTotal:C}\n" +
                          $"Tip: {e.Type}"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "InvoiceApproved bildirim gönderilemedi — {InvoiceId}", e.InvoiceId);
         }
@@ -163,7 +163,7 @@ public sealed class InvoiceAcceptedLogHandler : INotificationHandler<DomainEvent
                 Content: $"Fatura kabul edildi: {e.InvoiceNumber}\n" +
                          $"Toplam: {e.GrandTotal:C}"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "InvoiceAccepted bildirim gönderilemedi — {InvoiceId}", e.InvoiceId);
         }
@@ -200,7 +200,7 @@ public sealed class InvoiceRejectedLogHandler : INotificationHandler<DomainEvent
                 TemplateName: "invoice-rejected",
                 Content: $"Fatura reddedildi: {e.InvoiceNumber}"), ct).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "InvoiceRejected bildirim gönderilemedi — {InvoiceId}", e.InvoiceId);
         }

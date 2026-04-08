@@ -19,10 +19,10 @@ namespace MesTech.Avalonia.ViewModels;
 /// </summary>
 public partial class ReportDashboardAvaloniaViewModel : ViewModelBase
 {
-    private readonly ISender _mediator;
+    private readonly IMediator _mediator;
     private readonly ICurrentUserService _currentUser;
 
-    public ReportDashboardAvaloniaViewModel(ISender mediator, ICurrentUserService currentUser)
+    public ReportDashboardAvaloniaViewModel(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
         _currentUser = currentUser;
@@ -78,12 +78,9 @@ public partial class ReportDashboardAvaloniaViewModel : ViewModelBase
     // ─── Load ─────────────────────────────────────────────────────
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var savedReports = await _mediator.Send(new GetSavedReportsQuery(_currentUser.TenantId));
+            var savedReports = await _mediator.Send(new GetSavedReportsQuery(_currentUser.TenantId), ct);
 
             RecentReports.Clear();
             foreach (var report in savedReports)
@@ -94,16 +91,7 @@ public partial class ReportDashboardAvaloniaViewModel : ViewModelBase
                     report.ReportType,
                     "—"));
             }
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Rapor paneli yüklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Rapor verileri yuklenirken hata");
     }
 
     // ─── Commands ─────────────────────────────────────────────────

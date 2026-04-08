@@ -20,5 +20,6 @@ public record SettlementLineInput(
     decimal ServiceFee,
     decimal CargoDeduction,
     decimal RefundDeduction,
-    decimal NetAmount
+    decimal NetAmount,
+    decimal VatAmount = 0m
 );

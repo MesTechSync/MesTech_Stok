@@ -9,4 +9,5 @@ public interface IDocumentRepository
     Task<IReadOnlyList<Document>> GetByOrderAsync(Guid orderId, CancellationToken ct = default);
     Task<long> GetTotalSizeBytesAsync(Guid tenantId, CancellationToken ct = default);
     Task AddAsync(Document document, CancellationToken ct = default);
+    Task<IReadOnlyDictionary<Guid, int>> CountByFolderIdsAsync(IEnumerable<Guid> folderIds, CancellationToken ct = default);
 }

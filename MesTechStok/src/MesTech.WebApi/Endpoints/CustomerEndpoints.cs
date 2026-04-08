@@ -2,6 +2,7 @@ using MediatR;
 using MesTech.Application.Commands.CreateCustomer;
 using MesTech.Application.Commands.UpdateCustomer;
 using MesTech.Application.Features.Crm.Commands.ExportCustomers;
+using MesTech.Application.Queries.GetCustomerById;
 using MesTech.Application.Queries.GetCustomersPaged;
 using Microsoft.AspNetCore.OutputCaching;
 
@@ -13,7 +14,8 @@ public static class CustomerEndpoints
     {
         var group = app.MapGroup("/api/v1/customers")
             .WithTags("Customers")
-            .RequireRateLimiting("PerApiKey");
+            .RequireRateLimiting("PerApiKey")
+            .AddEndpointFilter<Filters.NullResultFilter>();
 
         // GET /api/v1/customers — paginated customer list with search
         group.MapGet("/", async (
@@ -48,6 +50,21 @@ public static class CustomerEndpoints
         .Produces(201)
         .Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
+
+        // GET /api/v1/customers/{id} — müşteri detayı (kopuk zincir fix)
+        group.MapGet("/{id:guid}", async (
+            Guid id,
+            ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new GetCustomerByIdQuery(id), ct);
+            return result is not null
+                ? Results.Ok(result)
+                : Results.Problem(detail: $"Müşteri {id} bulunamadı.", statusCode: 404);
+        })
+        .WithName("GetCustomerById")
+        .WithSummary("Müşteri detayı — ad, VKN, adres, iletişim bilgileri")
+        .Produces(200).Produces(404)
+        .CacheOutput("Lookup60s");
 
         // PUT /api/v1/customers/{id} — update an existing customer
         group.MapPut("/{id:guid}", async (

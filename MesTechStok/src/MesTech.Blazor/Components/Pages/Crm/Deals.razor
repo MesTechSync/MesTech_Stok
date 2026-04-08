@@ -7,12 +7,11 @@
 <DemoFallbackBanner IsDemoMode="@_isDemoMode" />
 
 <div class="d-flex align-items-center mb-4">
-  <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-       style="width: 48px; height: 48px; background-color: #2855AC;">
+  <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
     <i class="fas fa-handshake text-white"></i>
   </div>
   <div>
-    <h3 class="mb-0" style="color: #2855AC;">Firsatlar (Deals)</h3>
+    <h3 class="mb-0" >Firsatlar (Deals)</h3>
     <small class="text-muted">Kanban gorunumu ile firsat takibi</small>
   </div>
 </div>
@@ -113,11 +112,11 @@ else
 
     private List<KanbanStage> stages =
     [
-        new("Yeni", "#0d6efd"),
-        new("Iletisim", "#6f42c1"),
-        new("Teklif", "#fd7e14"),
+        new("Yeni", "var(--mestech-info)"),
+        new("Iletisim", "var(--mestech-purple)"),
+        new("Teklif", "var(--mestech-orange)"),
         new("Muzakere", "#ffc107"),
-        new("Kazanildi", "#198754"),
+        new("Kazanildi", "var(--mestech-success)"),
     ];
 
     private List<DealItem> deals = [];

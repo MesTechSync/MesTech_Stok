@@ -30,14 +30,14 @@ public sealed class ProcessBotInvoiceRequestHandler : IRequestHandler<ProcessBot
 
     public async Task Handle(ProcessBotInvoiceRequestCommand request, CancellationToken cancellationToken)
     {
-        var order = await _orderRepository.GetByOrderNumberAsync(request.OrderNumber).ConfigureAwait(false);
+        var order = await _orderRepository.GetByOrderNumberAsync(request.OrderNumber, cancellationToken).ConfigureAwait(false);
         if (order is null)
         {
             _logger.LogWarning("ProcessBotInvoiceRequest: Order not found — OrderNumber={OrderNumber}", request.OrderNumber);
             return;
         }
 
-        var invoice = await _invoiceRepository.GetByOrderIdAsync(order.Id).ConfigureAwait(false);
+        var invoice = await _invoiceRepository.GetByOrderIdAsync(order.Id, cancellationToken).ConfigureAwait(false);
         if (invoice is not null)
         {
             _logger.LogInformation(

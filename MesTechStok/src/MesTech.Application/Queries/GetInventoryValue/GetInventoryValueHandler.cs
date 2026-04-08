@@ -19,7 +19,7 @@ public sealed class GetInventoryValueHandler : IRequestHandler<GetInventoryValue
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var products = await _productRepository.GetAllAsync().ConfigureAwait(false);
+        var products = await _productRepository.GetAllAsync(cancellationToken).ConfigureAwait(false);
 
         return new InventoryValueResult
         {

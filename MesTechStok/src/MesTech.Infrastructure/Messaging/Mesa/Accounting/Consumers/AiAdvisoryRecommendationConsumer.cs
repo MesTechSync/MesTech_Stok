@@ -50,6 +50,15 @@ public sealed class AiAdvisoryRecommendationConsumer : IConsumer<AiAdvisoryRecom
                 "[MESA Consumer] Event without TenantId, using default {TenantId}", tenantId);
         }
 
+        if (tenantId == Guid.Empty)
+        {
+            _logger.LogError(
+                "[MESA Consumer] TenantId is Guid.Empty after fallback — aborting. MessageId={MessageId}",
+                context.MessageId);
+            _monitor.RecordError("ai.advisory.recommendation", "TenantId is Guid.Empty — aborted");
+            throw new InvalidOperationException("TenantId is Guid.Empty — message rejected to prevent cross-tenant data leak");
+        }
+
         _logger.LogInformation(
             "Processing {Event} — {Id}",
             nameof(AiAdvisoryRecommendationEvent), context.MessageId);
@@ -66,7 +75,7 @@ public sealed class AiAdvisoryRecommendationConsumer : IConsumer<AiAdvisoryRecom
                 TenantId = tenantId
             }, context.CancellationToken).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to process {Event}", nameof(AiAdvisoryRecommendationEvent));
             throw; // Let MassTransit retry policy handle
@@ -98,14 +107,14 @@ public sealed class AiAdvisoryRecommendationConsumer : IConsumer<AiAdvisoryRecom
                 $"{msg.Title}: {msg.Description}");
             notification.MarkAsSent();
 
-            await _notificationLogRepository.AddAsync(notification).ConfigureAwait(false);
-            await _unitOfWork.SaveChangesAsync().ConfigureAwait(false);
+            await _notificationLogRepository.AddAsync(notification, context.CancellationToken).ConfigureAwait(false);
+            await _unitOfWork.SaveChangesAsync(context.CancellationToken).ConfigureAwait(false);
 
             _logger.LogInformation(
                 "[MESA Consumer] AI onerisi NotificationLog olarak kaydedildi: NotificationId={NotificationId}",
                 notification.Id);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[MESA Consumer] AI danismanlik onerisi islenirken hata");
             throw; // MassTransit retry policy

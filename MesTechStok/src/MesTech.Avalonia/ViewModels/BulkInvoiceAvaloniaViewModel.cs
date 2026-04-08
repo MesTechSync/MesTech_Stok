@@ -64,14 +64,12 @@ public partial class BulkInvoiceAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        ShowResults = false;
-        try
+        await SafeExecuteAsync(async ct =>
         {
+            ShowResults = false;
             var tenantId = _tenantProvider.GetCurrentTenantId();
             var orderList = await _mediator.Send(
-                new GetOrderListQuery(tenantId, 100), CancellationToken);
+                new GetOrderListQuery(tenantId, 100), ct);
 
             _allOrders.Clear();
             foreach (var o in orderList)
@@ -88,13 +86,7 @@ public partial class BulkInvoiceAvaloniaViewModel : ViewModelBase
             }
 
             ApplyFilter();
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Siparisler yuklenemedi: {ex.Message}";
-        }
-        finally { IsLoading = false; }
+        }, "Toplu fatura yuklenirken hata");
     }
 
     partial void OnSelectAllChanged(bool value)

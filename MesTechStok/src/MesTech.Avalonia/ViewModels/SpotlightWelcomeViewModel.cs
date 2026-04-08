@@ -96,7 +96,7 @@ public partial class SpotlightWelcomeViewModel : ViewModelBase
         InitializeThumbnails();
         UpdateClock();
         LoadRememberedUser();
-        LoadCurrentImage();
+        _ = LoadCurrentImageAsync();
     }
 
     // ═══════════════════════════════════════════════
@@ -115,7 +115,7 @@ public partial class SpotlightWelcomeViewModel : ViewModelBase
     // IMAGE ROTATION
     // ═══════════════════════════════════════════════
 
-    private async void LoadCurrentImage()
+    private async Task LoadCurrentImageAsync()
     {
         try
         {
@@ -250,9 +250,11 @@ public partial class SpotlightWelcomeViewModel : ViewModelBase
                 }
             }
 
-            // Offline fallback: admin / Admin123!
+#if DEBUG
+            // Offline fallback: ONLY in DEBUG builds — never in production
             if (!isValid && username == "admin" && password == "Admin123!")
                 isValid = true;
+#endif
 
             // Minimum 300ms delay
             var elapsed = DateTime.Now - loginStart;
@@ -297,8 +299,27 @@ public partial class SpotlightWelcomeViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void DemoLogin()
+    private async Task DemoLogin()
     {
+        try
+        {
+            IsLoginLoading = true;
+            var demoService = App.ServiceProvider?.GetService<IDemoModeService>();
+            if (demoService is not null)
+            {
+                var session = await demoService.CreateDemoSessionAsync();
+                _auditLogger.Log(session.DemoUsername, true, $"DEMO_LOGIN TenantId={session.TenantId}, TTL={session.ExpiresAt:HH:mm}");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[WARNING] Demo session creation failed: {ex.Message}");
+        }
+        finally
+        {
+            IsLoginLoading = false;
+        }
+
         DemoLoginRequested?.Invoke();
     }
 
@@ -461,15 +482,16 @@ public partial class SpotlightWelcomeViewModel : ViewModelBase
     private bool _pendingAutoLogin;
 
     /// <summary>Auto-login if "Beni Hatırla" session is valid (< 7 days).</summary>
-    public async Task TryAutoLoginAsync()
+    public Task TryAutoLoginAsync()
     {
-        if (!_pendingAutoLogin || string.IsNullOrEmpty(Username)) return;
+        if (!_pendingAutoLogin || string.IsNullOrEmpty(Username)) return Task.CompletedTask;
         _pendingAutoLogin = false;
 
         // Skip brute-force check for auto-login
         _tracker.RecordSuccess(Username);
         _auditLogger.Log(Username, true, "auto_login");
         LoginCompleted?.Invoke(true);
+        return Task.CompletedTask;
     }
 
     /// <summary>Dispose loaded bitmaps.</summary>

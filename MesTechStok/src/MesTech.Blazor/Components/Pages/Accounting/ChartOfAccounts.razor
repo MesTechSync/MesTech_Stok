@@ -1,5 +1,5 @@
 @page "/accounting/settings"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin,Accountant")]
 @using Microsoft.AspNetCore.Authorization
 
 @inject MesTechApiClient ApiClient
@@ -13,12 +13,11 @@
 
 <div class="container-fluid">
   <div class="d-flex align-items-center mb-4">
-    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
-         style="width: 48px; height: 48px; background-color: #2855AC;">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" >
       <i class="fas fa-sitemap text-white"></i>
     </div>
     <div>
-      <h3 class="mb-0" style="color: #2855AC;">@L["PageTitle.ChartOfAccounts"]</h3>
+      <h3 class="mb-0" >@L["PageTitle.ChartOfAccounts"]</h3>
       <small class="text-muted">Hesap kodu tanimlama ve yonetimi</small>
     </div>
   </div>
@@ -42,7 +41,7 @@
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-white">
           <h6 class="mb-0">
-            <i class="fas fa-@(_editingAccount is not null ? "edit" : "plus") me-2" style="color: #2855AC;"></i>
+            <i class="fas fa-@(_editingAccount is not null ? "edit" : "plus") me-2 text-mestech"></i>
             @(_editingAccount is not null ? L["UI.EditAccount"] : L["UI.AddAccount"])
           </h6>
         </div>
@@ -70,7 +69,7 @@
               <input type="text" class="form-control" @bind="_formParent" placeholder="-" />
             </div>
             <div class="col-12 col-md-2 d-flex align-items-end gap-2">
-              <button class="btn flex-fill" style="background-color: #2855AC; color: white;" @onclick="SaveAccount">
+              <button class="btn flex-fill"  @onclick="SaveAccount">
                 <i class="fas fa-save me-1"></i>@L["Common.Save"]
               </button>
               <button class="btn btn-outline-secondary" @onclick="CancelForm">
@@ -84,8 +83,8 @@
 
     <div class="card shadow-sm">
       <div class="card-header bg-white d-flex align-items-center justify-content-between">
-        <h6 class="mb-0"><i class="fas fa-list me-2" style="color: #2855AC;"></i>@L["UI.AccountList"]</h6>
-        <button class="btn btn-sm" style="background-color: #2855AC; color: white;" @onclick="ShowAddForm">
+        <h6 class="mb-0"><i class="fas fa-list me-2" ></i>@L["UI.AccountList"]</h6>
+        <button class="btn btn-sm"  @onclick="ShowAddForm">
           <i class="fas fa-plus me-1"></i>@L["UI.NewAccount"]
         </button>
       </div>

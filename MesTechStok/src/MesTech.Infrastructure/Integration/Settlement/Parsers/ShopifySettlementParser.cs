@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Integration.Settlement.Parsers;
@@ -20,7 +21,7 @@ public sealed class ShopifySettlementParser : ISettlementParser
     private string? _rawFileHash;
     private Guid _tenantId;
 
-    public string Platform => "Shopify";
+    public string Platform => nameof(PlatformType.Shopify);
 
     public ShopifySettlementParser(ILogger<ShopifySettlementParser> logger)
     {

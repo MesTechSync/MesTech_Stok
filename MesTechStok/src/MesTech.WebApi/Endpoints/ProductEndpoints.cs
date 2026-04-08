@@ -1,4 +1,5 @@
 using MediatR;
+using MesTech.Domain.Common;
 using Microsoft.AspNetCore.OutputCaching;
 using MesTech.Application.DTOs;
 using MesTech.Application.Commands.CreateBulkProducts;
@@ -27,7 +28,8 @@ public static class ProductEndpoints
 {
     public static void Map(WebApplication app)
     {
-        var group = app.MapGroup("/api/v1/products").WithTags("Products").RequireRateLimiting("PerApiKey");
+        var group = app.MapGroup("/api/v1/products").WithTags("Products").RequireRateLimiting("PerApiKey")
+            .AddEndpointFilter<NullResultFilter>();
 
         // GET /api/v1/products — paginated product list (Blazor StockLot, ProductUpload, ProductVariants)
         group.MapGet("/", async (
@@ -40,7 +42,7 @@ public static class ProductEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             if (tenantId is null || tenantId == Guid.Empty)
-                return Results.BadRequest(new { detail = "tenantId gerekli." });
+                return Results.Problem(detail: "tenantId gerekli.", statusCode: 400);
             var safeSearch = search is { Length: > 500 } ? search[..500] : search;
             var clampedSize = Math.Clamp(pageSize ?? 50, 1, 100);
             var result = await mediator.Send(
@@ -50,7 +52,7 @@ public static class ProductEndpoints
         })
         .WithName("GetProductList")
         .WithSummary("Sayfalanmış ürün listesi")
-        .Produces(200)
+        .Produces<PagedResult<ProductDto>>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/products/status — DB connectivity + counts
@@ -61,7 +63,7 @@ public static class ProductEndpoints
         })
         .WithName("GetProductStatus")
         .WithSummary("Ürün DB bağlantı durumu ve sayılar")
-        .Produces(200)
+        .Produces<ProductDbStatusDto>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/products/low-stock — products below minimum stock
@@ -72,7 +74,7 @@ public static class ProductEndpoints
         })
         .WithName("GetLowStockProducts")
         .WithSummary("Minimum stok altı ürünler")
-        .Produces(200)
+        .Produces<IReadOnlyList<ProductDto>>(200)
         .CacheOutput("Report120s");
 
         // GET /api/v1/products/{id} — get single product by ID
@@ -83,7 +85,7 @@ public static class ProductEndpoints
         })
         .WithName("GetProductById")
         .WithSummary("Tekil ürün detayı")
-        .Produces(200)
+        .Produces<ProductDto>(200)
         .Produces(404)
         .CacheOutput("Lookup60s");
 
@@ -118,7 +120,8 @@ public static class ProductEndpoints
         .WithName("SaveProductVariants")
         .WithSummary("Ürün varyantlarını toplu kaydet/güncelle — renk/beden/fiyat/stok")
         .Produces<SaveProductVariantsResult>(200)
-        .Produces(400).ProducesProblem(401).ProducesProblem(429);
+        .Produces(400).ProducesProblem(401).ProducesProblem(429)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/products — create a new product
         group.MapPost("/", async (CreateProductCommand command, ISender mediator, CancellationToken ct) =>
@@ -135,7 +138,8 @@ public static class ProductEndpoints
         .Produces(201)
         .Produces(400)
         .Produces(403)
-        .Produces(429).ProducesProblem(401).ProducesProblem(429);
+        .Produces(429).ProducesProblem(401).ProducesProblem(429)
+        .RequirePermission("ManageProducts");
 
         // PUT /api/v1/products/{id} — update an existing product
         group.MapPut("/{id:guid}", async (Guid id, UpdateProductCommand command, ISender mediator, CancellationToken ct) =>
@@ -150,7 +154,9 @@ public static class ProductEndpoints
         .WithName("UpdateProduct")
         .WithSummary("Ürün güncelle")
         .Produces(200)
-        .Produces(400).ProducesProblem(401).ProducesProblem(429);
+        .Produces(400).ProducesProblem(401).ProducesProblem(429)
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .RequirePermission("ManageProducts");
 
         // DELETE /api/v1/products/{id} — soft-delete a product
         group.MapDelete("/{id:guid}", async (Guid id, ISender mediator, CancellationToken ct) =>
@@ -163,7 +169,30 @@ public static class ProductEndpoints
         .WithName("DeleteProduct")
         .WithSummary("Ürün sil (soft-delete)")
         .Produces(204)
-        .Produces(400).ProducesProblem(401).ProducesProblem(429);
+        .Produces(400).ProducesProblem(401).ProducesProblem(429)
+        .RequirePermission("ManageProducts");
+
+        // PUT /api/v1/products/{id}/content — AI ürün içeriği güncelle (GAP-1 FIX: handler mevcut)
+        group.MapPut("/{id:guid}/content", async (
+            Guid id,
+            UpdateProductContentRequest request,
+            ISender mediator, CancellationToken ct) =>
+        {
+            await mediator.Send(new Application.Commands.UpdateProductContent.UpdateProductContentCommand
+            {
+                ProductId = id,
+                SKU = request.SKU ?? string.Empty,
+                GeneratedContent = request.Content,
+                AiProvider = request.Provider ?? "manual",
+                TenantId = request.TenantId
+            }, ct);
+            return Results.Ok(new { productId = id, updated = true });
+        })
+        .WithName("UpdateProductContent")
+        .WithSummary("Ürün açıklama/içerik güncelle — AI veya manuel")
+        .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
+        .RequirePermission("ManageProducts");
 
         // PUT /api/v1/products/{id}/image — ürün resmi güncelle
         group.MapPut("/{id:guid}/image", async (
@@ -180,7 +209,8 @@ public static class ProductEndpoints
         .WithName("UpdateProductImage")
         .WithSummary("Ürün resmi güncelle (URL)")
         .Produces(200)
-        .Produces(400).ProducesProblem(401).ProducesProblem(429);
+        .Produces(400).ProducesProblem(401).ProducesProblem(429)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/products/search — paginated product search with filters
         group.MapGet("/search", async (
@@ -201,7 +231,7 @@ public static class ProductEndpoints
         })
         .WithName("GetProducts")
         .WithSummary("Sayfalanmış ürün arama (kategori, stok, aktiflik filtresi)")
-        .Produces(200)
+        .Produces<PagedResult<ProductDto>>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/products/prices — product list with price data (Blazor PriceUpdate.razor)
@@ -212,7 +242,7 @@ public static class ProductEndpoints
             ISender mediator, CancellationToken ct) =>
         {
             if (tenantId is null || tenantId == Guid.Empty)
-                return Results.BadRequest(new { detail = "tenantId gerekli." });
+                return Results.Problem(detail: "tenantId gerekli.", statusCode: 400);
             var result = await mediator.Send(
                 new GetProductsQuery(tenantId.Value, null, null, true, null,
                     page ?? 1, Math.Clamp(pageSize ?? 50, 1, 100)), ct);
@@ -220,7 +250,7 @@ public static class ProductEndpoints
         })
         .WithName("GetProductPrices")
         .WithSummary("Ürün fiyat listesi — toplu fiyat güncelleme için")
-        .Produces(200)
+        .Produces<PagedResult<ProductDto>>(200)
         .CacheOutput("Lookup60s");
 
         // GET /api/v1/products/import/templates — import template listesi (Blazor ProductImport.razor)
@@ -252,7 +282,8 @@ public static class ProductEndpoints
         .WithName("CreateBulkProducts")
         .WithSummary("Toplu ürün oluştur (demo/seed amaçlı)")
         .Produces(200)
-        .Produces(400).ProducesProblem(401).ProducesProblem(429);
+        .Produces(400).ProducesProblem(401).ProducesProblem(429)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/products/{productId}/buybox-status — buybox durumu
         group.MapGet("/{productId:guid}/buybox-status", async (
@@ -265,7 +296,7 @@ public static class ProductEndpoints
         })
         .WithName("GetProductBuyboxStatus")
         .WithSummary("Ürün buybox pozisyon durumu")
-        .Produces(200)
+        .Produces<BuyboxStatusResult>(200)
         .CacheOutput("Report120s");
 
         // POST /api/v1/products/search-by-image — görsel benzerlik ile ürün arama
@@ -291,7 +322,8 @@ public static class ProductEndpoints
         })
         .WithName("GenerateProductDescription")
         .WithSummary("AI ile ürün açıklaması oluştur")
-        .Produces(200).ProducesProblem(401).ProducesProblem(429);
+        .Produces(200).ProducesProblem(401).ProducesProblem(429)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
     }
 
     private record UpdateProductImageRequest(string ImageUrl);
@@ -351,7 +383,8 @@ public static class ProductEndpoints
         })
         .WithName("AutoCompetePrice")
         .WithSummary("Otomatik fiyat rekabet — rakip fiyatlarına göre Buybox kazanma (FloorPrice korumalı)")
-        .Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429);
+        .Produces(200).Produces(400).ProducesProblem(401).ProducesProblem(429)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/products/auto-compete/bulk — toplu otomatik fiyat rekabet
         group.MapPost("/auto-compete/bulk", async (
@@ -364,6 +397,7 @@ public static class ProductEndpoints
         .WithName("BulkAutoCompetePrice")
         .WithSummary("Toplu otomatik fiyat rekabet — tenant'ın tüm ürünleri veya platform bazlı Buybox kazanma")
         .Produces(200).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>()
         .WithRequestTimeout("LongRunning");
 
         // GET /api/v1/products/platform/{platformCode} — platform ürün listesi
@@ -398,5 +432,41 @@ public static class ProductEndpoints
         .WithSummary("Ürün dışa aktarma — Excel/CSV formatında indirme")
         .Produces(200)
         .Produces(400).ProducesProblem(401).ProducesProblem(429);
+
+        // GET /api/v1/products/export?format=pdf|xml — PDF/XML export (HH-DEV6-088)
+        group.MapGet("/export", async (
+            string format,
+            IReportExportService reportExport,
+            IXmlExportService xmlExport,
+            MesTech.Domain.Interfaces.IProductRepository productRepo,
+            CancellationToken ct) =>
+        {
+            var entities = await productRepo.GetPagedAsync(1, 10_000, activeOnly: true, ct: ct);
+            var exportDtos = entities.Items.Select(p => new ProductExportDto(
+                p.SKU, p.Name, p.SalePrice, p.Stock,
+                null, p.Barcode)).ToList();
+
+            if (string.Equals(format, "pdf", StringComparison.OrdinalIgnoreCase))
+            {
+                var pdfBytes = await reportExport.ExportToPdfAsync(
+                    exportDtos, "MesTech Ürün Listesi", ct);
+                return Results.File(pdfBytes, "application/pdf",
+                    $"products_{DateTime.UtcNow:yyyyMMdd}.pdf");
+            }
+
+            if (string.Equals(format, "xml", StringComparison.OrdinalIgnoreCase))
+            {
+                var xmlStream = await xmlExport.ExportProductsAsync(exportDtos, ct);
+                return Results.Stream(xmlStream, "application/xml",
+                    $"products_{DateTime.UtcNow:yyyyMMdd}.xml");
+            }
+
+            return Results.BadRequest("Desteklenen formatlar: pdf, xml. Excel/CSV için POST /export kullanın.");
+        })
+        .WithName("ExportProductsGetPdfXml")
+        .WithSummary("Ürün dışa aktarma — PDF veya XML formatında (GET parametreli)")
+        .Produces(200).Produces(400);
     }
+
+    private sealed record UpdateProductContentRequest(string Content, Guid TenantId, string? SKU, string? Provider);
 }

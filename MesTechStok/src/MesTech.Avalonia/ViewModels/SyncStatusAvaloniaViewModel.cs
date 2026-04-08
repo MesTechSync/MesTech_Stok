@@ -37,13 +37,9 @@ public partial class SyncStatusAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
-            var result = await _mediator.Send(new GetPlatformSyncStatusQuery(_currentUser.TenantId)) ?? new();
+            var result = await _mediator.Send(new GetPlatformSyncStatusQuery(_currentUser.TenantId), ct) ?? new();
 
             Items.Clear();
             foreach (var dto in result)
@@ -72,16 +68,7 @@ public partial class SyncStatusAvaloniaViewModel : ViewModelBase
 
             UpdateSummary();
             LastRefreshedText = DateTime.Now.ToString("HH:mm:ss");
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Platform senkronizasyon durumu yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Senkronizasyon durumu yuklenirken hata");
     }
 
     private void UpdateSummary()
@@ -123,8 +110,9 @@ public partial class SyncStatusAvaloniaViewModel : ViewModelBase
                 platform.Durum = "Hatali";
             }
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[SyncStatus] Sync failed for {platform.PlatformAdi}: {ex.Message}");
             platform.Durum = prevDurum;
         }
         finally

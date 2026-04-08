@@ -49,7 +49,7 @@ public class ProfitLossHandlerTests
         };
 
         _orderRepo.Setup(r => r.GetByDateRangeAsync(
-                It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+                It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(orders);
 
         var totalExpenses = 400m;
@@ -86,7 +86,7 @@ public class ProfitLossHandlerTests
     {
         // Arrange
         _orderRepo.Setup(r => r.GetByDateRangeAsync(
-                It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+                It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<Order>());
 
         _expenseRepo.Setup(r => r.GetTotalByDateRangeAsync(
@@ -128,7 +128,7 @@ public class ProfitLossHandlerTests
         };
 
         _orderRepo.Setup(r => r.GetByDateRangeAsync(
-                It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+                It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(orders);
 
         _expenseRepo.Setup(r => r.GetTotalByDateRangeAsync(

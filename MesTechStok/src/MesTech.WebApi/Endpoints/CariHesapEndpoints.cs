@@ -1,7 +1,9 @@
 using MesTech.Application.DTOs;
+using MesTech.Application.DTOs.Accounting;
 using MediatR;
 using MesTech.Application.Commands.CreateCariHareket;
 using MesTech.Application.Commands.CreateCariHesap;
+using MesTech.Application.Commands.DeleteCariHesap;
 using MesTech.Application.Commands.UpdateCariHesap;
 using MesTech.Application.Queries.GetCariHareketler;
 using MesTech.Application.Queries.GetCariHesaplar;
@@ -16,7 +18,8 @@ public static class CariHesapEndpoints
     {
         var group = app.MapGroup("/api/v1/accounting/cari-hesaplar")
             .WithTags("Accounting - Cari Hesaplar")
-            .RequireRateLimiting("PerApiKey");
+            .RequireRateLimiting("PerApiKey")
+            .AddEndpointFilter(new Filters.RequirePermissionFilter("ManageAccounting"));
 
         // GET /api/v1/accounting/cari-hesaplar — cari hesap listesi
         group.MapGet("/", async (
@@ -29,7 +32,7 @@ public static class CariHesapEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetCariHesaplar")
-        .WithSummary("Cari hesap listesi (tip filtresi: Musteri / Tedarikci / HerIkisi)").Produces(200).Produces(400)
+        .WithSummary("Cari hesap listesi (tip filtresi: Musteri / Tedarikci / HerIkisi)").Produces<IReadOnlyList<CariHesapDto>>(200).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // GET /api/v1/accounting/cari-hesaplar/{id} — tek cari hesap
@@ -44,7 +47,7 @@ public static class CariHesapEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetCariHesapById")
-        .WithSummary("Tek cari hesap detayi").Produces(200).Produces(400)
+        .WithSummary("Tek cari hesap detayi").Produces<CariHesapDto>(200).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/accounting/cari-hesaplar — yeni cari hesap olustur
@@ -72,6 +75,20 @@ public static class CariHesapEndpoints
         .WithSummary("Cari hesap bilgilerini guncelle").Produces(200).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
+        // DELETE /api/v1/accounting/cari-hesaplar/{id} — cari hesap sil (soft-delete)
+        group.MapDelete("/{id:guid}", async (
+            Guid id, ISender mediator, CancellationToken ct) =>
+        {
+            var result = await mediator.Send(new DeleteCariHesapCommand(id), ct);
+            return result.IsSuccess
+                ? Results.NoContent()
+                : Results.Problem(detail: result.ErrorMessage, statusCode: 400);
+        })
+        .WithName("DeleteCariHesap")
+        .WithSummary("Cari hesap sil — bakiye sıfır olmalı, hareket yoksa soft-delete")
+        .Produces(204).Produces(400)
+        .AddEndpointFilter<Filters.IdempotencyFilter>();
+
         // GET /api/v1/accounting/cari-hesaplar/{id}/hareketler — cari hesap hareketleri
         group.MapGet("/{id:guid}/hareketler", async (
             Guid id, DateTime? from, DateTime? to,
@@ -83,7 +100,7 @@ public static class CariHesapEndpoints
         })
         .CacheOutput("Lookup60s")
         .WithName("GetCariHareketler")
-        .WithSummary("Cari hesap hareketleri (tarih filtresi)").Produces(200).Produces(400)
+        .WithSummary("Cari hesap hareketleri (tarih filtresi)").Produces<IReadOnlyList<CariHareketDto>>(200).Produces(400)
         .AddEndpointFilter<Filters.IdempotencyFilter>();
 
         // POST /api/v1/accounting/cari-hesaplar/{id}/hareketler — cari hareket oluştur

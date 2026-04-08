@@ -62,11 +62,22 @@ public sealed class CommissionChargedGLHandler : ICommissionChargedGLHandler
             $"Platform komisyonu — {platform} Siparis #{orderId.ToString()[..8]}",
             $"COM-{orderId.ToString()[..8]}");
 
-        // BORC: 760.02 Komisyon Giderleri
-        entry.AddLine(AccountingConstants.Account760MarketingExpenses, commissionAmount, 0, $"760.02 Komisyon — {platform} %{commissionRate * 100:F1}");
+        // Komisyon faturası KDV'si (%20) — 191 İndirilecek KDV olarak mahsup edilir
+        var commissionKdv = Math.Round(commissionAmount * 0.20m, 2);
+        var totalWithKdv = commissionAmount + commissionKdv;
 
-        // ALACAK: 120 Alicilar (hakedisten kesilir)
-        entry.AddLine(AccountingConstants.Account120Receivables, 0, commissionAmount, $"120 Alicilar — {platform} komisyon kesintisi");
+        // BORC: 760.02 Komisyon Giderleri (KDV hariç komisyon tutarı)
+        entry.AddLine(AccountingConstants.Account760MarketingExpenses, commissionAmount, 0,
+            $"760.02 Komisyon — {platform} %{commissionRate * 100:F1}");
+
+        // BORC: 191 İndirilecek KDV (komisyon faturası KDV'si — mahsup edilecek)
+        if (commissionKdv > 0)
+            entry.AddLine(AccountingConstants.Account191VatReceivable, commissionKdv, 0,
+                $"191 İnd.KDV — {platform} komisyon KDV");
+
+        // ALACAK: 120 Alıcılar (komisyon + KDV toplam hakedisten kesilir)
+        entry.AddLine(AccountingConstants.Account120Receivables, 0, totalWithKdv,
+            $"120 Alıcılar — {platform} komisyon+KDV kesintisi");
 
         entry.Validate();
         entry.Post();

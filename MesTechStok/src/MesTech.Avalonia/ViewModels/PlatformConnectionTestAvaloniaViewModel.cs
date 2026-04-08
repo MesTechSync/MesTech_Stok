@@ -35,14 +35,10 @@ public partial class PlatformConnectionTestAvaloniaViewModel : ViewModelBase
 
     public override async Task LoadAsync()
     {
-        IsLoading = true;
-        HasError = false;
-        IsEmpty = false;
-        ErrorMessage = string.Empty;
-        try
+        await SafeExecuteAsync(async ct =>
         {
             var tenantId = _tenantProvider.GetCurrentTenantId();
-            var platforms = await _mediator.Send(new GetPlatformListQuery(tenantId), CancellationToken);
+            var platforms = await _mediator.Send(new GetPlatformListQuery(tenantId), ct);
 
             Platforms.Clear();
             foreach (var p in platforms)
@@ -65,16 +61,7 @@ public partial class PlatformConnectionTestAvaloniaViewModel : ViewModelBase
             ConnectedCount = Platforms.Count(p => p.Status == "Active" || p.Status == "Healthy");
             ErrorCount = Platforms.Count(p => p.Status == "Error" || p.Status == "Disconnected");
             IsEmpty = Platforms.Count == 0;
-        }
-        catch (Exception ex)
-        {
-            HasError = true;
-            ErrorMessage = $"Platform listesi yuklenemedi: {ex.Message}";
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        }, "Platform baglanti testi yuklenirken hata");
     }
 
     [RelayCommand]

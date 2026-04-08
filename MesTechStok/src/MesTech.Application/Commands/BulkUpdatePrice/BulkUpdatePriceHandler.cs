@@ -50,7 +50,7 @@ public sealed class BulkUpdatePriceHandler : IRequestHandler<BulkUpdatePriceComm
             }
 
             product.UpdatePrice(item.NewPrice);
-            await _productRepository.UpdateAsync(product).ConfigureAwait(false);
+            await _productRepository.UpdateAsync(product, cancellationToken).ConfigureAwait(false);
             successCount++;
         }
 

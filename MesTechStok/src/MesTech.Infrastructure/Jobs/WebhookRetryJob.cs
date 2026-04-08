@@ -72,7 +72,7 @@ public sealed class WebhookRetryJob : ISyncJob
                         JobId, result.Success ? "OK" : "FAIL",
                         item.Platform, item.AttemptCount, item.MaxAttempts);
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not OperationCanceledException)
                 {
                     item.RecordRetry(false, ex.Message);
                     retried++;
@@ -91,7 +91,7 @@ public sealed class WebhookRetryJob : ISyncJob
                 "[{JobId}] DLQ retry tamamlandı: {Retried} işlendi, {Succeeded} başarılı",
                 JobId, retried, succeeded);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "[{JobId}] Webhook DLQ retry HATA", JobId);
             throw;

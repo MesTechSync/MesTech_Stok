@@ -23,7 +23,7 @@ public class ExpenseIncomeHandlerTests
     public async Task DeleteExpense_ValidId_SoftDeletes()
     {
         var expense = new Expense { Description = "Test" };
-        _expenseRepo.Setup(r => r.GetByIdAsync(expense.Id)).ReturnsAsync(expense);
+        _expenseRepo.Setup(r => r.GetByIdAsync(expense.Id, It.IsAny<CancellationToken>())).ReturnsAsync(expense);
 
         var handler = new DeleteExpenseHandler(_expenseRepo.Object, _uow.Object);
         await handler.Handle(new DeleteExpenseCommand(expense.Id), CancellationToken.None);
@@ -36,7 +36,7 @@ public class ExpenseIncomeHandlerTests
     [Fact]
     public async Task DeleteExpense_NotFound_ThrowsKeyNotFound()
     {
-        _expenseRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Expense?)null);
+        _expenseRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Expense?)null);
         var handler = new DeleteExpenseHandler(_expenseRepo.Object, _uow.Object);
 
         var act = () => handler.Handle(new DeleteExpenseCommand(Guid.NewGuid()), CancellationToken.None);
@@ -49,7 +49,7 @@ public class ExpenseIncomeHandlerTests
     public async Task UpdateExpense_ValidCommand_UpdatesDescription()
     {
         var expense = new Expense { Description = "Old" };
-        _expenseRepo.Setup(r => r.GetByIdAsync(expense.Id)).ReturnsAsync(expense);
+        _expenseRepo.Setup(r => r.GetByIdAsync(expense.Id, It.IsAny<CancellationToken>())).ReturnsAsync(expense);
 
         var cmd = new UpdateExpenseCommand(expense.Id, Description: "New Desc", Amount: 100m);
         var handler = new UpdateExpenseHandler(_expenseRepo.Object, _uow.Object);
@@ -65,7 +65,7 @@ public class ExpenseIncomeHandlerTests
     public async Task DeleteIncome_ValidId_SoftDeletes()
     {
         var income = new Income { Description = "Test" };
-        _incomeRepo.Setup(r => r.GetByIdAsync(income.Id)).ReturnsAsync(income);
+        _incomeRepo.Setup(r => r.GetByIdAsync(income.Id, It.IsAny<CancellationToken>())).ReturnsAsync(income);
 
         var handler = new DeleteIncomeHandler(_incomeRepo.Object, _uow.Object);
         await handler.Handle(new DeleteIncomeCommand(income.Id), CancellationToken.None);
@@ -80,7 +80,7 @@ public class ExpenseIncomeHandlerTests
     public async Task UpdateIncome_ValidCommand_UpdatesDescription()
     {
         var income = new Income { Description = "Old" };
-        _incomeRepo.Setup(r => r.GetByIdAsync(income.Id)).ReturnsAsync(income);
+        _incomeRepo.Setup(r => r.GetByIdAsync(income.Id, It.IsAny<CancellationToken>())).ReturnsAsync(income);
 
         var cmd = new UpdateIncomeCommand(income.Id, Description: "New Desc", Amount: 500m);
         var handler = new UpdateIncomeHandler(_incomeRepo.Object, _uow.Object);

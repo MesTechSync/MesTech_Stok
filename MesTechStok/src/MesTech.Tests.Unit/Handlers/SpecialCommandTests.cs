@@ -274,7 +274,7 @@ public class SpecialCommandTests
         var uow = new Mock<IUnitOfWork>();
         dealRepo.Setup(r => r.GetByOrderIdAsync(_id, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Bitrix24Deal?)null);
-        orderRepo.Setup(r => r.GetByIdAsync(_id)).ReturnsAsync((Order?)null);
+        orderRepo.Setup(r => r.GetByIdAsync(_id, It.IsAny<CancellationToken>())).ReturnsAsync((Order?)null);
 
         var sut = new PushOrderToBitrix24Handler(orderRepo.Object, dealRepo.Object, adapter.Object, uow.Object);
         var cmd = new PushOrderToBitrix24Command(_id);
@@ -350,7 +350,7 @@ public class SpecialCommandTests
     {
         var repo = new Mock<IQuotationRepository>();
         var uow = new Mock<IUnitOfWork>();
-        repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Quotation?)null);
+        repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((Quotation?)null);
 
         var sut = new RejectQuotationHandler(repo.Object, uow.Object);
         var cmd = new RejectQuotationCommand(_id);

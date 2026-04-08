@@ -150,7 +150,7 @@ services:
         max-file: "10"
 
   minio:
-    image: minio/minio:RELEASE.2024-01-16T16-07-38Z@sha256:e18c64a852e81bb76d5be1c8d8318694adf18d0b517e49a96fc9402dbcdc396a
+    image: minio/minio:RELEASE.2026-03-19T22-58-24Z
     cpus: 1.0
     pids_limit: 100
     ports: !override
@@ -172,7 +172,7 @@ services:
         max-file: "5"
 
   nginx:
-    image: nginx:1.25-alpine@sha256:721fa00bc549df26b3e67cc558ff176112d4ba69847537766f3c28e171d180e7
+    image: nginx:1.27.4-alpine@sha256:4ff102c5d78d254a6f0da062b3cf39eaf07f01eec0927fd21e219d0af8bc0591
     cpus: 0.5
     pids_limit: 100
     ports:
@@ -186,7 +186,7 @@ services:
         max-file: "5"
 
   prometheus:
-    image: prom/prometheus:v2.51.0@sha256:3305cd2e483c13364c94ae4905368eb425c9fa804f8e523ee47d8bf4de9d87a2
+    image: prom/prometheus:v2.53.0@sha256:b8e8cec4bfdfda676f4334f4f2aab9d8758f51d76ac41fc35224f6ae79b79f54
     cpus: 0.5
     pids_limit: 100
     ports: !override
@@ -199,7 +199,7 @@ services:
         max-file: "5"
 
   grafana:
-    image: grafana/grafana:10.4.1@sha256:8b10c3744b8fede79af784d967911691d0e2d6e505512d1466ae1dbcaf745033
+    image: grafana/grafana:12.4.1@sha256:fab4d86718ecf6aec45961ae01c5f743a955e11fad0adb8f43c5f52a961b5144
     cpus: 0.5
     pids_limit: 100
     ports: !override

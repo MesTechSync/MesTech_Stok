@@ -69,7 +69,7 @@ public sealed class SimpleSoapClient
 
         _logger.LogDebug("SOAP request to {Url} action={Action}", url, soapAction);
 
-        var response = await _resiliencePipeline.ExecuteAsync(async token =>
+        using var response = await _resiliencePipeline.ExecuteAsync(async token =>
         {
             using var request = new HttpRequestMessage(HttpMethod.Post, url);
             request.Content = new StringContent(xmlString, Encoding.UTF8, "text/xml");

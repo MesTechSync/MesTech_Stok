@@ -86,8 +86,10 @@ public class Z1_OrderPlaced_LockTests
             tenantId, "EXT-MULTI", PlatformType.Hepsiburada,
             "Test", "t@t.com", new List<OrderItem> { item1, item2 });
 
-        var product1 = new Product { Id = prod1Id, Name = "A", SKU = "SKU-A", Stock = 100, SalePrice = 100m, IsActive = true };
-        var product2 = new Product { Id = prod2Id, Name = "B", SKU = "SKU-B", Stock = 50, SalePrice = 200m, IsActive = true };
+        var product1 = new Product { Id = prod1Id, Name = "A", SKU = "SKU-A", SalePrice = 100m, IsActive = true };
+        product1.SyncStock(100, "test-seed");
+        var product2 = new Product { Id = prod2Id, Name = "B", SKU = "SKU-B", SalePrice = 200m, IsActive = true };
+        product2.SyncStock(50, "test-seed");
 
         _orderRepoMock.Setup(r => r.GetByIdAsync(orderId, It.IsAny<CancellationToken>())).ReturnsAsync(order);
         _productRepoMock.Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<Guid>>(), It.IsAny<CancellationToken>()))

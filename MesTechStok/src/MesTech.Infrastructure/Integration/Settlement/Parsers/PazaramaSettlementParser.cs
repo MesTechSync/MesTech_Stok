@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using MesTech.Application.Interfaces.Accounting;
 using MesTech.Domain.Accounting.Entities;
+using MesTech.Domain.Enums;
 using MesTech.Infrastructure.Integration.Settlement.Mapping;
 using Microsoft.Extensions.Logging;
 
@@ -23,7 +24,7 @@ public sealed class PazaramaSettlementParser : ISettlementParser
     private List<PazaramaSettlementItem>? _cachedItems;
     private string? _rawFileHash;
 
-    public string Platform => "Pazarama";
+    public string Platform => nameof(PlatformType.Pazarama);
 
     public PazaramaSettlementParser(ILogger<PazaramaSettlementParser> logger)
     {
@@ -147,7 +148,7 @@ public sealed class PazaramaSettlementParser : ISettlementParser
             // Auto-create CommissionRecord for each line with commission
             if (item.Commission != 0m)
             {
-                _ = CommissionRecord.Create(
+                batch.AddCommissionRecord(CommissionRecord.Create(
                     tenantId: batch.TenantId,
                     platform: Platform,
                     grossAmount: item.Amount,
@@ -155,7 +156,7 @@ public sealed class PazaramaSettlementParser : ISettlementParser
                     commissionAmount: item.Commission,
                     serviceFee: 0m,
                     orderId: item.OrderId,
-                    category: item.Category);
+                    category: item.Category));
             }
         }
 

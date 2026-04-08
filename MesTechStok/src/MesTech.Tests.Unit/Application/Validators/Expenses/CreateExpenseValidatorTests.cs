@@ -73,11 +73,12 @@ public class CreateExpenseValidatorTests
     }
 
     [Fact]
-    public async Task Amount_WhenZero_ShouldPass()
+    public async Task Amount_WhenZero_ShouldFail()
     {
         var cmd = CreateValidCommand() with { Amount = 0m };
         var result = await _sut.ValidateAsync(cmd);
-        result.IsValid.Should().BeTrue();
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Amount");
     }
 
     [Fact]

@@ -2,6 +2,7 @@
         xmlns:vm="using:MesTech.Avalonia.Dialogs"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="MesTech.Avalonia.Dialogs.ImageDialog"
+             AutomationProperties.Name="Image Dialog"
         x:DataType="vm:ImageDialogViewModel"
         Title="Resim Galerisi"
         Width="600" Height="450"

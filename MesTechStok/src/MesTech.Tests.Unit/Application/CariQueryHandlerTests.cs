@@ -31,7 +31,7 @@ public class CariQueryHandlerTests
     public async Task GetCariHesaplar_NoFilter_ReturnsAll()
     {
         var tenantId = Guid.NewGuid();
-        _cariHesapRepo.Setup(r => r.GetAllAsync(tenantId))
+        _cariHesapRepo.Setup(r => r.GetAllAsync(tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<CariHesap>
             {
                 MakeHesap(tenantId, CariHesapType.Musteri),
@@ -48,7 +48,7 @@ public class CariQueryHandlerTests
     public async Task GetCariHesaplar_FilterByType_CallsGetByType()
     {
         var tenantId = Guid.NewGuid();
-        _cariHesapRepo.Setup(r => r.GetByTypeAsync(CariHesapType.Tedarikci, tenantId))
+        _cariHesapRepo.Setup(r => r.GetByTypeAsync(CariHesapType.Tedarikci, tenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<CariHesap>
             {
                 MakeHesap(tenantId, CariHesapType.Tedarikci)
@@ -60,14 +60,14 @@ public class CariQueryHandlerTests
 
         result.Should().HaveCount(1);
         result[0].Type.Should().Be(CariHesapType.Tedarikci);
-        _cariHesapRepo.Verify(r => r.GetByTypeAsync(CariHesapType.Tedarikci, tenantId), Times.Once);
-        _cariHesapRepo.Verify(r => r.GetAllAsync(It.IsAny<Guid?>()), Times.Never);
+        _cariHesapRepo.Verify(r => r.GetByTypeAsync(CariHesapType.Tedarikci, tenantId, It.IsAny<CancellationToken>()), Times.Once);
+        _cariHesapRepo.Verify(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
     public async Task GetCariHesaplar_NoResults_ReturnsEmptyList()
     {
-        _cariHesapRepo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>()))
+        _cariHesapRepo.Setup(r => r.GetAllAsync(It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<CariHesap>());
 
         var result = await HesapHandler().Handle(
@@ -82,7 +82,7 @@ public class CariQueryHandlerTests
     public async Task GetCariHareketler_NoDateFilter_CallsGetByCariHesapId()
     {
         var hesapId = Guid.NewGuid();
-        _cariHareketRepo.Setup(r => r.GetByCariHesapIdAsync(hesapId))
+        _cariHareketRepo.Setup(r => r.GetByCariHesapIdAsync(hesapId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<CariHareket>
             {
                 MakeHareket(hesapId, 500m, CariDirection.Borc),
@@ -93,7 +93,7 @@ public class CariQueryHandlerTests
             new GetCariHareketlerQuery(CariHesapId: hesapId), CancellationToken.None);
 
         result.Should().HaveCount(2);
-        _cariHareketRepo.Verify(r => r.GetByCariHesapIdAsync(hesapId), Times.Once);
+        _cariHareketRepo.Verify(r => r.GetByCariHesapIdAsync(hesapId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -103,7 +103,7 @@ public class CariQueryHandlerTests
         var from = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         var to = new DateTime(2026, 1, 31, 0, 0, 0, DateTimeKind.Utc);
 
-        _cariHareketRepo.Setup(r => r.GetByDateRangeAsync(hesapId, from, to))
+        _cariHareketRepo.Setup(r => r.GetByDateRangeAsync(hesapId, from, to, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<CariHareket> { MakeHareket(hesapId, 1000m) });
 
         var result = await HareketHandler().Handle(
@@ -111,7 +111,7 @@ public class CariQueryHandlerTests
             CancellationToken.None);
 
         result.Should().HaveCount(1);
-        _cariHareketRepo.Verify(r => r.GetByDateRangeAsync(hesapId, from, to), Times.Once);
-        _cariHareketRepo.Verify(r => r.GetByCariHesapIdAsync(It.IsAny<Guid>()), Times.Never);
+        _cariHareketRepo.Verify(r => r.GetByDateRangeAsync(hesapId, from, to, It.IsAny<CancellationToken>()), Times.Once);
+        _cariHareketRepo.Verify(r => r.GetByCariHesapIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

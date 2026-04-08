@@ -39,6 +39,14 @@ public record PendingExpense(string Title, decimal Amount, string Category, deci
 /// </summary>
 public sealed class SpeechToExpenseService : ISpeechToExpenseService
 {
+    private static readonly JsonSerializerOptions s_itemJsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        MaxDepth = 10,
+        AllowTrailingCommas = false,
+        ReadCommentHandling = JsonCommentHandling.Disallow
+    };
+
     private readonly HttpClient _httpClient;
     private readonly IMesaAccountingService _accountingService;
     private readonly IAccountingDocumentRepository _documentRepository;
@@ -70,6 +78,8 @@ public sealed class SpeechToExpenseService : ISpeechToExpenseService
         _httpClient.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
     }
 
+    private const int MaxAudioSizeBytes = 50 * 1024 * 1024; // 50 MB
+
     public async Task<IReadOnlyList<PendingExpense>> ProcessAudioAsync(
         byte[] audioData,
         string mimeType,
@@ -78,6 +88,11 @@ public sealed class SpeechToExpenseService : ISpeechToExpenseService
     {
         ArgumentNullException.ThrowIfNull(audioData);
         ArgumentException.ThrowIfNullOrWhiteSpace(mimeType);
+
+        if (audioData.Length > MaxAudioSizeBytes)
+            throw new ArgumentException(
+                $"Audio file size ({audioData.Length:N0} bytes) exceeds maximum allowed ({MaxAudioSizeBytes:N0} bytes).",
+                nameof(audioData));
 
         _logger.LogInformation(
             "[SpeechToExpense] Ses isleme basliyor: boyut={Size} byte, mimeType={MimeType}, tenant={TenantId}",
@@ -93,7 +108,7 @@ public sealed class SpeechToExpenseService : ISpeechToExpenseService
             content.Add(new ByteArrayContent(audioData), "audio", "recording");
             content.Add(new StringContent(mimeType), "mimeType");
 
-            var response = await _httpClient.PostAsync("/api/v1/stt/transcribe", content, ct);
+            using var response = await _httpClient.PostAsync("/api/v1/stt/transcribe", content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -103,7 +118,7 @@ public sealed class SpeechToExpenseService : ISpeechToExpenseService
                 return Array.Empty<PendingExpense>();
             }
 
-            var sttResult = await response.Content.ReadFromJsonAsync<SttResponse>(cancellationToken: ct);
+            var sttResult = await response.Content.ReadFromJsonAsync<SttResponse>(cancellationToken: ct).ConfigureAwait(false);
             if (sttResult is null || string.IsNullOrWhiteSpace(sttResult.Text))
             {
                 _logger.LogWarning("[SpeechToExpense] STT bos metin dondu");
@@ -131,7 +146,7 @@ public sealed class SpeechToExpenseService : ISpeechToExpenseService
         DocumentExtraction extraction;
         try
         {
-            extraction = await _accountingService.ExtractDataAsync(textBytes, classification, ct);
+            extraction = await _accountingService.ExtractDataAsync(textBytes, classification, ct).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -160,7 +175,7 @@ public sealed class SpeechToExpenseService : ISpeechToExpenseService
         {
             try
             {
-                var items = JsonSerializer.Deserialize<List<SttExpenseItem>>(itemsJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true, MaxDepth = 10, AllowTrailingCommas = false, ReadCommentHandling = JsonCommentHandling.Disallow });
+                var items = JsonSerializer.Deserialize<List<SttExpenseItem>>(itemsJson, s_itemJsonOptions);
                 if (items != null)
                 {
                     foreach (var item in items)
@@ -200,12 +215,12 @@ public sealed class SpeechToExpenseService : ISpeechToExpenseService
                     TranscribedText = transcribedText
                 }));
 
-            await _documentRepository.AddAsync(doc, ct);
+            await _documentRepository.AddAsync(doc, ct).ConfigureAwait(false);
         }
 
         if (results.Count > 0)
         {
-            await _unitOfWork.SaveChangesAsync(ct);
+            await _unitOfWork.SaveChangesAsync(ct).ConfigureAwait(false);
         }
 
         _logger.LogInformation(

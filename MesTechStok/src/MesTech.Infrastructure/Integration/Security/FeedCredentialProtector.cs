@@ -1,4 +1,5 @@
 using MesTech.Infrastructure.Security;
+using Microsoft.Extensions.Logging;
 
 namespace MesTech.Infrastructure.Integration.Security;
 
@@ -37,13 +38,27 @@ public sealed class FeedCredentialProtector : IFeedCredentialProtector
     /// uygulama çalışma zamanında rastgele bir anahtar üretir (development).
     /// Production'da <c>FeedCredentials:EncryptionKey</c> config değeri set edilmeli.
     /// </summary>
-    public FeedCredentialProtector(string? encryptionKey = null)
+    public FeedCredentialProtector(string? encryptionKey = null, ILogger<FeedCredentialProtector>? logger = null)
     {
-        var key = string.IsNullOrWhiteSpace(encryptionKey)
-            ? AesGcmEncryptionService.GenerateKey()
-            : encryptionKey;
+        if (string.IsNullOrWhiteSpace(encryptionKey))
+        {
+            var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            if (string.Equals(env, "Production", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException(
+                    "[FeedCredentialProtector] CRITICAL: FeedCredentials:EncryptionKey is not configured. " +
+                    "In Production, a stable encryption key is REQUIRED — otherwise encrypted feed credentials " +
+                    "are lost on every application restart. Set the key in appsettings.Production.json or environment variables.");
+            }
 
-        _encryption = new AesGcmEncryptionService(key);
+            logger?.LogWarning(
+                "[FeedCredentialProtector] No encryption key configured (FeedCredentials:EncryptionKey). " +
+                "Using random key — encrypted credentials will be LOST on application restart. " +
+                "This is acceptable for Development only.");
+            encryptionKey = AesGcmEncryptionService.GenerateKey();
+        }
+
+        _encryption = new AesGcmEncryptionService(encryptionKey);
     }
 
     /// <inheritdoc/>

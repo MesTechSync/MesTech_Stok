@@ -441,8 +441,8 @@ public class AccountingConsumerTests
             .ReturnsAsync((MesTech.Domain.Accounting.Entities.AccountingDocument?)null);
 
         var consumer = new DocumentClassifiedConsumer(
-            mediator.Object, docRepo.Object, monitor.Object,
-            TenantProvider().Object, Logger<DocumentClassifiedConsumer>());
+            mediator.Object, docRepo.Object, UnitOfWork().Object,
+            monitor.Object, TenantProvider().Object, Logger<DocumentClassifiedConsumer>());
 
         var ctx = new Mock<ConsumeContext<AiDocumentClassifiedEvent>>();
         ctx.SetupGet(c => c.Message).Returns(new AiDocumentClassifiedEvent(
@@ -463,8 +463,8 @@ public class AccountingConsumerTests
             .ReturnsAsync((MesTech.Domain.Accounting.Entities.AccountingDocument?)null);
 
         var consumer = new DocumentClassifiedConsumer(
-            Mediator().Object, docRepo.Object, Monitor().Object,
-            TenantProvider().Object, Logger<DocumentClassifiedConsumer>());
+            Mediator().Object, docRepo.Object, UnitOfWork().Object,
+            Monitor().Object, TenantProvider().Object, Logger<DocumentClassifiedConsumer>());
 
         var ctx = new Mock<ConsumeContext<AiDocumentClassifiedEvent>>();
         ctx.SetupGet(c => c.Message).Returns(new AiDocumentClassifiedEvent(

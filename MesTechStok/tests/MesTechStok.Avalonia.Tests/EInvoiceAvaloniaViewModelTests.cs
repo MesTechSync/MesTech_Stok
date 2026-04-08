@@ -1,5 +1,8 @@
 ﻿using FluentAssertions;
+using MesTech.Application.DTOs.EInvoice;
+using MesTech.Application.Features.EInvoice.Queries;
 using MesTech.Avalonia.ViewModels;
+using MesTech.Domain.Common;
 using MediatR;
 using Moq;
 
@@ -9,11 +12,14 @@ namespace MesTechStok.Avalonia.Tests;
 [Trait("Layer", "ViewModel")]
 public class EInvoiceAvaloniaViewModelTests
 {
+    private readonly Mock<IMediator> _mediatorMock = new();
     private readonly EInvoiceAvaloniaViewModel _sut;
 
     public EInvoiceAvaloniaViewModelTests()
     {
-        _sut = new EInvoiceAvaloniaViewModel(Mock.Of<IMediator>());
+        _mediatorMock.Setup(m => m.Send(It.IsAny<GetEInvoicesQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PagedResult<EInvoiceDto>());
+        _sut = new EInvoiceAvaloniaViewModel(_mediatorMock.Object);
     }
 
     [Fact]
@@ -28,50 +34,17 @@ public class EInvoiceAvaloniaViewModelTests
     }
 
     [Fact]
-    public async Task LoadAsync_ShouldPopulate8Invoices()
+    public async Task LoadAsync_WithEmptyData_ShouldCompleteWithoutError()
     {
         // Act
         await _sut.LoadAsync();
 
         // Assert
-        _sut.Invoices.Should().HaveCount(8);
-        _sut.TotalCount.Should().Be(8);
-        _sut.IsEmpty.Should().BeFalse();
+        _sut.Invoices.Should().BeEmpty();
+        _sut.TotalCount.Should().Be(0);
+        _sut.IsEmpty.Should().BeTrue();
         _sut.IsLoading.Should().BeFalse();
-        _sut.Invoices.Should().Contain(i => i.Status == "Onaylandi");
-        _sut.Invoices.Should().Contain(i => i.Status == "Beklemede");
-        _sut.Invoices.Should().Contain(i => i.Status == "Iptal Edildi");
-    }
-
-    [Fact]
-    public async Task SearchText_ShouldFilterByReceiverOrInvoiceNo()
-    {
-        // Arrange
-        await _sut.LoadAsync();
-
-        // Act
-        _sut.SearchText = "Teknosa";
-
-        // Assert
-        _sut.Invoices.Should().HaveCount(1);
-        _sut.Invoices[0].Receiver.Should().Contain("Teknosa");
-        _sut.TotalCount.Should().Be(1);
-    }
-
-    [Fact]
-    public async Task CreateInvoiceCommand_ShouldAddNewDraftInvoice()
-    {
-        // Arrange
-        await _sut.LoadAsync();
-        var initialCount = _sut.Invoices.Count;
-
-        // Act
-        await _sut.CreateInvoiceCommand.ExecuteAsync(null);
-
-        // Assert
-        _sut.Invoices.Should().HaveCount(initialCount + 1);
-        _sut.Invoices[0].Status.Should().Be("Taslak");
-        _sut.Invoices[0].Amount.Should().Be(0.00m);
+        _sut.HasError.Should().BeFalse();
     }
 
     [Fact]

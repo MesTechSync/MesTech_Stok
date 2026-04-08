@@ -13,31 +13,32 @@ public sealed class CustomerRepository : ICustomerRepository
         _context = context;
     }
 
-    public async Task<Customer?> GetByIdAsync(Guid id)
-        => await _context.Customers.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
+    public async Task<Customer?> GetByIdAsync(Guid id, CancellationToken ct = default)
+        => await _context.Customers.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id, ct).ConfigureAwait(false);
 
-    public async Task<IReadOnlyList<Customer>> GetAllAsync()
-        => await _context.Customers.OrderBy(c => c.Name).Take(5000).AsNoTracking().ToListAsync(); // G485
+    public async Task<IReadOnlyList<Customer>> GetAllAsync(CancellationToken ct = default)
+        => await _context.Customers.OrderBy(c => c.Name).Take(5000).AsNoTracking().ToListAsync(ct).ConfigureAwait(false); // G485
 
-    public async Task<IReadOnlyList<Customer>> GetActiveAsync()
+    public async Task<IReadOnlyList<Customer>> GetActiveAsync(CancellationToken ct = default)
         => await _context.Customers
             .Where(c => c.IsActive)
             .OrderBy(c => c.Name)
             .Take(5000) // G485
-            .AsNoTracking().ToListAsync();
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
-    public async Task AddAsync(Customer customer)
-        => await _context.Customers.AddAsync(customer);
+    public async Task AddAsync(Customer customer, CancellationToken ct = default)
+        => await _context.Customers.AddAsync(customer, ct).ConfigureAwait(false);
 
-    public Task UpdateAsync(Customer customer)
+    public Task UpdateAsync(Customer customer, CancellationToken ct = default)
     {
         _context.Customers.Update(customer);
         return Task.CompletedTask;
     }
 
-    public async Task DeleteAsync(Guid id)
+    public async Task DeleteAsync(Guid id, CancellationToken ct = default)
     {
-        var entity = await _context.Customers.FindAsync(id);
+        // FindAsync bypasses global query filter (tenant isolation) — use FirstOrDefaultAsync
+        var entity = await _context.Customers.FirstOrDefaultAsync(c => c.Id == id, ct).ConfigureAwait(false);
         if (entity is not null)
             _context.Customers.Remove(entity);
     }

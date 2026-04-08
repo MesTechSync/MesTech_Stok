@@ -44,7 +44,7 @@ public sealed class ParasutAccountingService : IParasutAccountingService
     {
         _logger.LogInformation("Parasut PushIncome for income {IncomeId}", incomeId);
 
-        var income = await _incomeRepository.GetByIdAsync(incomeId).ConfigureAwait(false);
+        var income = await _incomeRepository.GetByIdAsync(incomeId, ct).ConfigureAwait(false);
         if (income is null)
         {
             _logger.LogWarning("Parasut PushIncome: income {IncomeId} not found", incomeId);
@@ -75,7 +75,7 @@ public sealed class ParasutAccountingService : IParasutAccountingService
     {
         _logger.LogInformation("Parasut PushExpense for expense {ExpenseId}", expenseId);
 
-        var expense = await _expenseRepository.GetByIdAsync(expenseId).ConfigureAwait(false);
+        var expense = await _expenseRepository.GetByIdAsync(expenseId, ct).ConfigureAwait(false);
         if (expense is null)
         {
             _logger.LogWarning("Parasut PushExpense: expense {ExpenseId} not found", expenseId);
@@ -108,7 +108,7 @@ public sealed class ParasutAccountingService : IParasutAccountingService
 
         try
         {
-            var response = await _httpClient.GetAsync("accounts", ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync("accounts", ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -161,7 +161,7 @@ public sealed class ParasutAccountingService : IParasutAccountingService
             _logger.LogError(ex, "Parasut API exception");
             return new ParasutBalanceDto { AsOf = DateTime.UtcNow };
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Parasut API exception");
             return new ParasutBalanceDto { AsOf = DateTime.UtcNow };
@@ -180,7 +180,7 @@ public sealed class ParasutAccountingService : IParasutAccountingService
             var toDate = DateTime.UtcNow.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
             var url = $"transaction_documents?filter[issue_date_gte]={fromDate}&filter[issue_date_lte]={toDate}";
-            var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
+            using var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -248,7 +248,7 @@ public sealed class ParasutAccountingService : IParasutAccountingService
             _logger.LogError(ex, "Parasut GetRecentTransactions HTTP exception");
             return Array.Empty<ParasutTransactionDto>();
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Parasut GetRecentTransactions unexpected exception");
             return Array.Empty<ParasutTransactionDto>();
@@ -265,7 +265,7 @@ public sealed class ParasutAccountingService : IParasutAccountingService
             var content = new StringContent(json, Encoding.UTF8);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/vnd.api+json");
 
-            var response = await _httpClient.PostAsync(endpoint, content, ct).ConfigureAwait(false);
+            using var response = await _httpClient.PostAsync(endpoint, content, ct).ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -294,7 +294,7 @@ public sealed class ParasutAccountingService : IParasutAccountingService
             _logger.LogError(ex, "Parasut POST {Endpoint} HTTP exception", endpoint);
             return new ParasutSyncResult { Success = false, ErrorMessage = ex.Message };
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Parasut POST {Endpoint} unexpected exception", endpoint);
             return new ParasutSyncResult { Success = false, ErrorMessage = ex.Message };

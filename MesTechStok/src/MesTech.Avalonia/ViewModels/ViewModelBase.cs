@@ -36,6 +36,30 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
     [ObservableProperty]
     private string _title = string.Empty;
 
+    /// <summary>True when content should be visible (not loading, no error, not empty).</summary>
+    public bool HasContent => !IsLoading && !HasError && !IsEmpty;
+
+    // ── KN-6 FIX: Triple-state mutual exclusion ─────────────────────
+    // IsLoading/HasError/IsEmpty are mutually exclusive.
+    // When one goes true, the others become false.
+    partial void OnIsLoadingChanged(bool value)
+    {
+        if (value) { _hasError = false; _isEmpty = false; OnPropertyChanged(nameof(HasError)); OnPropertyChanged(nameof(IsEmpty)); }
+        OnPropertyChanged(nameof(HasContent));
+    }
+
+    partial void OnHasErrorChanged(bool value)
+    {
+        if (value) { _isLoading = false; _isEmpty = false; OnPropertyChanged(nameof(IsLoading)); OnPropertyChanged(nameof(IsEmpty)); }
+        OnPropertyChanged(nameof(HasContent));
+    }
+
+    partial void OnIsEmptyChanged(bool value)
+    {
+        if (value) { _isLoading = false; _hasError = false; OnPropertyChanged(nameof(IsLoading)); OnPropertyChanged(nameof(HasError)); }
+        OnPropertyChanged(nameof(HasContent));
+    }
+
     /// <summary>View ilk yüklendiğinde çağrılır. LoadAsync'i çağırır.
     /// DB bağlantısı yokken crash önlemek için try-catch sarmalı.</summary>
     public virtual async Task InitializeAsync()
@@ -75,27 +99,76 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
         ErrorMessage = string.Empty;
     }
 
-    /// <summary>Hata durumunu ayarla.</summary>
+    /// <summary>Hata durumunu ayarla. IsLoading ve IsEmpty otomatik false olur (KN-6).</summary>
     protected void SetError(string message)
     {
-        HasError = true;
         ErrorMessage = message;
+        HasError = true; // triggers mutual exclusion via OnHasErrorChanged
+    }
+
+    /// <summary>
+    /// Run action on UI thread if available; fall back to direct call in test context.
+    /// </summary>
+    private async Task RunOnUIAsync(Func<Task> action)
+    {
+        if (Dispatcher.UIThread.CheckAccess())
+        {
+            await action();
+        }
+        else
+        {
+            try
+            {
+                await Dispatcher.UIThread.InvokeAsync(action);
+            }
+            catch (InvalidOperationException)
+            {
+                // No Dispatcher available (unit test context) — execute directly
+                await action();
+            }
+        }
+    }
+
+    private async Task RunOnUIAsync(Action action)
+    {
+        if (Dispatcher.UIThread.CheckAccess())
+        {
+            action();
+        }
+        else
+        {
+            try
+            {
+                await Dispatcher.UIThread.InvokeAsync(action);
+            }
+            catch (InvalidOperationException)
+            {
+                action();
+            }
+        }
     }
 
     /// <summary>API çağrısını try-catch + DbContext concurrency guard ile sarmala.</summary>
+    /// <remarks>
+    /// D7-020 FIX: action UI thread'de çalışır — ObservableCollection mutations güvenli.
+    /// MediatR async I/O sayesinde UI donmaz (await sırasında thread serbest kalır).
+    /// Önceki ConfigureAwait(false) "invalid thread" crash'ine neden oluyordu.
+    /// </remarks>
     protected async Task SafeExecuteAsync(Func<Task> action, string context = "")
     {
-        await _dbGuard.WaitAsync(CancellationToken).ConfigureAwait(false);
+        await _dbGuard.WaitAsync(CancellationToken);
         try
         {
-            // KÖK-4 FIX: ObservableCollection mutations + IsLoading must run on UI thread.
-            // action() may contain .Clear()/.Add() on ObservableCollections.
-            await Dispatcher.UIThread.InvokeAsync(async () =>
+            await RunOnUIAsync(() =>
             {
                 IsLoading = true;
                 ClearError();
-                await action().ConfigureAwait(false);
             });
+
+            // D7-020: Action UI thread'de çalışır — property ve collection
+            // güncellemeleri güvenli. MediatR Send async olduğu için
+            // UI thread await sırasında serbest kalır, donma olmaz.
+            await RunOnUIAsync(action);
         }
         catch (OperationCanceledException)
         {
@@ -103,11 +176,11 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
         }
         catch (Exception ex)
         {
-            await Dispatcher.UIThread.InvokeAsync(() => SetError($"{context}: {ex.Message}"));
+            await RunOnUIAsync(() => SetError($"{context}: {ex.Message}"));
         }
         finally
         {
-            await Dispatcher.UIThread.InvokeAsync(() => IsLoading = false);
+            await RunOnUIAsync(() => IsLoading = false);
             _dbGuard.Release();
         }
     }
@@ -115,15 +188,17 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
     /// <summary>CancellationToken destekli SafeExecute + DbContext concurrency guard.</summary>
     protected async Task SafeExecuteAsync(Func<CancellationToken, Task> action, string context = "")
     {
-        await _dbGuard.WaitAsync(CancellationToken).ConfigureAwait(false);
+        await _dbGuard.WaitAsync(CancellationToken);
         try
         {
-            await Dispatcher.UIThread.InvokeAsync(async () =>
+            await RunOnUIAsync(() =>
             {
                 IsLoading = true;
                 ClearError();
-                await action(CancellationToken).ConfigureAwait(false);
             });
+
+            // D7-020: CancellationToken overload — aynı UI thread fix.
+            await RunOnUIAsync(async () => await action(CancellationToken));
         }
         catch (OperationCanceledException)
         {
@@ -131,11 +206,11 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
         }
         catch (Exception ex)
         {
-            await Dispatcher.UIThread.InvokeAsync(() => SetError($"{context}: {ex.Message}"));
+            await RunOnUIAsync(() => SetError($"{context}: {ex.Message}"));
         }
         finally
         {
-            await Dispatcher.UIThread.InvokeAsync(() => IsLoading = false);
+            await RunOnUIAsync(() => IsLoading = false);
             _dbGuard.Release();
         }
     }

@@ -47,7 +47,7 @@ public class CreateQuotationHandlerTests
         _quotationRepo.Verify(r => r.AddAsync(It.Is<Quotation>(q =>
             q.QuotationNumber == "QT-2026-001" &&
             q.CustomerName == "Acme Corp"
-        )), Times.Once);
+        ), It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -81,7 +81,7 @@ public class CreateQuotationHandlerTests
         _quotationRepo.Verify(r => r.AddAsync(It.Is<Quotation>(q =>
             q.Lines.Count == 2 &&
             q.SubTotal > 0
-        )), Times.Once);
+        ), It.IsAny<CancellationToken>()), Times.Once);
     }
 }
 
@@ -114,7 +114,7 @@ public class AcceptQuotationHandlerTests
         var quotationId = Guid.NewGuid();
         var quotation = CreateSentQuotation(quotationId);
 
-        _quotationRepo.Setup(r => r.GetByIdAsync(quotationId))
+        _quotationRepo.Setup(r => r.GetByIdAsync(quotationId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(quotation);
         _unitOfWork.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
@@ -127,7 +127,7 @@ public class AcceptQuotationHandlerTests
         // Assert
         result.IsSuccess.Should().BeTrue();
         quotation.Status.Should().Be(QuotationStatus.Accepted);
-        _quotationRepo.Verify(r => r.UpdateAsync(quotation), Times.Once);
+        _quotationRepo.Verify(r => r.UpdateAsync(quotation, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -135,7 +135,7 @@ public class AcceptQuotationHandlerTests
     {
         // Arrange
         var quotationId = Guid.NewGuid();
-        _quotationRepo.Setup(r => r.GetByIdAsync(quotationId))
+        _quotationRepo.Setup(r => r.GetByIdAsync(quotationId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Quotation?)null);
 
         // Act
@@ -160,7 +160,7 @@ public class AcceptQuotationHandlerTests
         };
         EntityTestHelper.SetEntityId(quotation, quotationId);
 
-        _quotationRepo.Setup(r => r.GetByIdAsync(quotationId))
+        _quotationRepo.Setup(r => r.GetByIdAsync(quotationId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(quotation);
 
         // Act
@@ -196,7 +196,7 @@ public class RejectQuotationHandlerTests
         EntityTestHelper.SetEntityId(quotation, quotationId);
         quotation.Send(); // Draft → Sent
 
-        _quotationRepo.Setup(r => r.GetByIdAsync(quotationId))
+        _quotationRepo.Setup(r => r.GetByIdAsync(quotationId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(quotation);
         _unitOfWork.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
@@ -209,7 +209,7 @@ public class RejectQuotationHandlerTests
         // Assert
         result.IsSuccess.Should().BeTrue();
         quotation.Status.Should().Be(QuotationStatus.Rejected);
-        _quotationRepo.Verify(r => r.UpdateAsync(quotation), Times.Once);
+        _quotationRepo.Verify(r => r.UpdateAsync(quotation, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -217,7 +217,7 @@ public class RejectQuotationHandlerTests
     {
         // Arrange
         var quotationId = Guid.NewGuid();
-        _quotationRepo.Setup(r => r.GetByIdAsync(quotationId))
+        _quotationRepo.Setup(r => r.GetByIdAsync(quotationId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Quotation?)null);
 
         // Act
@@ -285,7 +285,7 @@ public class ConvertQuotationToInvoiceHandlerTests
         var quotationId = Guid.NewGuid();
         var quotation = CreateAcceptedQuotationWithLines(quotationId);
 
-        _quotationRepo.Setup(r => r.GetByIdWithLinesAsync(quotationId))
+        _quotationRepo.Setup(r => r.GetByIdWithLinesAsync(quotationId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(quotation);
         _unitOfWork.Setup(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(1);
@@ -304,8 +304,8 @@ public class ConvertQuotationToInvoiceHandlerTests
         _invoiceRepo.Verify(r => r.AddAsync(It.Is<MesTech.Domain.Entities.Invoice>(inv =>
             inv.InvoiceNumber == "INV-2026-001" &&
             inv.CustomerName == "Convert Customer"
-        )), Times.Once);
-        _quotationRepo.Verify(r => r.UpdateAsync(quotation), Times.Once);
+        ), It.IsAny<CancellationToken>()), Times.Once);
+        _quotationRepo.Verify(r => r.UpdateAsync(quotation, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -313,7 +313,7 @@ public class ConvertQuotationToInvoiceHandlerTests
     {
         // Arrange
         var quotationId = Guid.NewGuid();
-        _quotationRepo.Setup(r => r.GetByIdWithLinesAsync(quotationId))
+        _quotationRepo.Setup(r => r.GetByIdWithLinesAsync(quotationId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Quotation?)null);
 
         // Act
@@ -360,7 +360,7 @@ public class GetQuotationByIdHandlerTests
             TaxRate = 18m,
         });
 
-        _quotationRepo.Setup(r => r.GetByIdWithLinesAsync(quotationId))
+        _quotationRepo.Setup(r => r.GetByIdWithLinesAsync(quotationId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(quotation);
 
         // Act
@@ -390,7 +390,7 @@ public class GetQuotationByIdHandlerTests
     {
         // Arrange
         var quotationId = Guid.NewGuid();
-        _quotationRepo.Setup(r => r.GetByIdWithLinesAsync(quotationId))
+        _quotationRepo.Setup(r => r.GetByIdWithLinesAsync(quotationId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((Quotation?)null);
 
         // Act

@@ -3,20 +3,21 @@
 @using System.ComponentModel.DataAnnotations
 @inject NavigationManager Navigation
 @inject IConfiguration Configuration
+@inject IHttpClientFactory HttpClientFactory
 @inject MesTech.Blazor.Services.JwtAuthenticationStateProvider AuthStateProvider
 
 <PageTitle>MesTech - Giris</PageTitle>
 
-<div class="login-container d-flex align-items-center justify-content-center" style="min-height: 100vh; background: linear-gradient(135deg, #1a2332 0%, #2855AC 100%);">
+<div class="login-container d-flex align-items-center justify-content-center" style="min-height: 100vh; background: linear-gradient(135deg, #1a2332 0%, var(--mestech-primary) 100%);">
   <div class="card shadow-lg border-0" style="width: 420px; border-radius: 16px;">
     <div class="card-body p-5">
       <!-- Brand -->
       <div class="text-center mb-4">
         <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3"
-             style="width: 64px; height: 64px; background-color: #2855AC;">
+             style="width: 64px; height: 64px;">
           <i class="fas fa-industry text-white fa-lg"></i>
         </div>
-        <h3 class="fw-bold" style="color: #2855AC;">MesTech</h3>
+        <h3 class="fw-bold" >MesTech</h3>
         <p class="text-muted mb-0">Kurumsal Yonetim Platformu</p>
       </div>
 
@@ -37,8 +38,7 @@
             <span class="input-group-text bg-light border-end-0">
               <i class="fas fa-user text-muted"></i>
             </span>
-            <InputText class="form-control border-start-0 ps-0"
-                       placeholder="kullanici@mestech.com"
+            <InputText class="form-control border-start-0 ps-0"placeholder="kullanici@mestech.com"
                        @bind-Value="loginModel.Username" />
           </div>
         </div>
@@ -49,8 +49,7 @@
             <span class="input-group-text bg-light border-end-0">
               <i class="fas fa-lock text-muted"></i>
             </span>
-            <InputText type="password" class="form-control border-start-0 ps-0"
-                       placeholder="Sifrenizi girin"
+            <InputText type="password" class="form-control border-start-0 ps-0"placeholder="Sifrenizi girin"
                        @bind-Value="loginModel.Password" />
           </div>
         </div>
@@ -60,11 +59,10 @@
             <InputCheckbox class="form-check-input" @bind-Value="loginModel.RememberMe" />
             <label class="form-check-label text-muted small">Beni hatirla</label>
           </div>
-          <a href="#" class="text-decoration-none small" style="color: #2855AC;">Sifremi unuttum</a>
+          <a href="#" class="text-decoration-none small" >Sifremi unuttum</a>
         </div>
 
-        <button type="submit" class="btn w-100 py-2 fw-semibold text-white"
-                style="background-color: #2855AC; border-radius: 8px;"
+        <button type="submit" class="btn w-100 py-2 fw-semibold text-white"style="border-radius: 8px;"
                 disabled="@isLoading">
           @if (isLoading)
           {
@@ -97,9 +95,29 @@
   private string? errorMessage;
   private string? successMessage;
 
+  // Rate limiting — brute-force protection (circuit-level)
+  private const int MaxLoginAttempts = 5;
+  private const int LockoutSeconds = 30;
+  private int _failedAttempts;
+  private DateTime? _lockoutUntil;
+
   private async Task HandleLogin()
   {
     if (isSubmitting) return;
+
+    // Rate limit check — block after MaxLoginAttempts failures
+    if (_lockoutUntil.HasValue && DateTime.UtcNow < _lockoutUntil.Value)
+    {
+      var remaining = (int)(_lockoutUntil.Value - DateTime.UtcNow).TotalSeconds;
+      errorMessage = $"Cok fazla basarisiz deneme. {remaining} saniye bekleyin.";
+      return;
+    }
+    if (_lockoutUntil.HasValue && DateTime.UtcNow >= _lockoutUntil.Value)
+    {
+      _lockoutUntil = null;
+      _failedAttempts = 0;
+    }
+
     isSubmitting = true;
     isLoading = true;
     errorMessage = null;
@@ -108,8 +126,7 @@
     try
     {
       // Call WebApi /api/v1/auth/login for JWT token
-      var apiBase = Configuration["WebApi:BaseUrl"] ?? "http://localhost:3100";
-      using var httpClient = new HttpClient { BaseAddress = new Uri(apiBase) };
+      var httpClient = HttpClientFactory.CreateClient("MesTechApi");
 
       var response = await httpClient.PostAsJsonAsync("/api/v1/auth/login", new
       {
@@ -124,9 +141,6 @@
         {
           var username = loginModel.Username ?? result.Username ?? "Kullanici";
           AuthStateProvider.MarkUserAsAuthenticated(result.Token, username);
-          // Keep AuthTokenStore in sync for backward compatibility (MainLayout, etc.)
-          AuthTokenStore.Token = result.Token;
-          AuthTokenStore.Username = username;
           Navigation.NavigateTo("/dashboard", forceLoad: false);
         }
         else
@@ -136,7 +150,17 @@
       }
       else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
       {
-        errorMessage = "Kullanici adi veya sifre hatali.";
+        _failedAttempts++;
+        var attemptsLeft = MaxLoginAttempts - _failedAttempts;
+        if (_failedAttempts >= MaxLoginAttempts)
+        {
+          _lockoutUntil = DateTime.UtcNow.AddSeconds(LockoutSeconds);
+          errorMessage = $"Cok fazla basarisiz deneme. {LockoutSeconds} saniye bekleyin.";
+        }
+        else
+        {
+          errorMessage = $"Kullanici adi veya sifre hatali. ({attemptsLeft} deneme hakki kaldi)";
+        }
       }
       else
       {
@@ -169,15 +193,4 @@
   }
 
   private record LoginResponse(string? Token, string? Username, DateTime? ExpiresAt);
-
-  /// <summary>
-  /// In-memory token store for Blazor Server PoC.
-  /// Will be replaced with ProtectedLocalStorage + AuthenticationStateProvider in Dalga 11.
-  /// </summary>
-  public static class AuthTokenStore
-  {
-    public static string? Token { get; set; }
-    public static string? Username { get; set; }
-    public static bool IsAuthenticated => !string.IsNullOrEmpty(Token);
-  }
 }

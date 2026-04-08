@@ -13,7 +13,9 @@ namespace MesTech.Infrastructure.Realtime;
 public sealed class WebSocketConnectionManager
 {
     private readonly ConcurrentDictionary<string, WebSocket> _connections = new();
+    private readonly ConcurrentDictionary<string, SemaphoreSlim> _sendLocks = new();
     private readonly ILogger<WebSocketConnectionManager> _logger;
+    private const int MaxConnections = 500; // DoS koruması — sınırsız bağlantı önleme
 
     public WebSocketConnectionManager(ILogger<WebSocketConnectionManager> logger)
     {
@@ -24,8 +26,21 @@ public sealed class WebSocketConnectionManager
 
     public string AddConnection(WebSocket socket)
     {
-        var id = Guid.NewGuid().ToString("N")[..8];
-        _connections.TryAdd(id, socket);
+        if (_connections.Count >= MaxConnections)
+        {
+            _logger.LogWarning("WebSocket MaxConnections ({Max}) reached — rejecting new connection", MaxConnections);
+            throw new InvalidOperationException($"Maximum WebSocket connections ({MaxConnections}) exceeded");
+        }
+
+        // FIX-DEV6-TUR3: 8-char hex = 32-bit collision space, birthday paradox risk.
+        // Full GUID eliminates collision. TryAdd loop handles the theoretical edge case.
+        string id;
+        do
+        {
+            id = Guid.NewGuid().ToString("N");
+        } while (!_connections.TryAdd(id, socket));
+
+        _sendLocks.TryAdd(id, new SemaphoreSlim(1, 1));
         _logger.LogInformation("WebSocket baglanti eklendi: {Id} (toplam: {Count})", id, _connections.Count);
         return id;
     }
@@ -33,6 +48,8 @@ public sealed class WebSocketConnectionManager
     public void RemoveConnection(string id)
     {
         _connections.TryRemove(id, out _);
+        if (_sendLocks.TryRemove(id, out var semaphore))
+            semaphore.Dispose();
         _logger.LogInformation("WebSocket baglanti silindi: {Id} (toplam: {Count})", id, _connections.Count);
     }
 
@@ -46,17 +63,37 @@ public sealed class WebSocketConnectionManager
 
         var deadConnections = new List<string>();
 
-        foreach (var (id, socket) in _connections)
+        // FIX-DEV6-TUR2B: Snapshot prevents InvalidOperationException when
+        // RemoveConnection modifies _connections during iteration.
+        foreach (var (id, socket) in _connections.ToArray())
         {
             try
             {
-                if (socket.State == WebSocketState.Open)
-                {
-                    await socket.SendAsync(segment, WebSocketMessageType.Text, true, ct);
-                }
-                else
+                if (socket.State != WebSocketState.Open)
                 {
                     deadConnections.Add(id);
+                    continue;
+                }
+
+                // FIX-DEV6-TUR2: WebSocket.SendAsync is NOT thread-safe per socket.
+                // Concurrent BroadcastAsync calls must serialize sends per connection.
+                if (!_sendLocks.TryGetValue(id, out var semaphore))
+                {
+                    deadConnections.Add(id);
+                    continue;
+                }
+
+                await semaphore.WaitAsync(ct).ConfigureAwait(false);
+                try
+                {
+                    if (socket.State == WebSocketState.Open)
+                        await socket.SendAsync(segment, WebSocketMessageType.Text, true, ct).ConfigureAwait(false);
+                    else
+                        deadConnections.Add(id);
+                }
+                finally
+                {
+                    semaphore.Release();
                 }
             }
             catch (Exception ex)

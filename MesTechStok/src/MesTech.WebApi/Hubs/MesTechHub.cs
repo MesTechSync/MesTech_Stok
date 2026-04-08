@@ -39,7 +39,7 @@ public class MesTechHub : Hub
             throw new HubException("Tenant group access denied: tenant mismatch");
         }
 
-        await Groups.AddToGroupAsync(Context.ConnectionId, $"tenant-{tenantId}");
+        await Groups.AddToGroupAsync(Context.ConnectionId, $"tenant-{tenantId}").ConfigureAwait(false);
 
         _logger.LogInformation(
             "SignalR client joined tenant group: connectionId={ConnectionId}, tenantId={TenantId}",
@@ -67,12 +67,24 @@ public class MesTechHub : Hub
             throw new HubException("Import group access denied: tenant claim missing");
         }
 
-        // Tenant claim doğrulandı — import group'a erişim güvenli
-        await Groups.AddToGroupAsync(Context.ConnectionId, $"import-{importId}");
+        // Validate importId format — must be valid GUID to prevent group name injection
+        if (!Guid.TryParse(importId, out _))
+        {
+            _logger.LogWarning(
+                "SignalR import group REJECTED: connectionId={ConnectionId}, importId={ImportId} — invalid GUID format",
+                Context.ConnectionId, importId);
+            throw new HubException("Import group access denied: invalid import ID format");
+        }
+
+        // G133 FIX: Tenant-scoped group name — import-{tenantId}-{importId}
+        // A client can only receive events for imports belonging to their own tenant.
+        // SignalRImportProgressReporter broadcasts to the same tenant-scoped group.
+        var tenantScopedGroup = $"import-{claimTenantId}-{importId}";
+        await Groups.AddToGroupAsync(Context.ConnectionId, tenantScopedGroup).ConfigureAwait(false);
 
         _logger.LogInformation(
-            "SignalR client joined import group: connectionId={ConnectionId}, importId={ImportId}, tenant={TenantId}",
-            Context.ConnectionId, importId, claimTenantId);
+            "SignalR client joined import group: connectionId={ConnectionId}, group={Group}, tenant={TenantId}",
+            Context.ConnectionId, tenantScopedGroup, claimTenantId);
     }
 
     /// <summary>
@@ -83,7 +95,13 @@ public class MesTechHub : Hub
         if (string.IsNullOrWhiteSpace(importId))
             return;
 
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"import-{importId}");
+        var claimTenantId = Context.User?.FindFirst("tenant_id")?.Value
+                         ?? Context.User?.FindFirst("tenantId")?.Value;
+        var groupName = !string.IsNullOrWhiteSpace(claimTenantId)
+            ? $"import-{claimTenantId}-{importId}"
+            : $"import-{importId}"; // legacy fallback
+
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName).ConfigureAwait(false);
 
         _logger.LogInformation(
             "SignalR client left import group: connectionId={ConnectionId}, importId={ImportId}",
@@ -98,7 +116,7 @@ public class MesTechHub : Hub
         if (string.IsNullOrWhiteSpace(tenantId))
             return;
 
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"tenant-{tenantId}");
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"tenant-{tenantId}").ConfigureAwait(false);
 
         _logger.LogInformation(
             "SignalR client left tenant group: connectionId={ConnectionId}, tenantId={TenantId}",
@@ -128,7 +146,7 @@ public class MesTechHub : Hub
             category,
             actionUrl,
             timestamp = DateTime.UtcNow
-        });
+        }).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -152,7 +170,7 @@ public class MesTechHub : Hub
             newPrice,
             reason,
             timestamp = DateTime.UtcNow
-        });
+        }).ConfigureAwait(false);
     }
 
     public override async Task OnConnectedAsync()
@@ -161,7 +179,7 @@ public class MesTechHub : Hub
             "SignalR client connected: connectionId={ConnectionId}",
             Context.ConnectionId);
 
-        await base.OnConnectedAsync();
+        await base.OnConnectedAsync().ConfigureAwait(false);
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
@@ -170,6 +188,6 @@ public class MesTechHub : Hub
             "SignalR client disconnected: connectionId={ConnectionId}, error={Error}",
             Context.ConnectionId, exception?.Message);
 
-        await base.OnDisconnectedAsync(exception);
+        await base.OnDisconnectedAsync(exception).ConfigureAwait(false);
     }
 }

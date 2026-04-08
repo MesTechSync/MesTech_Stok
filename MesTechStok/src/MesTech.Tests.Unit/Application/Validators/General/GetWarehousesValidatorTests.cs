@@ -18,5 +18,13 @@ public class GetWarehousesValidatorTests
         result.IsValid.Should().BeTrue();
     }
 
+    [Fact]
+    public async Task DefaultQuery_ShouldProduceNoErrors()
+    {
+        var input = new GetWarehousesQuery();
+        var result = await _sut.ValidateAsync(input);
+        result.Errors.Should().BeEmpty();
+    }
+
     private static GetWarehousesQuery CreateValidQuery() => new();
 }

@@ -54,7 +54,7 @@ public sealed class StockChangedEventHandler
                 "Stok sync tamamlandı — SKU={SKU}, Yeni={New}",
                 evt.SKU, evt.NewQuantity);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex,
                 "Stok sync orchestrator hatası — SKU={SKU}. Platform sync'ler etkilenmiş olabilir.",

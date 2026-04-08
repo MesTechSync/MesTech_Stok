@@ -20,6 +20,7 @@ public sealed class LoginAttempt : BaseEntity, ITenantEntity
         string username, string ipAddress, bool success,
         string? userAgent = null, Guid? tenantId = null)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         return new LoginAttempt
         {
             Username = username,

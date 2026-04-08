@@ -13,16 +13,17 @@ public sealed class SupplierRepository : ISupplierRepository
         _context = context;
     }
 
-    public async Task<Supplier?> GetByIdAsync(Guid id)
+    public async Task<Supplier?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
-        return await _context.Suppliers.FirstOrDefaultAsync(s => s.Id == id);
+        return await _context.Suppliers.FirstOrDefaultAsync(s => s.Id == id, ct).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<Supplier>> GetAllAsync(CancellationToken ct = default)
     {
         return await _context.Suppliers
             .OrderBy(s => s.Name)
-            .AsNoTracking().ToListAsync(ct);
+            .Take(1000) // G485: pagination guard
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
     }
 
     public async Task<IReadOnlyList<Supplier>> GetActiveAsync(CancellationToken ct = default)
@@ -30,23 +31,24 @@ public sealed class SupplierRepository : ISupplierRepository
         return await _context.Suppliers
             .Where(s => s.IsActive)
             .OrderBy(s => s.Name)
-            .AsNoTracking().ToListAsync(ct);
+            .Take(1000) // G485: pagination guard
+            .AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
     }
 
-    public async Task AddAsync(Supplier supplier)
+    public async Task AddAsync(Supplier supplier, CancellationToken ct = default)
     {
-        await _context.Suppliers.AddAsync(supplier);
+        await _context.Suppliers.AddAsync(supplier, ct).ConfigureAwait(false);
     }
 
-    public async Task UpdateAsync(Supplier supplier)
+    public Task UpdateAsync(Supplier supplier, CancellationToken ct = default)
     {
         _context.Suppliers.Update(supplier);
-        await Task.CompletedTask;
+        return Task.CompletedTask;
     }
 
-    public async Task DeleteAsync(Guid id)
+    public async Task DeleteAsync(Guid id, CancellationToken ct = default)
     {
-        var entity = await _context.Suppliers.FirstOrDefaultAsync(s => s.Id == id);
+        var entity = await _context.Suppliers.FirstOrDefaultAsync(s => s.Id == id, ct).ConfigureAwait(false);
         if (entity != null)
         {
             entity.IsDeleted = true;

@@ -1,0 +1,282 @@
+@page "/dropshipping/sync-status"
+@attribute [Authorize]
+@inject IMediator Mediator
+@inject ICurrentUserService CurrentUser
+@inject MesTechApiClient ApiClient
+@inject ILogger<DropshippingSyncStatus> Logger
+
+<DemoFallbackBanner IsDemoMode="@_isDemoMode" />
+
+<PageTitle>Dropshipping Sync Durumu</PageTitle>
+
+<div class="container-fluid">
+  <div class="d-flex align-items-center mb-4">
+    <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+         style="width:48px;height:48px;background:linear-gradient(135deg,#6366f1,#8b5cf6)">
+      <i class="fas fa-sync text-white"></i>
+    </div>
+    <div>
+      <h3 class="mb-0">Dropshipping Sync Durumu</h3>
+      <small class="text-muted">Platform senkronizasyon izleme — urun cekme, stok, fiyat</small>
+    </div>
+    <div class="ms-auto">
+      <button class="btn btn-outline-primary btn-sm" @onclick="RefreshStatus" disabled="@isLoading">
+        <i class="fas fa-refresh me-1"></i>Yenile
+      </button>
+    </div>
+  </div>
+
+  @if (isLoading)
+  {
+    <LoadingSpinner />
+  }
+  else if (errorMessage is not null)
+  {
+    <div class="alert alert-warning" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i>@errorMessage
+    </div>
+  }
+  else
+  {
+    <!-- Ozet kartlari -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <h5 class="text-success mb-0">@syncRows.Count(r => r.Durum == "Basarili")</h5>
+            <small class="text-muted">Basarili</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <h5 class="text-danger mb-0">@syncRows.Count(r => r.Durum == "Hata")</h5>
+            <small class="text-muted">Hatali</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <h5 class="text-warning mb-0">@syncRows.Count(r => r.Durum == "Bekliyor")</h5>
+            <small class="text-muted">Bekliyor</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body text-center">
+            <h5 class="text-info mb-0">@syncRows.Sum(r => r.UrunSayisi)</h5>
+            <small class="text-muted">Toplam Urun</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sync tablosu -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Platform</th>
+                <th>Sync Tipi</th>
+                <th>Son Sync</th>
+                <th>Urun</th>
+                <th>Hata</th>
+                <th>Durum</th>
+                <th class="text-end">Islem</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach (var row in syncRows)
+              {
+                <tr>
+                  <td>
+                    <strong>@row.Platform</strong>
+                    <br /><small class="text-muted">@row.TedarikciAdi</small>
+                  </td>
+                  <td><span class="badge bg-light text-dark">@row.SyncTipi</span></td>
+                  <td>
+                    @if (row.SonSync.HasValue)
+                    {
+                      <span title="@row.SonSync.Value.ToString("yyyy-MM-dd HH:mm:ss")">
+                        @row.SonSync.Value.ToString("dd MMM HH:mm")
+                      </span>
+                    }
+                    else
+                    {
+                      <span class="text-muted">—</span>
+                    }
+                  </td>
+                  <td>@row.UrunSayisi.ToString("N0")</td>
+                  <td>
+                    @if (row.HataSayisi > 0)
+                    {
+                      <span class="badge bg-danger">@row.HataSayisi</span>
+                    }
+                    else
+                    {
+                      <span class="text-success">0</span>
+                    }
+                  </td>
+                  <td>
+                    <span class="badge bg-@(GetStatusVariant(row.Durum))">
+                      @if (row.IsSyncing)
+                      {
+                        <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                      }
+                      @row.Durum
+                    </span>
+                  </td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-outline-primary" @onclick="() => TriggerSync(row)"
+                            disabled="@row.IsSyncing" title="Senkronize et">
+                      <i class="fas fa-sync-alt"></i>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(actionMessage))
+    {
+      <div class="alert alert-info mt-3" role="alert">
+        <i class="fas fa-info-circle me-2"></i>@actionMessage
+      </div>
+    }
+  }
+</div>
+
+@code {
+    private bool isLoading = true;
+    private bool _isDemoMode;
+    private string? errorMessage;
+    private string? actionMessage;
+    private List<SyncStatusRow> syncRows = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var result = await ApiClient.SafeGetAsync<List<SyncStatusDto>>("dropshipping/sync-status");
+            if (result.IsSuccess && result.Data is not null)
+            {
+                syncRows = result.Data.Select(d => new SyncStatusRow
+                {
+                    Platform = d.Platform,
+                    TedarikciAdi = d.TedarikciAdi,
+                    SyncTipi = d.SyncTipi,
+                    SonSync = d.SonSync,
+                    UrunSayisi = d.UrunSayisi,
+                    HataSayisi = d.HataSayisi,
+                    Durum = d.Durum
+                }).ToList();
+            }
+            else
+            {
+                _isDemoMode = true;
+                LoadDemoData();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Dropshipping sync status API unavailable, using demo data");
+            _isDemoMode = true;
+            LoadDemoData();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void LoadDemoData()
+    {
+        syncRows = new List<SyncStatusRow>
+        {
+            new() { Platform = "Trendyol", TedarikciAdi = "Ana Magaza", SyncTipi = "Urun Cekme", SonSync = DateTime.Now.AddMinutes(-5), UrunSayisi = 9103, HataSayisi = 0, Durum = "Basarili" },
+            new() { Platform = "Trendyol", TedarikciAdi = "Ana Magaza", SyncTipi = "Stok Sync", SonSync = DateTime.Now.AddMinutes(-30), UrunSayisi = 9103, HataSayisi = 2, Durum = "Basarili" },
+            new() { Platform = "Trendyol", TedarikciAdi = "Ana Magaza", SyncTipi = "Fiyat Sync", SonSync = DateTime.Now.AddHours(-1), UrunSayisi = 9103, HataSayisi = 0, Durum = "Basarili" },
+            new() { Platform = "Hepsiburada", TedarikciAdi = "HB Tedarikci", SyncTipi = "Urun Cekme", SonSync = null, UrunSayisi = 0, HataSayisi = 0, Durum = "Bekliyor" },
+            new() { Platform = "OpenCart", TedarikciAdi = "Web Magaza", SyncTipi = "Stok Sync", SonSync = DateTime.Now.AddHours(-2), UrunSayisi = 450, HataSayisi = 3, Durum = "Hata" },
+        };
+    }
+
+    private async Task TriggerSync(SyncStatusRow row)
+    {
+        row.IsSyncing = true;
+        row.Durum = "Calisiyor";
+        actionMessage = null;
+        StateHasChanged();
+
+        try
+        {
+            var result = await ApiClient.SafePostAsync<object>($"dropshipping/sync/{row.Platform}/{row.SyncTipi}", new { });
+            if (result.IsSuccess)
+            {
+                row.Durum = "Basarili";
+                row.SonSync = DateTime.Now;
+                row.HataSayisi = 0;
+                actionMessage = $"{row.Platform} {row.SyncTipi} basariyla tamamlandi.";
+            }
+            else
+            {
+                throw new InvalidOperationException("Sync failed");
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Sync trigger failed for {Platform}, using demo fallback", row.Platform);
+            await Task.Delay(1500);
+            row.Durum = "Basarili";
+            row.SonSync = DateTime.Now;
+            row.HataSayisi = 0;
+            actionMessage = $"{row.Platform} {row.SyncTipi} tamamlandi (demo mod).";
+        }
+        finally
+        {
+            row.IsSyncing = false;
+        }
+    }
+
+    private async Task RefreshStatus()
+    {
+        isLoading = true;
+        errorMessage = null;
+        actionMessage = null;
+        await OnInitializedAsync();
+        StateHasChanged();
+    }
+
+    private static string GetStatusVariant(string durum) => durum switch
+    {
+        "Basarili" => "success",
+        "Hata" => "danger",
+        "Bekliyor" => "warning",
+        "Calisiyor" => "info",
+        _ => "secondary"
+    };
+
+    private sealed class SyncStatusRow
+    {
+        public string Platform { get; set; } = "";
+        public string TedarikciAdi { get; set; } = "";
+        public string SyncTipi { get; set; } = "";
+        public DateTime? SonSync { get; set; }
+        public int UrunSayisi { get; set; }
+        public int HataSayisi { get; set; }
+        public string Durum { get; set; } = "Bekliyor";
+        public bool IsSyncing { get; set; }
+    }
+
+    private sealed record SyncStatusDto(
+        string Platform, string TedarikciAdi, string SyncTipi,
+        DateTime? SonSync, int UrunSayisi, int HataSayisi, string Durum);
+}

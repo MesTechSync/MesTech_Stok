@@ -1,5 +1,6 @@
 using MesTech.Domain.Common;
 using MesTech.Domain.Enums;
+using MesTech.Domain.Events;
 
 namespace MesTech.Domain.Entities;
 
@@ -70,6 +71,10 @@ public sealed class Quotation : BaseEntity, ITenantEntity
                 $"Quotation can only be accepted from Sent status. Current status: {Status}.");
 
         Status = QuotationStatus.Accepted;
+
+        RaiseDomainEvent(new QuotationAcceptedEvent(
+            Id, TenantId, QuotationNumber, CustomerId, CustomerName,
+            GrandTotal, Currency, DateTime.UtcNow));
     }
 
     public void Reject()
@@ -79,6 +84,10 @@ public sealed class Quotation : BaseEntity, ITenantEntity
                 $"Quotation can only be rejected from Sent status. Current status: {Status}.");
 
         Status = QuotationStatus.Rejected;
+
+        RaiseDomainEvent(new QuotationRejectedEvent(
+            Id, TenantId, QuotationNumber, CustomerId, CustomerName,
+            GrandTotal, DateTime.UtcNow));
     }
 
     public void MarkAsExpired()
@@ -97,5 +106,9 @@ public sealed class Quotation : BaseEntity, ITenantEntity
 
         Status = QuotationStatus.Converted;
         ConvertedInvoiceId = invoiceId;
+
+        RaiseDomainEvent(new QuotationConvertedEvent(
+            Id, TenantId, QuotationNumber, invoiceId, CustomerId,
+            GrandTotal, DateTime.UtcNow));
     }
 }

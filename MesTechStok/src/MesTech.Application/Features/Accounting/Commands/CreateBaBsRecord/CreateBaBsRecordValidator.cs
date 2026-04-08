@@ -10,7 +10,7 @@ public sealed class CreateBaBsRecordValidator : AbstractValidator<CreateBaBsReco
         RuleFor(x => x.Type).IsInEnum();
         RuleFor(x => x.CounterpartyVkn).NotEmpty().MaximumLength(500);
         RuleFor(x => x.CounterpartyName).NotEmpty().MaximumLength(500);
-        RuleFor(x => x.TotalAmount).GreaterThanOrEqualTo(0);
-        RuleFor(x => x.DocumentCount).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.TotalAmount).GreaterThan(0).WithMessage("BaBs toplam tutar sıfırdan büyük olmalıdır.");
+        RuleFor(x => x.DocumentCount).GreaterThan(0).WithMessage("Belge sayısı sıfırdan büyük olmalıdır.");
     }
 }

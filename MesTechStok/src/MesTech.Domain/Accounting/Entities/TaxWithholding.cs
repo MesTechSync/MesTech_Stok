@@ -26,6 +26,7 @@ public sealed class TaxWithholding : BaseEntity, ITenantEntity
         string taxType,
         Guid? invoiceId = null)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(taxType);
         if (rate < 0 || rate > 1)
             throw new ArgumentOutOfRangeException(nameof(rate), "Rate must be between 0 and 1.");

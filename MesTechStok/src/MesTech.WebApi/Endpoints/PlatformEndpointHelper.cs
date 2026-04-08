@@ -5,8 +5,8 @@ using MesTech.Domain.Enums;
 namespace MesTech.WebApi.Endpoints;
 
 /// <summary>
-/// Generic platform endpoint helper — DRY: 15 platform × 4 endpoint = 1 helper.
-/// products/categories/connection/sync — tum platformlar icin standart endpoint seti.
+/// Generic platform endpoint helper — DRY: 15 platform × 5 endpoint = 1 helper.
+/// products/categories/connection/sync/reviews — tum platformlar icin standart endpoint seti.
 /// </summary>
 public static class PlatformEndpointHelper
 {
@@ -50,7 +50,7 @@ public static class PlatformEndpointHelper
         .WithName($"Get{displayName.Replace(" ", "")}Categories")
         .WithSummary($"{displayName} kategori listesi")
         .Produces(200).ProducesProblem(503)
-        .CacheOutput("Lookup60s");
+        .CacheOutput("Catalog300s");
 
         group.MapGet("/connection", async (IAdapterFactory f, CancellationToken ct) =>
         {
@@ -79,6 +79,27 @@ public static class PlatformEndpointHelper
         .WithSummary($"{displayName} tam senkronizasyon tetikle")
         .AddEndpointFilter<Filters.IdempotencyFilter>()
         .Produces(200).Produces(400);
+
+        // GET /api/v1/{route}/reviews — platform urun degerlendirmeleri (IReviewCapableAdapter)
+        group.MapGet("/reviews", async (
+            IAdapterFactory f,
+            int page,
+            int size,
+            CancellationToken ct) =>
+        {
+            var adapter = f.ResolveCapability<IReviewCapableAdapter>(platformCode);
+            if (adapter is null)
+                return Results.Problem(
+                    detail: $"{displayName} review desteklemiyor (IReviewCapableAdapter yok).",
+                    statusCode: 501);
+
+            var reviews = await adapter.GetProductReviewsAsync(page, size, ct);
+            return Results.Ok(new PlatformReviewsResponse(displayName, reviews.Count, reviews));
+        })
+        .WithName($"Get{displayName.Replace(" ", "")}Reviews")
+        .WithSummary($"{displayName} urun degerlendirmeleri — sayfalama destekli")
+        .Produces<PlatformReviewsResponse>(200)
+        .ProducesProblem(501);
     }
 
     // ── Typed Response DTOs — Swagger contract stability ──
@@ -88,4 +109,5 @@ public static class PlatformEndpointHelper
     public sealed record PlatformConnectionResponse(
         string Platform, bool IsConnected, string? StoreName,
         int? ProductCount, string? ErrorMessage, double ResponseTimeMs);
+    public sealed record PlatformReviewsResponse(string Platform, int Count, object Reviews);
 }

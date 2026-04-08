@@ -81,11 +81,12 @@ public class CreateDealValidatorTests
     }
 
     [Fact]
-    public async Task ZeroAmount_ShouldPass()
+    public async Task ZeroAmount_ShouldFail()
     {
         var cmd = CreateValidCommand() with { Amount = 0 };
         var result = await _sut.ValidateAsync(cmd);
-        result.IsValid.Should().BeTrue();
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().Contain(e => e.PropertyName == "Amount");
     }
 
     private static CreateDealCommand CreateValidCommand() => new(

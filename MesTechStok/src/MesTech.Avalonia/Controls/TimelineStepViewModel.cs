@@ -1,30 +1,33 @@
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Media;
 
 namespace MesTech.Avalonia.Controls;
 
 public class TimelineStepViewModel
 {
+    private static Color T(string key) =>
+        global::Avalonia.Application.Current?.Resources.TryGetResource(key, null, out var val) == true && val is Color c ? c : Colors.Gray;
+
     public string StepTitle { get; set; } = "";
     public DateTime? CompletedAt { get; set; }
     public bool IsCompleted => CompletedAt.HasValue;
     public bool IsCurrent { get; set; }
     public bool IsLastStep { get; set; }
 
-    public string DateTimeText => CompletedAt?.ToString("dd.MM HH:mm") ?? "—";
+    public string DateTimeText => CompletedAt?.ToString("dd.MM HH:mm") ?? "-";
     public FontWeight TitleWeight => IsCurrent ? FontWeight.Bold : FontWeight.Normal;
 
     public ISolidColorBrush StepColor => IsCompleted
-        ? new SolidColorBrush(Color.Parse("#4CAF50"))
-        : IsCurrent ? new SolidColorBrush(Color.Parse("#2196F3")) : new SolidColorBrush(Colors.Transparent);
+        ? new SolidColorBrush(T("MesConnectedGreen"))
+        : IsCurrent ? new SolidColorBrush(T("MesTimelineActive")) : new SolidColorBrush(Colors.Transparent);
 
     public ISolidColorBrush StepBorderColor => IsCompleted
-        ? new SolidColorBrush(Color.Parse("#4CAF50"))
-        : IsCurrent ? new SolidColorBrush(Color.Parse("#2196F3")) : new SolidColorBrush(Color.Parse("#BDBDBD"));
+        ? new SolidColorBrush(T("MesConnectedGreen"))
+        : IsCurrent ? new SolidColorBrush(T("MesTimelineActive")) : new SolidColorBrush(T("MesTimelineInactive"));
 
     public ISolidColorBrush LineColor => IsCompleted
-        ? new SolidColorBrush(Color.Parse("#4CAF50")) : new SolidColorBrush(Color.Parse("#E0E0E0"));
+        ? new SolidColorBrush(T("MesConnectedGreen")) : new SolidColorBrush(T("MesTimelineTrack"));
 
     public ISolidColorBrush TitleColor => IsCompleted || IsCurrent
-        ? new SolidColorBrush(Color.Parse("#212121")) : new SolidColorBrush(Color.Parse("#9E9E9E"));
+        ? new SolidColorBrush(T("MesTimelineText")) : new SolidColorBrush(T("MesNeutralGray"));
 }

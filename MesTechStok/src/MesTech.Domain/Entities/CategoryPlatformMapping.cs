@@ -27,6 +27,14 @@ public sealed class CategoryPlatformMapping : BaseEntity, ITenantEntity
     public bool IsActive { get; set; } = true;
     public string? Notes { get; set; }
 
+    /// <summary>
+    /// Platform kategori attribute'lari JSON cache — GetCategoryAttributesAsync sonucu.
+    /// Format: serialized List&lt;CategoryAttributeDto&gt; (attributeId, name, required, values[]).
+    /// Cache suresi: 24 saat (AttributesCachedAt ile kontrol edilir).
+    /// </summary>
+    public string? CachedAttributesJson { get; set; }
+    public DateTime? AttributesCachedAt { get; set; }
+
     // Navigation
     public Category Category { get; set; } = null!;
     public Store Store { get; set; } = null!;
@@ -42,6 +50,11 @@ public sealed class CategoryPlatformMapping : BaseEntity, ITenantEntity
         bool isAutoMapped = false,
         decimal? matchConfidence = null)
     {
+        if (categoryId == Guid.Empty)
+            throw new ArgumentException("CategoryId is required.", nameof(categoryId));
+        if (storeId == Guid.Empty)
+            throw new ArgumentException("StoreId is required.", nameof(storeId));
+
         return new CategoryPlatformMapping
         {
             CategoryId = categoryId,

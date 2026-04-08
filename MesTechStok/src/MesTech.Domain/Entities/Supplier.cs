@@ -84,6 +84,7 @@ public sealed class Supplier : BaseEntity, ITenantEntity
 
     public static Supplier Create(Guid tenantId, string name, string code, string? email = null, string? phone = null)
     {
+        if (tenantId == Guid.Empty) throw new ArgumentException("TenantId boş olamaz.", nameof(tenantId));
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentException.ThrowIfNullOrWhiteSpace(code);
 

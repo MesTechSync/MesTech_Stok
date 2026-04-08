@@ -215,7 +215,7 @@ public class FullMonthE2ETests : IClassFixture<PostgreSqlContainerFixture>, IAsy
             _context.StockMovements.Add(movement);
 
             // Ürün stok seviyesini güncelle
-            product.Stock = InitialStockPerProduct;
+            product.SyncStock(InitialStockPerProduct, "test-seed");
         }
         await _context.SaveChangesAsync();
 

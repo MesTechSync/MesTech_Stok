@@ -66,7 +66,7 @@ public class SimpleSoapClientTests
     // ── SendAsync ──
 
     [Fact]
-    public async Task SendAsync_WhenResponseIsValid_ReturnsParsedBodyElement()
+    public async Task SendAsync_ValidResponse_ReturnsParsedBodyElement()
     {
         var responseXml = BuildSoapResponse("<TestResponse><Value>42</Value></TestResponse>");
         var httpClient = BuildHttpClient(new HttpResponseMessage(HttpStatusCode.OK)
@@ -83,7 +83,7 @@ public class SimpleSoapClientTests
     }
 
     [Fact]
-    public async Task SendAsync_WhenStatusIsNot2xx_ThrowsHttpRequestException()
+    public async Task SendAsync_Non2xxStatus_ThrowsHttpRequestException()
     {
         // Use 400 BadRequest to avoid Polly retry delays (Polly only retries >= 500 and 429)
         var httpClient = BuildHttpClient(new HttpResponseMessage(HttpStatusCode.BadRequest)
@@ -99,7 +99,7 @@ public class SimpleSoapClientTests
     }
 
     [Fact]
-    public async Task SendAsync_WhenBodyElementIsMissing_ThrowsInvalidOperationException()
+    public async Task SendAsync_MissingBodyElement_ThrowsInvalidOperationException()
     {
         // Response has no soapenv:Body
         const string malformed = """
@@ -142,7 +142,7 @@ public class SimpleSoapClientTests
     }
 
     [Fact]
-    public void ThrowIfFault_WhenNoFaultExists_DoesNotThrow()
+    public void ThrowIfFault_NoFaultExists_DoesNotThrow()
     {
         const string cleanXml = "<TestResponse><Value>OK</Value></TestResponse>";
         var body = XElement.Parse(cleanXml);
